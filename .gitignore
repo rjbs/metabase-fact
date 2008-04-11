@@ -1,0 +1,13 @@
+eg/*
+Makefile
+Makefile.old
+MANIFEST.bak
+cover_db/*
+META.yml
+inc/*
+blib/*
+pm_to_blib
+META.yml
+MANIFEST
+!MANIFEST.SKIP
+inc
