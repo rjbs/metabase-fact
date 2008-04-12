@@ -5,6 +5,7 @@
 # copy of the License from http://dev.perl.org/licenses/
 
 package CPAN::Metabase::Fact;
+use 5.006;
 use strict;
 use warnings;
 use Params::Validate ();
@@ -173,7 +174,7 @@ existing test-file that illustrates the bug or desired feature.
  Portions copyright (c) 2008 by David A. Golden
  Portions copyright (c) 2008 by Ricardo J. B. Signes
 
-Licensed under terms of Perl itself (the "License").
+Licensed under the same terms as Perl itself (the "License").
 You may not use this file except in compliance with the License.
 A copy of the License was distributed with this file or you may obtain a 
 copy of the License from http://dev.perl.org/licenses/
