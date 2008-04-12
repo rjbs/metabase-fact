@@ -8,8 +8,6 @@ package CPAN::Metabase::Fact;
 use strict;
 use warnings;
 use Params::Validate ();
-use Data::GUID ();
-use CPAN::DistnameInfo ();
 use Carp ();
 
 our $VERSION = '0.001';
@@ -18,8 +16,8 @@ $VERSION = eval $VERSION; # convert '1.23_45' to 1.2345
 my (@new_requires, @submit_requires, @generated_vars, @class_methods);
 BEGIN { 
     @new_requires       = qw/dist_author dist_file content/;
-    @submit_requires    = qw/user_id/;
-    @generated_vars     = qw/guid dist_name dist_version/;
+    @submit_requires    = qw/guid user_id/;
+    @generated_vars     = qw/dist_name dist_version/;
     @class_methods      = qw/type schema_version/;
 
     no strict 'refs';
@@ -43,13 +41,6 @@ sub new {
     if ($@) {
         Carp::confess( "$class object content invalid: $@" );
     }
-
-    # add metadata
-    my $dist_info = CPAN::DistnameInfo->new(
-        uc($self->dist_author) . "/" . $self->dist_file
-    );
-    $self->{dist_name} = $dist_info->dist;
-    $self->{dist_version} = $dist_info->version;
 
     return $self;
 }
@@ -78,9 +69,6 @@ sub mark_submitted {
     for my $k ( @submit_requires ) {
         $self->{$k} = $args{$k};
     }
-
-    # set GUID -- this is the only time this should happen
-    $self->{guid} = Data::GUID->new;
 }
 
 
@@ -158,10 +146,6 @@ anything else for which datatypes are constructed.
 CPAN::Metabase::Fact is a base class for facts (really opinions or analyses)
 that can be sent to or retrieved from a CPAN::Metabase system.
 
-=head1 DESCRIPTION
-
-Description...
-
 =head1 USAGE
 
 Usage...
@@ -179,13 +163,9 @@ existing test-file that illustrates the bug or desired feature.
 
 =over 
 
-=item *
+=item * David A. Golden (DAGOLDEN)
 
-David A. Golden (DAGOLDEN)
-
-=item *
-
-Ricardo J. B. Signes (RJBS)
+=item * Ricardo J. B. Signes (RJBS)
 
 =back
 
