@@ -71,5 +71,9 @@ is( ref $obj, 'CPAN::Metabase::Fact::TestFact', "object created with correct typ
 lives_ok{ $obj = CPAN::Metabase::Fact::TestFact->new( %$args ) } 
     "new( <list> ) doesn't die";
 
-is( ref $obj, 'CPAN::Metabase::Fact::TestFact', "object created with correct type" );
+is(
+  ref $obj,
+  'CPAN::Metabase::Fact::TestFact',
+  "object created with correct class"
+);
 

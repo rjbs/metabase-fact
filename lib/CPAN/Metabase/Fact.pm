@@ -57,7 +57,8 @@ sub mark_submitted {
     
     # need certain vars to be set
     my %args = Params::Validate::validate( @args, { 
-        map { $_ => 1 } @submit_requires, 
+        guid => { isa => 'Data::GUID', optional => 0 },
+        (map { $_ => 1 } grep { $_ ne 'guid' } @submit_requires), 
     });
 
     # only mark once
