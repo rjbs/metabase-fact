@@ -13,15 +13,14 @@ use Carp ();
 our $VERSION = '0.001';
 $VERSION = eval $VERSION; # convert '1.23_45' to 1.2345
 
-my (@new_requires, @submit_requires, @generated_vars, @class_methods);
+my (@new_requires, @submit_requires, @class_methods);
 BEGIN { 
     @new_requires       = qw/dist_author dist_file content/;
-    @submit_requires    = qw/guid user_id/;
-    @generated_vars     = qw/dist_name dist_version/;
+    @submit_requires    = qw/guid user_id dist_name dist_version/;
     @class_methods      = qw/type schema_version/;
 
     no strict 'refs';
-    for my $s (@new_requires, @submit_requires, @generated_vars) {
+    for my $s (@new_requires, @submit_requires) {
         *$s = sub { $_[0]->{$s} };
     }
 }
@@ -31,7 +30,7 @@ sub new {
 
     my %args = Params::Validate::validate( @args, { 
         ( map { $_ => 1 } @new_requires ), 
-        ( map { $_ => 0 } @submit_requires, @generated_vars ),
+        ( map { $_ => 0 } @submit_requires ),
     });
     
     # create and check
