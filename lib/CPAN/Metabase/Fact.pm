@@ -12,7 +12,7 @@ use Data::GUID ();
 use CPAN::DistnameInfo ();
 use Carp ();
 
-our $VERSION = '0.01';
+our $VERSION = '0.001';
 $VERSION = eval $VERSION; # convert '1.23_45' to 1.2345
 
 my (@new_requires, @submit_requires, @generated_vars, @class_methods);
@@ -21,9 +21,12 @@ BEGIN {
     @submit_requires    = qw/user_id/;
     @generated_vars     = qw/guid dist_name dist_version/;
     @class_methods      = qw/type schema_version/;
-}
 
-use Object::Tiny @new_requires, @submit_requires, @generated_vars;
+    no strict 'refs';
+    for my $s (@new_requires, @submit_requires, @generated_vars) {
+        *$s = sub { $_[0]->{$s} };
+    }
+}
 
 sub new {
     my ($class, @args) = @_;
@@ -128,28 +131,32 @@ sub validate_content {
 
 __END__
 
-=pod
-
 =head1 NAME
 
-CPAN::Metabase::Fact - Abstract base class for CPAN::Metabase facts
+CPAN::Metabase::Fact - a fact in or for a CPAN metabase
 
 =head1 SYNOPSIS
 
- package CPAN::Metabase::Fact::Custom;
- use base 'CPAN::Metabase::Fact';
+  my $fact = TestReport->new({
+    dist_author => 'RJBS',
+    dist_file   => 'CPAN-Metabase-Fact-0.001.tar.gz',
+    content     => {
+      status => 'FAIL',
+      time   => 3029,
+    },
+  });
 
- sub type { return 'web-query-type-string' }
+  $client->send_fact($fact);
 
- sub as_string { 
-     # implementation goes here
- }
+=head1 DESCRIPTION
 
- sub from-string {
-     # implementation goes here
- }
- 
- 1;
+L<CPAN::Metabase|CPAN::Metabase> is a system for associating metadata with CPAN
+distributions.  The metabase can be used to store test reports, reviews,
+coverage analysis reports, reports on static analysis of coding style, or
+anything else for which datatypes are constructed.
+
+CPAN::Metabase::Fact is a base class for facts (really opinions or analyses)
+that can be sent to or retrieved from a CPAN::Metabase system.
 
 =head1 DESCRIPTION
 
@@ -163,7 +170,7 @@ Usage...
 
 Please report any bugs or feature using the CPAN Request Tracker.  
 Bugs can be submitted through the web interface at 
-L<http://rt.cpan.org/Dist/Display.html?Queue=CPAN-Metabase>
+L<http://rt.cpan.org/Dist/Display.html?Queue=CPAN-Metabase-Fact>
 
 When submitting a bug or request, please include a test-file or a patch to an
 existing test-file that illustrates the bug or desired feature.
