@@ -46,6 +46,51 @@ sub content_from_string {
   Carp::confess "content_from_string() not implemented by " . ref $self;
 }
 
+#--------------------------------------------------------------------------#
+# methods
+#--------------------------------------------------------------------------#
+
+# adapted from Fact::new() -- must keep in sync
+# content field is optional -- should other fields be optional at this
+# stage?  Maybe we shouldn't let any fields be optional
+
+sub open {
+  my ($class, @args) = @_;
+  
+  my %args = Params::Validate::validate( @args, { 
+      ( map { $_ => 1 } qw/dist_author dist_file/ ), 
+      ( map { $_ => 0 } qw/content/ ),
+    }
+  );
+
+  # create and check
+  my $self = bless \%args, $class;
+
+  return $self;
+}
+
+sub add {
+  my ($self, $fact_class, @args ) = @_;
+  my $fact = $fact_class->new( 
+    dist_author => $self->dist_author,
+    dist_file => $self->dist_file,
+    @args
+  );
+  push @{$self->{content}}, $fact;
+  return $self;
+}
+
+# close just validates -- otherwise unnecessary
+sub close {
+  my ($self) = @_;
+  my $class = ref $self;
+  eval { $self->validate_content( $self->content ) };
+  if ($@) {
+    Carp::confess( "$class object content invalid: $@" );
+  }
+  return $self;
+}
+
 sub validate_content {
   my ($self, $content) = @_;
   my $spec = $self->report_spec;
@@ -68,18 +113,18 @@ sub validate_content {
     }
     if ( $exact ) {
       die "expected $minimum of $k, but found $found\n"
-        if $found != $minimum;
+      if $found != $minimum;
     }
     else {
       die "expected at least $minimum of $k, but found $found\n"
-        if $found < $minimum;
+      if $found < $minimum;
     }
   }
 
   # any facts that didn't match anything?
   my $unmatched = grep { ! $_ } @fact_matched;
   die "$unmatched fact(s) not in the spec\n" 
-    if $unmatched;
+  if $unmatched;
 
   return;
 }

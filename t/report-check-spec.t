@@ -19,61 +19,20 @@ require_ok( 'CPAN::Metabase::Fact::TestFact' );
 # fixtures
 #--------------------------------------------------------------------------#    
 
-my ($obj, $err);
+require t::lib::ReportSubclasses;
+require t::lib::FactSubclasses;
 
 my %params = (
     dist_author => "JOHNDOE",
     dist_file => "Foo-Bar-1.23.tar.gz",
 );
 
-#--------------------------------------------------------------------------#
-# create some test facts
-#--------------------------------------------------------------------------#
-
-package FactOne;
-our @ISA = ('CPAN::Metabase::Fact::TestFact');
-
-package FactTwo;
-our @ISA = ('CPAN::Metabase::Fact::TestFact');
-
-package main;
-
 my %facts = (
     FactOne     => FactOne->new( %params, content => "FactOne" ),
     FactTwo     => FactTwo->new( %params, content => "FactTwo" ),
 );
 
-#--------------------------------------------------------------------------#
-# define some test reports
-#--------------------------------------------------------------------------#
-
-package JustOneFact;
-our @ISA = ('CPAN::Metabase::Report');
-sub report_spec { return {'CPAN::Metabase::Fact' => 1} }
-
-package OneOrMoreFacts;
-our @ISA = ('CPAN::Metabase::Report');
-sub report_spec { return {'CPAN::Metabase::Fact' => '1+'} }
-
-package OneOfEach;
-our @ISA = ('CPAN::Metabase::Report');
-sub report_spec { 
-  return {
-    'FactOne' => '1',
-    'FactTwo' => '1',
-  }
-}
-
-package OneSpecificAtLeastThreeTotal;
-our @ISA = ('CPAN::Metabase::Report');
-sub report_spec { 
-  return {
-    'FactOne' => '1',
-    'CPAN::Metabase::Fact' => '3',
-  }
-}
-
-package main;
+my ($obj, $err);
 
 #--------------------------------------------------------------------------#
 # report that takes 1 fact
