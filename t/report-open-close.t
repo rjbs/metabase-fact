@@ -10,7 +10,7 @@ use warnings;
 use Test::More;
 use Test::Exception;
 
-plan tests => 9;
+plan tests => 14;
 
 require_ok( 'CPAN::Metabase::Report' );
 require_ok( 'CPAN::Metabase::Fact::TestFact' );
@@ -60,5 +60,28 @@ lives_ok {
 
 lives_ok {
     $obj->close;
-} "lives: close()"
+} "lives: close()";
+
+#--------------------------------------------------------------------------#
+# errors
+#--------------------------------------------------------------------------#
+
+lives_ok { 
+  $obj = JustOneFact->open( %params )
+} "lives: open() given no facts";
+
+isa_ok( $obj, 'JustOneFact' );
+
+lives_ok {
+  $obj->add( 'FactOne', content => 'FactOne' );
+} "lives: add( 'Class', content => 'foo' )";
+
+lives_ok {
+  $obj->add( 'FactTwo', content => 'FactTwo' );
+} "lives: add( 'Class2', content => 'foo' )";
+
+throws_ok {
+    $obj->close;
+} qr/content invalid/, "dies: close() with two facts";
+
 
