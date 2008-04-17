@@ -10,7 +10,7 @@ use warnings;
 use Test::More;
 use Test::Exception;
 
-plan tests => 9;
+plan tests => 8;
 
 require_ok( 'CPAN::Metabase::Report' );
 require_ok( 'CPAN::Metabase::Fact::TestFact' );
@@ -23,13 +23,13 @@ require t::lib::ReportSubclasses;
 require t::lib::FactSubclasses;
 
 my %params = (
-    dist_author => "JOHNDOE",
-    dist_file => "Foo-Bar-1.23.tar.gz",
+  dist_author => "JOHNDOE",
+  dist_file => "Foo-Bar-1.23.tar.gz",
 );
 
 my %facts = (
-    FactOne     => FactOne->new( %params, content => "FactOne" ),
-    FactTwo     => FactTwo->new( %params, content => "FactTwo" ),
+  FactOne     => FactOne->new( %params, content => "FactOne" ),
+  FactTwo     => FactTwo->new( %params, content => "FactTwo" ),
 );
 
 my ($obj, $err);
@@ -37,16 +37,6 @@ my ($obj, $err);
 #--------------------------------------------------------------------------#
 # report that takes 1 fact
 #--------------------------------------------------------------------------#
-
-lives_ok { 
-  $obj = JustOneFact->open( %params, content => [ $facts{FactOne} ] );
-} "lives: open() given 1 fact";
-
-isa_ok( $obj, 'JustOneFact' );
-
-lives_ok {
-  $obj->close;
-} "lives: close()";
 
 lives_ok { 
   $obj = JustOneFact->open( %params )
@@ -59,6 +49,29 @@ lives_ok {
 } "lives: add( 'Class', content => 'foo' )";
 
 lives_ok {
-    $obj->close;
+  $obj->close;
 } "lives: close()";
+
+#--------------------------------------------------------------------------#
+# stringify round trip
+#--------------------------------------------------------------------------#
+
+my $meta = $obj->core_meta;
+my $content = $obj->content_as_string;
+
+my $class = $meta->{type};
+$class =~ s{-}{::}g;
+
+my $obj2;
+lives_ok {
+  $obj2 = $class->new( 
+    %$meta, content => $class->content_from_string( $content ) 
+  );
+} "lives: new object with roundtrip content";
+
+is( $obj->content->[0]->content, 
+    $obj2->content->[0]->content, 
+    "obj1 content eq obj2 content" 
+);
+
 

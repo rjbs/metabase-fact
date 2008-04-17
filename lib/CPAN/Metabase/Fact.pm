@@ -14,7 +14,7 @@ use Carp ();
 our $VERSION = '0.001';
 $VERSION = eval $VERSION; # convert '1.23_45' to 1.2345
 
-my (@new_requires, @submit_requires, @class_methods);
+my (@new_requires, @submit_requires, @class_methods, @core_meta);
 BEGIN { 
     @new_requires       = qw/dist_author dist_file content/;
     @submit_requires    = qw/guid user_id dist_name dist_version/;
@@ -31,7 +31,7 @@ sub new {
 
     my %args = Params::Validate::validate( @args, { 
         ( map { $_ => 1 } @new_requires ), 
-        ( map { $_ => 0 } @submit_requires ),
+        ( map { $_ => 0 } @submit_requires, @class_methods ),
     });
     
     # create and check
@@ -77,6 +77,17 @@ sub type {
     my $self = shift;
     my $class = ref($self) ? ref($self) : $self;
     return $self->class_to_type( $class );
+}
+
+sub core_meta {
+  my $self = shift;
+  my %meta = (
+    dist_author => $self->{dist_author},
+    dist_file => $self->{dist_file},
+    type => $self->type,
+    schema_version => $self->schema_version,
+  );
+  return \%meta;
 }
 
 #--------------------------------------------------------------------------#

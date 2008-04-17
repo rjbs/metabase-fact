@@ -33,17 +33,30 @@ sub report_spec {
 
 sub content_as_string { 
   my $self = shift;
-  Carp::confess "content_as_string() not implemented by " . ref $self;
-#  my $json = JSON::XS->new;
-#  my $clone = { %$self };
-#    for my $fact ( @[ $clone->content ] ){
-#        $fact = $json->allow_blessed->
-#    }
+  my $json = JSON::XS->new;
+  my @content = map { [ $_->type, $_->content_as_string] } @{ $self->content };
+  return $json->encode({
+      dist_author => $self->dist_author,
+      dist_file   => $self->dist_file,
+      content     => \@content
+  });
 }
 
 sub content_from_string { 
-  my $self = shift;
-  Carp::confess "content_from_string() not implemented by " . ref $self;
+  my ($self, $string) = @_;
+  my $class = ref $self ? ref $self : $self;
+  my $json = JSON::XS->new;
+  my $data = $json->decode( $string );
+  my @content;
+  for my $f ( @{ $data->{content} } ) {
+    my ($class, $content_string) = @$f;
+    push @content, $class->new(
+      dist_author => $data->{dist_author},
+      dist_file   => $data->{dist_file},
+      content     => $class->content_from_string( $content_string ),
+    );
+  }
+  return \@content;
 }
 
 #--------------------------------------------------------------------------#
