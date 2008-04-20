@@ -54,11 +54,9 @@ sub new {
     my %args = Params::Validate::validate( @args, { 
         id => 1, content => 1, refers_to => 0 } 
     );
-    
-    # default/generated attributes
-    $args{type}       = $class->type;
-    $args{version}    = $class->schema_version;
-    $args{refers_to}  ||= 'distribution';  # XXX for future 'author', 'module'
+    # default for optional argument
+    # XXX for future 'author', 'module' -- DG 04/20/08
+    $args{refers_to}  ||= 'distribution';  
 
     my $self = bless \%args, $class;
 
@@ -66,6 +64,11 @@ sub new {
     if ($@) {
         Carp::confess( "$class object content invalid: $@" );
     }
+
+    # generated attributes
+    $self->type( $class->type );
+    $self->version( $class->schema_version );
+    $self->content_meta( $self->meta_from_content );
 
     return $self;
 }

@@ -25,4 +25,10 @@ sub validate_content {
   die "must be a hashref" unless ref $self->content eq 'HASH';
 }
 
+sub meta_from_content {
+  my ($self) = @_;
+
+  return { requires => [ keys %{ $self->content } ] };
+}
+
 1;

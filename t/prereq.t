@@ -5,7 +5,7 @@ use Test::More;
 use Test::Exception;
 use JSON::XS;
 
-plan tests => 9; 
+plan tests => 10; 
 
 my $PA = 'CPAN::Metabase::Fact::PrereqAnalysis';
 
@@ -51,5 +51,11 @@ sub new_pa {
   ok( $clone, "freeze -> thaw" );
   isa_ok( $clone, $PA );
   is_deeply( $clone, $fact, "thawed clone matches original" );
+
+  my $content_meta = {
+    requires => [ keys %$sample_content ],
+  };
+
+  is_deeply( $fact->content_meta, $content_meta, "content_meta correct" );
 
 }
