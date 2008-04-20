@@ -3,20 +3,19 @@ use warnings;
 package CPAN::Metabase::Fact::PrereqAnalysis;
 use base 'CPAN::Metabase::Fact';
 
-use YAML::XS ();
+use JSON::XS ();
 
-# XXX: remove this after merging with dagolden -- rjbs, 2008-04-08
-sub type { 'CPAN-Metabase-Fact-PrereqAnalysis' }
+my $json = JSON::XS->new();
 
 sub content_as_string {
   my ($self) = @_;
-  return YAML::XS::Dump($self->content);
+  return $json->encode($self->content);
 }
 
 sub content_from_string {
   my ($self, $string) = @_;
 
-  YAML::XS::Load($string);
+  $json->decode($string);
 }
 
 sub validate_content {

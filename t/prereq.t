@@ -3,7 +3,7 @@ use warnings;
 
 use Test::More 'no_plan';
 use Test::Exception;
-use YAML::XS;
+use JSON::XS;
 
 my $PA = 'CPAN::Metabase::Fact::PrereqAnalysis';
 
@@ -16,20 +16,11 @@ my $sample_content = {
   'Physics::Pata' => '0.1_02',
 };
 
-my $sample_string = <<'END_YAML';
----
-Meta::Meta: '0.001'
-Mecha::Meta: '1.234'
-Physics::Meta: '9.1.12'
-Physics::Pata: '0.1_02'
-END_YAML
-
 sub new_pa {
   my ($content) = @_;
 
   return $PA->new({
-    dist_file   => 'Test-Meta-1.00.tar.gz',
-    dist_author => 'OPRIME',
+    id   => 'OPRIME/Test-Meta-1.00.tar.gz',
     content     => $content,
   });
 }
@@ -44,12 +35,12 @@ sub new_pa {
   # Some sanity checking.
   isa_ok($fact, $PA, 'constructed fact');
   is_deeply($fact->content, $sample_content, "content matches");
-  is($fact->dist_author, 'OPRIME', "dist author matches");
+  is($fact->id, 'OPRIME/Test-Meta-1.00.tar.gz', "dist id matches");
 
   my $string = $fact->content_as_string;
 
   is_deeply(
-    YAML::XS::Load($string),
+    JSON::XS->new->decode($string),
     $sample_content,
     "stringified version reconstitutes to original structure",
   );
