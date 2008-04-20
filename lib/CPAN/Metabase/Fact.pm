@@ -9,30 +9,28 @@ use 5.006;
 use strict;
 use warnings;
 use Params::Validate ();
+use JSON::XS ();
 use Carp ();
 
 our $VERSION = '0.001';
 $VERSION = eval $VERSION; # convert '1.23_45' to 1.2345
 
-my (@new_requires, @submit_requires, @class_methods);
-BEGIN { 
-    @new_requires       = qw/dist_author dist_file content/;
-    @submit_requires    = qw/guid user_id dist_name dist_version/;
-    @class_methods      = qw/type schema_version/;
-
-    no strict 'refs';
-    for my $s (@new_requires, @submit_requires) {
-        *$s = sub { $_[0]->{$s} };
-    }
+{ 
+  my @accessors    = qw/id guid content index_meta content_meta/;
+  no strict 'refs';
+  for my $s (@accessors) {
+      *$s = sub { $_[0]->{$s} = $_[1] if $_[1]; $_[0]->{$s} };
+  }
 }
+
+#--------------------------------------------------------------------------#
+# methods
+#--------------------------------------------------------------------------#
 
 sub new {
     my ($class, @args) = @_;
 
-    my %args = Params::Validate::validate( @args, { 
-        ( map { $_ => 1 } @new_requires ), 
-        ( map { $_ => 0 } @submit_requires ),
-    });
+    my %args = Params::Validate::validate( @args, { id => 1, content => 1 } );
     
     # create and check
     my $self = bless \%args, $class;
@@ -48,54 +46,39 @@ sub new {
 # check if it has both a user_id and a guid
 sub is_submitted {
     my ($self) = @_;
-    return defined $self->guid && defined $self->user_id;
+    return defined $self->guid && defined $self->index_meta;
 }
-
-# record submission, but only once
-sub mark_submitted {
-    my ($self, @args) = @_;
-    
-    # need certain vars to be set
-    my %args = Params::Validate::validate( @args, { 
-        guid => { isa => 'Data::GUID', optional => 0 },
-        (map { $_ => 1 } grep { $_ ne 'guid' } @submit_requires), 
-    });
-
-    # only mark once
-    if ( $self->is_submitted ) {
-        Carp::confess( "submission data can't be changed once set" );
-    }
-
-    # set submission vars
-    for my $k ( @submit_requires ) {
-        $self->{$k} = $args{$k};
-    }
-}
-
 
 sub type {
     my $self = shift;
     my $class = ref($self) ? ref($self) : $self;
-    return $self->class_to_type( $class );
-}
-
-#--------------------------------------------------------------------------#
-# class methods
-#--------------------------------------------------------------------------#
-
-sub schema_version { 1 }
-
-sub class_to_type {
-    my ($self, $class) = @_;
+#    return $self->class_to_type( $class );
     $class =~ s{::}{-}g;
     return $class;
 }
 
-sub type_to_class {
-    my ($self, $type) = @_;
-    $type =~ s{-}{::}g;
-    return $type;
+sub freeze {
+  my ($self) = @_;
+  local $self->{content}; 
+  $self->{content} = $self->content_as_string;
+  my $json = JSON::XS->new();
+  return $json->encode($self->content);
 }
+
+sub thaw {
+  my ($class, $data) = @_;
+  my $json = JSON::XS->new();
+  my $self = $json->decode($data);
+  $self->{content} = $self->content_from_string( $data ) ;
+  return $self
+}
+
+#--------------------------------------------------------------------------#
+# default methods -- may be overridden by subclass
+#--------------------------------------------------------------------------#
+
+# denotes the schema of the ocntent
+sub schema_version { 1 }
 
 #--------------------------------------------------------------------------#
 # fatal stubs

@@ -13,7 +13,7 @@ use Test::Exception;
 use lib 't/lib';
 use CPAN::Metabase::Fact::TestFact;
 
-plan tests => 16;
+plan tests => 15;
 
 require_ok( 'CPAN::Metabase::Fact' );
 
@@ -30,7 +30,7 @@ my ($obj, $err);
 eval { $obj = CPAN::Metabase::Fact->new() };
 $err = $@;
 like( $err, qr/Mandatory parameters/, "new() without params throws error" );
-for my $p ( qw/ dist_author dist_file content / ) {
+for my $p ( qw/ id content / ) {
     like( $err, qr/$p/, "... '$p' noted missing" );
 }
 
@@ -58,8 +58,7 @@ for my $m ( qw/content_as_string content_from_string validate_content/ ) {
 #--------------------------------------------------------------------------#
 
 my $args = {
-    dist_author => "JOHNDOE",
-    dist_file   => "Foo-Bar-1.23.tar.gz",
+    id => "JOHNDOE/Foo-Bar-1.23.tar.gz",
     content     => "Who am I?",
 };
 
