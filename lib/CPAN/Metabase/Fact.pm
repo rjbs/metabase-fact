@@ -9,7 +9,7 @@ use 5.006;
 use strict;
 use warnings;
 use Params::Validate ();
-use JSON::XS ();
+use Storable ();
 use Carp ();
 
 our $VERSION = '0.001';
@@ -43,12 +43,6 @@ sub type {
     return $self;
   }
 }
-
-#--------------------------------------------------------------------------#
-# class-wide resources
-#--------------------------------------------------------------------------#
-
-my $json = JSON::XS->new();
 
 #--------------------------------------------------------------------------#
 # main API methods -- shouldn't be overridden
@@ -86,9 +80,8 @@ sub is_submitted {
 # freeze content then freeze self
 sub freeze {
   my ($self) = @_;
-  local $self->{content}; 
-  $self->{content} = $self->content_as_string;
-  return $json->encode($self);
+  local $self->{content} = $self->content_as_string;
+  return Storable::nfreeze($self);
 }
 
 # thaw object then thaw content
@@ -97,8 +90,8 @@ sub freeze {
 # undef? Warn? Die? -- DG, 04/20/08
 sub thaw {
   my ($class, $data) = @_;
-  my $self = $json->decode($data);
-  $self->{content} = $self->content_from_string( $data ) ;
+  my $self = Storable::thaw($data);
+  $self->{content} = $self->content_from_string( $self->{content} );
   return $self
 }
 

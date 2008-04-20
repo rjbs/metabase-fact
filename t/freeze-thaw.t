@@ -1,9 +1,11 @@
 use strict;
 use warnings;
 
-use Test::More 'no_plan';
+use Test::More;
 use Test::Exception;
 use JSON::XS;
+
+plan tests => 9; 
 
 my $PA = 'CPAN::Metabase::Fact::PrereqAnalysis';
 
@@ -44,4 +46,10 @@ sub new_pa {
     $sample_content,
     "stringified version reconstitutes to original structure",
   );
+
+  my $clone = CPAN::Metabase::Fact->thaw( $fact->freeze );
+  ok( $clone, "freeze -> thaw" );
+  isa_ok( $clone, $PA );
+  is_deeply( $clone, $fact, "thawed clone matches original" );
+
 }
