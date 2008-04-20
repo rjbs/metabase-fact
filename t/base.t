@@ -13,7 +13,7 @@ use Test::Exception;
 use lib 't/lib';
 use CPAN::Metabase::Fact::TestFact;
 
-plan tests => 15;
+plan tests => 19;
 
 require_ok( 'CPAN::Metabase::Fact' );
 
@@ -46,33 +46,38 @@ is( $obj->schema_version, 1, "schema_version() defaults to 1");
 
 # type is class munged from "::" to "-"
 can_ok( $obj, 'type' );
-is( $obj->type, "CPAN-Metabase-Fact", "type() is ok" );
+is( CPAN::Metabase::Fact->type, "CPAN-Metabase-Fact", 
+  "type() converts class name" 
+);
 
 # unimplemented
 for my $m ( qw/content_as_string content_from_string validate_content/ ) {
-    throws_ok { $obj->$m } qr/$m\(\) not implemented by CPAN::Metabase::Fact/;
+    throws_ok { $obj->$m } qr/$m\(\) not implemented by CPAN::Metabase::Fact/,
+      "$m not implemented";
 }
 
 #--------------------------------------------------------------------------#
 # new should take either hashref or list
 #--------------------------------------------------------------------------#
 
+my $string = "Who am I?";
+
 my $args = {
     id => "JOHNDOE/Foo-Bar-1.23.tar.gz",
-    content     => "Who am I?",
+    content     => $string,
 };
 
 lives_ok{ $obj = CPAN::Metabase::Fact::TestFact->new( $args ) } 
     "new( <hashref> ) doesn't die";
 
-is( ref $obj, 'CPAN::Metabase::Fact::TestFact', "object created with correct type" );
+isa_ok( $obj, 'CPAN::Metabase::Fact::TestFact' ); 
 
 lives_ok{ $obj = CPAN::Metabase::Fact::TestFact->new( %$args ) } 
     "new( <list> ) doesn't die";
 
-is(
-  ref $obj,
-  'CPAN::Metabase::Fact::TestFact',
-  "object created with correct class"
-);
+isa_ok( $obj, 'CPAN::Metabase::Fact::TestFact' );
 
+is( $obj->type, "CPAN-Metabase-Fact-TestFact", "object type is correct" );
+is( $obj->refers_to, "distribution", "object refers to distribution" );
+is( $obj->content, $string, "object content correct" );
+ok( ! $obj->is_submitted, "object is_submitted() is false" );

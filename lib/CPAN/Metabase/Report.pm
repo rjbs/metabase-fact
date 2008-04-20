@@ -58,7 +58,7 @@ sub open {
   my ($class, @args) = @_;
   
   my %args = Params::Validate::validate( @args, { 
-      ( map { $_ => 1 } qw/dist_author dist_file/ ), 
+      ( map { $_ => 1 } qw/id/ ), 
       ( map { $_ => 0 } qw/content/ ),
     }
   );
@@ -72,8 +72,7 @@ sub open {
 sub add {
   my ($self, $fact_class, @args ) = @_;
   my $fact = $fact_class->new( 
-    dist_author => $self->dist_author,
-    dist_file => $self->dist_file,
+    id => $self->id,
     @args
   );
   push @{$self->{content}}, $fact;

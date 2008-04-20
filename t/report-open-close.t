@@ -23,8 +23,7 @@ require t::lib::ReportSubclasses;
 require t::lib::FactSubclasses;
 
 my %params = (
-    dist_author => "JOHNDOE",
-    dist_file => "Foo-Bar-1.23.tar.gz",
+    id => "JOHNDOE/Foo-Bar-1.23.tar.gz",
 );
 
 my %facts = (
