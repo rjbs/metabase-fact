@@ -86,6 +86,7 @@ sub content_as_string {
 
 sub content_from_string { 
   my ($self, $string) = @_;
+  $string = $$string if ref $string;
   return [ map { CPAN::Metabase::Fact->thaw($_) } @{ Storable::thaw($string) } ];
 }
 

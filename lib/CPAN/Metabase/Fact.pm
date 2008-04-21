@@ -300,9 +300,11 @@ L<Storable>, L<JSON::XS>, L<Data::Dumper> etc.)
 =head2 content_from_string() (required)
 
   $content = $fact->content_from_string( $string );
+  $content = $fact->content_from_string( \$string );
 
 Given a string from C<content_as_string>, this method MUST regenerate and
-return the original content data structure.  It MUST NOT overwrite the Fact's
+return the original content data structure.  It MUST accept either a string
+or string reference as an argument.  It MUST NOT overwrite the Fact's
 content attribute directly.
 
 =head2 meta_from_content()
