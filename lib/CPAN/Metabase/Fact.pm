@@ -183,13 +183,6 @@ so on.
 
 These attributes are generated automatically during the call to C<new()>.  
 
-=head3 content_meta
-
-If a Fact subclass provides a C<meta_from_content()> method, it will be used to
-populate this attribute with a hash of content-specific key/value pairs to be
-used during indexing.  For example, a CPAN Testers report Fact might provide a
-'grade' key with a value indicating a test result of 'FAIL'. 
-
 =head3 type
 
 The object's class name, with double-colons converted to dashes to be more
@@ -210,6 +203,13 @@ indexed, and are available when a Fact is queried from a Metabase.
 =head3 guid
 
 A global, unique identifier for a particular Fact in a particular Metabase.
+
+=head3 content_meta
+
+If a Fact subclass provides a C<meta_from_content()> method, it will be used to
+populate this attribute with a hash of content-specific key/value pairs to be
+used during indexing.  For example, a CPAN Testers report Fact might provide a
+'grade' key with a value indicating a test result of 'FAIL'. 
 
 =head3 index_meta
 
