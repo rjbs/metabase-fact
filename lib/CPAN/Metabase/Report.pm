@@ -10,17 +10,15 @@ use strict;
 use warnings;
 use Params::Validate ();
 use Carp ();
-use JSON::XS ();
+use Storable ();
 use base 'CPAN::Metabase::Fact';
 
 our $VERSION = '0.001';
 $VERSION = eval $VERSION; # convert '1.23_45' to 1.2345
 
 #--------------------------------------------------------------------------#
-# class methods
+# abstract methods -- fatal
 #--------------------------------------------------------------------------#
-
-sub schema_version() { 1 }
 
 sub report_spec {
   my $self = shift;
@@ -28,26 +26,7 @@ sub report_spec {
 }
 
 #--------------------------------------------------------------------------#
-# fatal stubs
-#--------------------------------------------------------------------------#
-
-sub content_as_string { 
-  my $self = shift;
-  Carp::confess "content_as_string() not implemented by " . ref $self;
-#  my $json = JSON::XS->new;
-#  my $clone = { %$self };
-#    for my $fact ( @[ $clone->content ] ){
-#        $fact = $json->allow_blessed->
-#    }
-}
-
-sub content_from_string { 
-  my $self = shift;
-  Carp::confess "content_from_string() not implemented by " . ref $self;
-}
-
-#--------------------------------------------------------------------------#
-# methods
+# alternate constructor methods
 #--------------------------------------------------------------------------#
 
 # adapted from Fact::new() -- must keep in sync
@@ -59,9 +38,13 @@ sub open {
   
   my %args = Params::Validate::validate( @args, { 
       ( map { $_ => 1 } qw/id/ ), 
-      ( map { $_ => 0 } qw/content/ ),
+      ( map { $_ => 0 } qw/content refers_to/ ),
     }
   );
+  if ( $args{content} && ref $args{content} ne 'ARRAY' ) {
+    Carp::confess( "'content' argument to $class\->new() must be an array reference" );
+  }
+  $args{content} ||= [];
 
   # create and check
   my $self = bless \%args, $class;
@@ -70,10 +53,11 @@ sub open {
 }
 
 sub add {
-  my ($self, $fact_class, @args ) = @_;
+  my ($self, $fact_class, $content ) = @_;
   my $fact = $fact_class->new( 
-    id => $self->id,
-    @args
+    id => $self->id, 
+    refers_to => $self->refers_to, 
+    content => $content,
   );
   push @{$self->{content}}, $fact;
   return $self;
@@ -88,6 +72,21 @@ sub close {
     Carp::confess( "$class object content invalid: $@" );
   }
   return $self;
+}
+
+#--------------------------------------------------------------------------#
+# implement required abstract Fact methods
+#--------------------------------------------------------------------------#
+
+sub content_as_string { 
+  my $self = shift;
+  my $content = [ map { $_->freeze } @{ $self->content } ];
+  return Storable::nfreeze( $content );
+}
+
+sub content_from_string { 
+  my ($self, $string) = @_;
+  return [ map { CPAN::Metabase::Fact->thaw($_) } @{ Storable::thaw($string) } ];
 }
 
 sub validate_content {
@@ -149,9 +148,77 @@ anything else for which datatypes are constructed.
 CPAN::Metabase::Report is a base class for collections of CPAN::Metabase::Fact
 objects that can be sent to or retrieved from a CPAN::Metabase system.
 
+CPAN::Metabase::Report is itself a subclass of CPAN::Metabase::Fact and 
+offers the same API, except as described below.
+
 =head1 USAGE
 
-Usage...
+[Talk about how to subclass...]
+
+=head1 ATTRIBUTES
+
+=head3 content
+
+The 'content' attribute of a Report must be a reference to an array of 
+CPAN::Metabase::Fact subclass objects.
+
+=head1 METHODS
+
+In addition to the standard C<new()> constructor, the following C<open()>,
+C<add()> and C<close()> methods may be used to construct a report piecemeal,
+instead.
+
+=head2 open()
+
+  $report = Report::Subclass->open(
+    id => 'AUTHORID/Foo-Bar-1.23.tar.gz',
+  );
+
+Constructs a new, empty report. The 'id' attribute is required.  The
+'refers_to' attribute is optional.  The 'content' attribute may be provided,
+but see C<add()> below. No other attributes may be provided to new().
+
+=head2 add()
+
+  $report->add( 'Fact::Subclass' => $content );
+
+Using the 'id' attribute of the report, this method constructs a new Fact from
+a class and a content argument.  The resulting Fact is appended to the Report's
+content array.
+
+=head3 close()
+
+  $report->close;
+
+This method validates the report based on all Facts added so far.
+
+=head1 ABSTRACT METHODS
+
+Methods marked as 'required' must be implemented by a report subclass.  (The
+version in CPAN::Metabase::Report will die with an error if called.)  
+
+In the documentation below, the terms 'must, 'must not', 'should', etc. have
+their usual RFC meanings.
+
+Methods MUST throw an exception if an error occurs.
+
+=head2 report_spec() (required)
+
+  $spec = Report::Subclass->report_spec;
+
+The C<report_spec> method MUST return a hash reference that defines how
+many Facts of which types must be in the report for it to be considered valid.
+Keys MUST be class names.  Values MUST be non-negative integers that indicate
+the number of Facts of that type that must be present for a report to be
+valid, optionally followed by a '+' character to indicate that the report
+may contain more than the given number.
+
+For example:
+
+  {
+    Fact::One => 1,     # one of Fact::One
+    Fact::Two => "0+",  # zero or more of Fact::Two
+  }
 
 =head1 BUGS
 

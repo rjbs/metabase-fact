@@ -98,6 +98,17 @@ sub thaw {
   return $self
 }
 
+sub core_meta {
+  my $self = shift;
+  my %meta = (
+    dist_author => $self->{dist_author},
+    dist_file => $self->{dist_file},
+    type => $self->type,
+    schema_version => $self->schema_version,
+  );
+  return \%meta;
+}
+
 #--------------------------------------------------------------------------#
 # class methods
 #--------------------------------------------------------------------------#

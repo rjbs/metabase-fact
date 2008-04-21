@@ -10,7 +10,7 @@ use warnings;
 use Test::More;
 use Test::Exception;
 
-plan tests => 14;
+plan tests => 9;
 
 require_ok( 'CPAN::Metabase::Report' );
 require_ok( 'CPAN::Metabase::Fact::TestFact' );
@@ -23,12 +23,12 @@ require t::lib::ReportSubclasses;
 require t::lib::FactSubclasses;
 
 my %params = (
-    id => "JOHNDOE/Foo-Bar-1.23.tar.gz",
+  id => "JOHNDOE/Foo-Bar-1.23.tar.gz",
 );
 
 my %facts = (
-    FactOne     => FactOne->new( %params, content => "FactOne" ),
-    FactTwo     => FactTwo->new( %params, content => "FactTwo" ),
+  FactOne     => FactOne->new( %params, content => "FactOne" ),
+  FactTwo     => FactTwo->new( %params, content => "FactTwo" ),
 );
 
 my ($obj, $err);
@@ -38,49 +38,32 @@ my ($obj, $err);
 #--------------------------------------------------------------------------#
 
 lives_ok { 
-  $obj = JustOneFact->open( %params, content => [ $facts{FactOne} ] );
-} "lives: open() given 1 fact";
+  $obj = JustOneFact->open( %params )
+} "lives: open() given no facts";
 
 isa_ok( $obj, 'JustOneFact' );
+
+lives_ok {
+  $obj->add( 'FactOne' => 'This is FactOne' );
+} "lives: add( 'Class' => 'foo' )";
 
 lives_ok {
   $obj->close;
 } "lives: close()";
 
-lives_ok { 
-  $obj = JustOneFact->open( %params )
-} "lives: open() given no facts";
-
-isa_ok( $obj, 'JustOneFact' );
-
-lives_ok {
-  $obj->add( 'FactOne' => 'This is FactOne' );
-} "lives: add( 'Class' => 'foo' )";
-
-lives_ok {
-    $obj->close;
-} "lives: close()";
-
 #--------------------------------------------------------------------------#
-# errors
+# round trip
 #--------------------------------------------------------------------------#
 
-lives_ok { 
-  $obj = JustOneFact->open( %params )
-} "lives: open() given no facts";
+my $class = ref $obj;
 
-isa_ok( $obj, 'JustOneFact' );
-
+my $obj2;
 lives_ok {
-  $obj->add( 'FactOne' => 'This is FactOne' );
-} "lives: add( 'Class' => 'foo' )";
+  $obj2 = CPAN::Metabase::Fact->thaw( $obj->freeze )
+} "lives: freeze->thaw";
 
-lives_ok {
-  $obj->add( 'FactTwo' => 'This is FactTwo' );
-} "lives: add( 'Class2' => 'foo' )";
-
-throws_ok {
-    $obj->close;
-} qr/content invalid/, "dies: close() with two facts";
+isa_ok( $obj2, $class );
+    
+is_deeply( $obj, $obj2, "obj2 is a clone of obj1" );
 
 
