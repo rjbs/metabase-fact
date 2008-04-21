@@ -169,6 +169,10 @@ anything else for which datatypes are constructed.
 CPAN::Metabase::Fact is a base class for facts (really opinions or analyses)
 that can be sent to or retrieved from a CPAN::Metabase system.
 
+=head1 USAGE
+
+[Talk about how to subclass...]
+
 =head1 ATTRIBUTES
 
 =head2 Set during construction 
