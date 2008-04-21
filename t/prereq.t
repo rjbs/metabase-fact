@@ -3,7 +3,7 @@ use warnings;
 
 use Test::More;
 use Test::Exception;
-use JSON::XS;
+use Storable qw/thaw/;
 
 plan tests => 10; 
 
@@ -42,7 +42,7 @@ sub new_pa {
   my $string = $fact->content_as_string;
 
   is_deeply(
-    JSON::XS->new->decode($string),
+    thaw($string),
     $sample_content,
     "stringified version reconstitutes to original structure",
   );

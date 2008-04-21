@@ -1,8 +1,7 @@
 package CPAN::Metabase::Fact::TestFact;
 use base 'CPAN::Metabase::Fact';
 
-use MIME::Base64 ();
-use Data::Dumper ();
+use Storable ();
 use Carp ();
 
 sub validate_content {
@@ -14,7 +13,7 @@ sub validate_content {
 sub content_as_string {
   my ($self) = @_;
 
-  return MIME::Base64::encode_base64( scalar reverse $self->content );
+  return Storable::nfreeze( $self->content );
 }
 
 sub content_from_string { 
@@ -22,7 +21,7 @@ sub content_from_string {
 
   $string = $$string if ref $string;
 
-  return scalar reverse MIME::Base64::decode_base64( $string );
+  return Storable::thaw( $string );
 }
 
 1;
