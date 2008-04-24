@@ -13,7 +13,7 @@ sub validate_content {
 sub content_as_string {
   my ($self) = @_;
 
-  return Storable::nfreeze( $self->content );
+  return Storable::nfreeze( \($self->content) );
 }
 
 sub content_from_string { 
@@ -21,7 +21,7 @@ sub content_from_string {
 
   $string = $$string if ref $string;
 
-  return Storable::thaw( $string );
+  return ${Storable::thaw( $string )};
 }
 
 1;
