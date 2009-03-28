@@ -101,8 +101,8 @@ sub from_struct {
     unless $class->type eq $core_meta->{type}[1];
 
   $class->new({
-    guid     => $core_meta->{guid}[1],
-    resource => $core_meta->{resource}[1],
+    (map { $_ => $core_meta->{$_}[1] } keys %$core_meta),
+    
     content  => $class->content_from_bytes($struct->{content}),
   });
 }
