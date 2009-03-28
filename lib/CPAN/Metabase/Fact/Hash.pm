@@ -1,16 +1,15 @@
 package CPAN::Metabase::Fact::Hash;
 use base 'CPAN::Metabase::Fact';
+use JSON ();
 
-use Carp ();
-
-sub content_as_struct {
+sub content_as_bytes {
   my ($self) = @_;
-  return $self->content;
+  return JSON::to_json($self->content);
 }
 
-sub content_from_struct { 
-  my ($class, $struct) = @_;
-  return $stuct;
+sub content_from_bytes { 
+  my ($class, $bytes) = @_;
+  return JSON::from_json($bytes);
 }
 
 1;

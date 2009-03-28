@@ -23,40 +23,43 @@ require_ok( 'FactSubclasses.pm' );
 
 my ($obj, $err);
 
-my $string = "Who am I?";
+my $struct = {
+  first => 'alpha',
+  second => 'beta',
+};
 
 my $meta = {
-  'length' => [ Num => length $string ],
+  size => [ Num => 2 ],
 };
 
 my $args = {
-    resource => "JOHNDOE/Foo-Bar-1.23.tar.gz",
-    content  => $string,
+  resource => "JOHNDOE/Foo-Bar-1.23.tar.gz",
+  content  => $struct,
 };
 
 my $as_struct = {
   resource          => $args->{resource},
   core_metadata     => {
-    type           => [ Str => 'FactThree' ],
+    type           => [ Str => 'FactFour' ],
     schema_version => [ Num => 1 ],
   },
-  content           => $string,
+  content           => to_json($struct),
 };
 
-lives_ok{ $obj = FactThree->new( $args ) } 
+lives_ok{ $obj = FactFour->new( $args ) } 
     "new( <hashref> ) doesn't die";
 
-isa_ok( $obj, 'CPAN::Metabase::Fact::String' ); 
+isa_ok( $obj, 'CPAN::Metabase::Fact::Hash' ); 
 
-lives_ok{ $obj = FactThree->new( %$args ) } 
+lives_ok{ $obj = FactFour->new( %$args ) } 
     "new( <list> ) doesn't die";
 
-isa_ok( $obj, 'CPAN::Metabase::Fact::String' );
-is( $obj->type, "FactThree", "object type is correct" );
+isa_ok( $obj, 'CPAN::Metabase::Fact::Hash' );
+is( $obj->type, "FactFour", "object type is correct" );
 
 is( $obj->resource, $args->{resource}, "object refers to distribution" );
 is_deeply( $obj->content_metadata, $meta, "object content_metadata() correct" );
-is( $obj->content, $string, "object content correct" );
+is_deeply( $obj->content, $struct, "object content correct" );
 is_deeply( $obj->as_struct, $as_struct, "object as_struct() correct"); 
 # remove this? -- dagolden, 2009-03-28 
 ok( ! $obj->is_submitted, "object is_submitted() is false" );
