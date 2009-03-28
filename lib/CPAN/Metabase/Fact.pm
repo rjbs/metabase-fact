@@ -23,7 +23,7 @@ $VERSION = eval $VERSION; # convert '1.23_45' to 1.2345
 
 { 
   my @accessors = qw(
-    id refers_to version guid content index_meta content_meta
+    resource version guid content
   );
   no strict 'refs';
   for my $s (@accessors) {
@@ -91,13 +91,16 @@ sub from_struct {
   my ($class, $struct) = @_;
 
   # XXX: cope with schema versions other than our own
-  Carp::confess("invalid fact type")
-    unless $class->type eq $struct->{type};
+  Carp::confess("invalid fact type: $struct->{core_metadata}{type}")
+    unless $class->type eq $struct->{core_metadata}{type};
 
   Carp::confess("invalid schema version number")
-    unless $class->schema_version == $struct->{schema_version};
+    unless $class->schema_version == $struct->{core_metadata}{schema_version};
 
-  $class->new(%$struct);
+  $class->new({
+    resource => $struct->{resource},
+    content  => $class->content_from_bytes($struct->{content}),
+  });
 }
 
 sub resource_metadata {
@@ -233,13 +236,6 @@ If a Fact subclass provides a C<meta_from_content()> method, it will be used to
 populate this attribute with a hash of content-specific key/value pairs to be
 used during indexing.  For example, a CPAN Testers report Fact might provide a
 'grade' key with a value indicating a test result of 'FAIL'. 
-
-=head3 index_meta
-
-A hash of simple key/value pairs used to index the Fact in a Metabase.  These
-are content-independent, and will generally relate to the CPAN object the
-Fact refers to (e.g. distribution name, author, or version) or to the 
-submission of the fact (e.g. submitter name or timestamp).
 
 =head1 METHODS
 
