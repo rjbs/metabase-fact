@@ -22,8 +22,8 @@ sub new_pa {
   my ($content) = @_;
 
   return $PA->new({
-    id   => 'OPRIME/Test-Meta-1.00.tar.gz',
-    content     => $content,
+    resource => 'OPRIME/Test-Meta-1.00.tar.gz',
+    content  => $content,
   });
 }
 
@@ -37,9 +37,9 @@ sub new_pa {
   # Some sanity checking.
   isa_ok($fact, $PA, 'constructed fact');
   is_deeply($fact->content, $sample_content, "content matches");
-  is($fact->id, 'OPRIME/Test-Meta-1.00.tar.gz', "dist id matches");
+  is($fact->resource, 'OPRIME/Test-Meta-1.00.tar.gz', "dist id matches");
 
-  my $string = $fact->content_as_string;
+  my $string = $fact->content_as_bytes;
 
   is_deeply(
     thaw($string),
@@ -47,15 +47,15 @@ sub new_pa {
     "stringified version reconstitutes to original structure",
   );
 
-  my $clone = CPAN::Metabase::Fact->thaw( $fact->freeze );
-  ok( $clone, "freeze -> thaw" );
+  my $clone = $PA->from_struct( $fact->as_struct );
+  ok( $clone, "round trip" );
   isa_ok( $clone, $PA );
-  is_deeply( $clone, $fact, "thawed clone matches original" );
+  is_deeply( $clone, $fact, "round tripped clone matches original" );
 
   my $content_meta = {
     requires => [ keys %$sample_content ],
   };
 
-  is_deeply( $fact->content_meta, $content_meta, "content_meta correct" );
+  is_deeply( $fact->content_metadata, $content_meta, "content_meta correct" );
 
 }

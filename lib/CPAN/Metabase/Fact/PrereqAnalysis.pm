@@ -5,15 +5,15 @@ use base 'CPAN::Metabase::Fact';
 
 use Storable ();
 
-sub content_as_string {
+sub content_as_bytes {
   my ($self) = @_;
   return Storable::nfreeze($self->content);
 }
 
-sub content_from_string {
-  my ($self, $string) = @_;
-  $string = $$string if ref $string;
-  return Storable::thaw($string);
+sub content_from_bytes {
+  my ($self, $bytestring) = @_;
+  $bytestring = $$bytestring if ref $bytestring;
+  return Storable::thaw($bytestring);
 }
 
 sub validate_content {
@@ -23,7 +23,7 @@ sub validate_content {
   die "must be a hashref" unless ref $self->content eq 'HASH';
 }
 
-sub meta_from_content {
+sub content_metadata {
   my ($self) = @_;
 
   return { requires => [ keys %{ $self->content } ] };

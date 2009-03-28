@@ -25,8 +25,8 @@ my ($obj, $err);
 my $string = "Who am I?";
 
 my $args = {
-    id => "JOHNDOE/Foo-Bar-1.23.tar.gz",
-    content     => $string,
+    resource => "JOHNDOE/Foo-Bar-1.23.tar.gz",
+    content  => $string,
 };
 
 lives_ok{ $obj = CPAN::Metabase::Fact::String->new( $args ) } 
@@ -40,7 +40,7 @@ lives_ok{ $obj = CPAN::Metabase::Fact::String->new( %$args ) }
 isa_ok( $obj, 'CPAN::Metabase::Fact::String' );
 
 is( $obj->type, "CPAN-Metabase-Fact-String", "object type is correct" );
-is( $obj->refers_to, "distribution", "object refers to distribution" );
+is( $obj->resource, $args->{resource}, "object refers to distribution" );
 is( $obj->content, $string, "object content correct" );
 ok( ! $obj->is_submitted, "object is_submitted() is false" );
 

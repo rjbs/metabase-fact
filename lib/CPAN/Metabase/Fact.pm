@@ -23,7 +23,7 @@ $VERSION = eval $VERSION; # convert '1.23_45' to 1.2345
 
 { 
   my @accessors = qw(
-    id refers_to version guid content index_meta content_meta
+    resource version guid content
   );
   no strict 'refs';
   for my $s (@accessors) {
@@ -51,12 +51,10 @@ sub type {
 sub new {
     my ($class, @args) = @_;
 
+    # XXX: replace this, PV is not useful enough for us to require it
     my %args = Params::Validate::validate( @args, { 
-        id => 1, content => 1, refers_to => 0 } 
-    );
-    # default for optional argument
-    # XXX for future 'author', 'module' -- DG 04/20/08
-    $args{refers_to}  ||= 'distribution';  
+        resource => 1, content => 1,
+    } );
 
     my $self = bless \%args, $class;
 
@@ -68,7 +66,6 @@ sub new {
     # generated attributes
     $self->type( $class->type );
     $self->version( $class->schema_version );
-    $self->content_meta( $self->meta_from_content );
 
     return $self;
 }
@@ -80,33 +77,54 @@ sub is_submitted {
     return defined $self->guid && defined $self->index_meta;
 }
 
-# freeze content then freeze self
-sub freeze {
-  my ($self) = @_;
-  local $self->{content} = $self->content_as_string;
-  return Storable::nfreeze($self);
+sub as_struct {
+    my ($self) = @_;
+
+    return {
+      resource          => $self->resource,
+      core_metadata     => $self->core_metadata,
+      content           => $self->content_as_bytes,
+    };
 }
 
-# thaw object then thaw content
-# Call as CPAN::Metabase::Fact->thaw($data)
-# XXX what should this do if the original class isn't available? Return
-# undef? Warn? Die? -- DG, 04/20/08
-sub thaw {
-  my ($class, $data) = @_;
-  my $self = Storable::thaw($data);
-  $self->{content} = $self->content_from_string( $self->{content} );
-  return $self
+sub from_struct {
+  my ($class, $struct) = @_;
+  my $core_meta = $struct->{core_metadata};
+
+  # XXX: cope with schema versions other than our own
+  Carp::confess("invalid fact type: $core_meta->{type}[1]")
+    unless $class->type eq $core_meta->{type}[1];
+
+  Carp::confess("invalid schema version number")
+    unless $class->schema_version == $core_meta->{schema_version}[1];
+
+  $class->new({
+    resource => $struct->{resource},
+    content  => $class->content_from_bytes($struct->{content}),
+  });
 }
 
-sub core_meta {
-  my $self = shift;
-  my %meta = (
-    dist_author => $self->{dist_author},
-    dist_file => $self->{dist_file},
-    type => $self->type,
-    schema_version => $self->schema_version,
-  );
-  return \%meta;
+sub resource_metadata {
+    my $self = shift;
+
+    my %meta = (
+        dist_author    => [ Str => $self->{dist_author} ],
+        dist_file      => [ Str => $self->{dist_file}   ],
+    );
+    return \%meta;
+}
+
+sub core_metadata {
+    my $self = shift;
+
+    my %meta = (
+        # user goes here now -- rjbs, 2009-03-28
+        # guid?
+        # timestamp
+        type           => [ Str => $self->type           ],
+        schema_version => [ Num => $self->schema_version ],
+    );
+    return \%meta;
 }
 
 #--------------------------------------------------------------------------#
@@ -122,17 +140,17 @@ sub schema_version() { 1 }
 # abstract methods -- mostly fatal
 #--------------------------------------------------------------------------#
 
-sub content_as_string { 
-    my $self = shift;
-    Carp::confess "content_as_string() not implemented by " . ref $self;
+sub content_metadata { return }
+
+sub content_as_bytes {
+    my ($self, $content) = @_;
+    Carp::confess "content_as_bytes() not implemented by " . ref $self;
 }
 
-sub content_from_string { 
-    my $self = shift;
-    Carp::confess "content_from_string() not implemented by " . ref $self;
+sub content_from_bytes {
+    my ($self, $bytes) = @_;
+    Carp::confess "content_from_bytes() not implemented by " . ref $self;
 }
-
-sub meta_from_content { return }
 
 sub validate_content {
     my ($self, $content) = @_;
@@ -188,12 +206,6 @@ with CPAN.pm -- for example, 'TIMB/DBI-1.604.tar.gz' for the DBI distribution.
 A reference to the actual information associated with the fact.
 The exact form of the content is up to each Fact class to determine.
 
-=head3 refers_to (optional)
-
-Defaults to 'distribution'.  At some point, should CPAN::Metabase be expanded
-to support other CPAN objects, could be 'author', 'module', 'bundle' and 
-so on.
-
 =head2 Generated during construction
 
 These attributes are generated automatically during the call to C<new()>.  
@@ -226,13 +238,6 @@ populate this attribute with a hash of content-specific key/value pairs to be
 used during indexing.  For example, a CPAN Testers report Fact might provide a
 'grade' key with a value indicating a test result of 'FAIL'. 
 
-=head3 index_meta
-
-A hash of simple key/value pairs used to index the Fact in a Metabase.  These
-are content-independent, and will generally relate to the CPAN object the
-Fact refers to (e.g. distribution name, author, or version) or to the 
-submission of the fact (e.g. submitter name or timestamp).
-
 =head1 METHODS
 
 =head2 new()
@@ -242,26 +247,8 @@ submission of the fact (e.g. submitter name or timestamp).
     content => $content_structure,
   );
 
-Constructs a new Fact. The 'id' and 'content' attributes are required.  The
-'refers_to' attribute is optional and defaults to 'distribution'.  No other
-attributes may be provided to new().
-
-=head2 freeze()
-
- $frozen = $fact->freeze;
-
-Serializes the Fact to a scalar value.  Relies on C<content_as_string> to
-serialize the Fact's content.
-
-=head2 thaw()
-
-  $fact = CPAN::Metabase::Fact->thaw( $frozen );
-
-Regenerates a Fact from its serialized form.  Relies on C<content_from_string>
-to regenerated the Fact's content. 
-
-While this should be called as a class function on CPAN::Metabase::Fact, the
-object returned will be blessed into its original class.
+Constructs a new Fact. The 'id' and 'content' attributes are required.  No
+other attributes may be provided to new().
 
 =head1 CLASS METHODS
 
