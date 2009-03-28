@@ -11,5 +11,6 @@ test_requires('Test::More'      => 0.62);
 test_requires('Test::Exception' => 0.26); # avoid bugs
   
 extra_tests;
+tests_recursive;
 
 WriteAll;
