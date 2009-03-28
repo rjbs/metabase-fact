@@ -95,7 +95,7 @@ sub content_from_bytes {
 
   my @facts;
   for my $struct (@$fact_structs) {
-    (my $class = $struct->{core_metadata}{type}) =~ s/-/::/g;
+    (my $class = $struct->{core_metadata}{type}[1]) =~ s/-/::/g;
     push @facts, $class->from_struct($struct);
   }
 

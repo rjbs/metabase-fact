@@ -89,13 +89,14 @@ sub as_struct {
 
 sub from_struct {
   my ($class, $struct) = @_;
+  my $core_meta = $struct->{core_metadata};
 
   # XXX: cope with schema versions other than our own
-  Carp::confess("invalid fact type: $struct->{core_metadata}{type}")
-    unless $class->type eq $struct->{core_metadata}{type};
+  Carp::confess("invalid fact type: $core_meta->{type}[1]")
+    unless $class->type eq $core_meta->{type}[1];
 
   Carp::confess("invalid schema version number")
-    unless $class->schema_version == $struct->{core_metadata}{schema_version};
+    unless $class->schema_version == $core_meta->{schema_version}[1];
 
   $class->new({
     resource => $struct->{resource},
@@ -107,8 +108,8 @@ sub resource_metadata {
     my $self = shift;
 
     my %meta = (
-        dist_author    => $self->{dist_author},
-        dist_file      => $self->{dist_file},
+        dist_author    => [ Str => $self->{dist_author} ],
+        dist_file      => [ Str => $self->{dist_file}   ],
     );
     return \%meta;
 }
@@ -120,8 +121,8 @@ sub core_metadata {
         # user goes here now -- rjbs, 2009-03-28
         # guid?
         # timestamp
-        type           => $self->type,
-        schema_version => $self->schema_version,
+        type           => [ Str => $self->type           ],
+        schema_version => [ Num => $self->schema_version ],
     );
     return \%meta;
 }
