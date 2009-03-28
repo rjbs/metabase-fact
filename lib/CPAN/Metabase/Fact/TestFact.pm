@@ -1,7 +1,7 @@
 package CPAN::Metabase::Fact::TestFact;
 use base 'CPAN::Metabase::Fact';
 
-use Storable ();
+use JSON ();
 use Carp ();
 
 sub validate_content {
@@ -10,10 +10,10 @@ sub validate_content {
   Carp::croak "non-empty scalars please"  if ! length $self->content;
 }
 
-sub content_as_string {
+sub content_as_bytes {
   my ($self) = @_;
 
-  return Storable::nfreeze( \($self->content) );
+  JSON->new->encode({ payload => $self->content });
 }
 
 sub content_from_string { 
@@ -21,7 +21,7 @@ sub content_from_string {
 
   $string = $$string if ref $string;
 
-  return ${Storable::thaw( $string )};
+  JSON->new->decode($string)->{payload};
 }
 
 1;
