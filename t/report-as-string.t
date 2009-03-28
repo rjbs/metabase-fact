@@ -23,7 +23,7 @@ require t::lib::ReportSubclasses;
 require t::lib::FactSubclasses;
 
 my %params = (
-  id => "JOHNDOE/Foo-Bar-1.23.tar.gz",
+  resource => "JOHNDOE/Foo-Bar-1.23.tar.gz",
 );
 
 my %facts = (
@@ -31,39 +31,39 @@ my %facts = (
   FactTwo     => FactTwo->new( %params, content => "FactTwo" ),
 );
 
-my ($obj, $err);
+my ($report, $err);
 
 #--------------------------------------------------------------------------#
 # report that takes 1 fact
 #--------------------------------------------------------------------------#
 
 lives_ok { 
-  $obj = JustOneFact->open( %params )
+  $report = JustOneFact->open( %params )
 } "lives: open() given no facts";
 
-isa_ok( $obj, 'JustOneFact' );
+isa_ok( $report, 'JustOneFact' );
 
 lives_ok {
-  $obj->add( 'FactOne' => 'This is FactOne' );
+  $report->add( 'FactOne' => 'This is FactOne' );
 } "lives: add( 'Class' => 'foo' )";
 
 lives_ok {
-  $obj->close;
+  $report->close;
 } "lives: close()";
 
 #--------------------------------------------------------------------------#
 # round trip
 #--------------------------------------------------------------------------#
 
-my $class = ref $obj;
+my $class = ref $report;
 
-my $obj2;
+my $report2;
 lives_ok {
-  $obj2 = CPAN::Metabase::Fact->thaw( $obj->freeze )
-} "lives: freeze->thaw";
+  $report2 = $class->from_struct( $report->as_struct );
+} "lives: as_struct->from_struct";
 
-isa_ok( $obj2, $class );
+isa_ok( $report2, $class );
     
-is_deeply( $obj, $obj2, "obj2 is a clone of obj1" );
+is_deeply( $report, $report2, "report2 is a clone of report" );
 
 

@@ -47,12 +47,10 @@ sub new_pa {
     "stringified version reconstitutes to original structure",
   );
 
-  my $clone = CPAN::Metabase::Fact::PrereqAnalysis->from_struct(
-    $fact->as_struct
-  );
-  ok( $clone, "freeze -> thaw" );
+  my $clone = $PA->from_struct( $fact->as_struct );
+  ok( $clone, "round trip" );
   isa_ok( $clone, $PA );
-  is_deeply( $clone, $fact, "thawed clone matches original" );
+  is_deeply( $clone, $fact, "round tripped clone matches original" );
 
   my $content_meta = {
     requires => [ keys %$sample_content ],

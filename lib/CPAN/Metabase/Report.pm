@@ -10,7 +10,7 @@ use strict;
 use warnings;
 use Params::Validate ();
 use Carp ();
-use Storable ();
+use JSON ();
 use base 'CPAN::Metabase::Fact';
 
 our $VERSION = '0.001';
@@ -37,8 +37,8 @@ sub open {
   my ($class, @args) = @_;
   
   my %args = Params::Validate::validate( @args, { 
-      ( map { $_ => 1 } qw/id/ ), 
-      ( map { $_ => 0 } qw/content refers_to/ ),
+      ( map { $_ => 1 } qw/resource/ ), 
+      ( map { $_ => 0 } qw/content/ ),
     }
   );
   if ( $args{content} && ref $args{content} ne 'ARRAY' ) {
@@ -49,15 +49,18 @@ sub open {
   # create and check
   my $self = bless \%args, $class;
 
+  # generated attributes
+  $self->type( $class->type );
+  $self->version( $class->schema_version );
+
   return $self;
 }
 
 sub add {
   my ($self, $fact_class, $content ) = @_;
   my $fact = $fact_class->new( 
-    id => $self->id, 
-    refers_to => $self->refers_to, 
-    content => $content,
+    resource => $self->resource, 
+    content  => $content,
   );
   push @{$self->{content}}, $fact;
   return $self;
@@ -78,16 +81,25 @@ sub close {
 # implement required abstract Fact methods
 #--------------------------------------------------------------------------#
 
-sub content_as_string { 
+sub content_as_bytes { 
   my $self = shift;
-  my $content = [ map { $_->freeze } @{ $self->content } ];
-  return Storable::nfreeze( $content );
+  my $content = [ map { $_->as_struct } @{ $self->content } ];
+  JSON->new->encode( $content );
 }
 
-sub content_from_string { 
+sub content_from_bytes { 
   my ($self, $string) = @_;
   $string = $$string if ref $string;
-  return [ map { CPAN::Metabase::Fact->thaw($_) } @{ Storable::thaw($string) } ];
+
+  my $fact_structs = JSON->new->decode( $string );
+
+  my @facts;
+  for my $struct (@$fact_structs) {
+    (my $class = $struct->{core_metadata}{type}) =~ s/-/::/g;
+    push @facts, $class->from_struct($struct);
+  }
+
+  return \@facts;
 }
 
 sub validate_content {
