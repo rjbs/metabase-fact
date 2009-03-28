@@ -38,7 +38,12 @@ sub open {
   
   # XXX: replace this, PV is not useful enough for us to require it
   my %args = Params::Validate::validate(@args, { 
-      resource => 1, content => 0, guid => 0
+      content        => 0,
+      created_at     => 0,
+      guid           => 0,
+      resource       => 1,
+      schema_version => 0,
+      type           => 0,
   } );
 
   if ( $args{content} && ref $args{content} ne 'ARRAY' ) {

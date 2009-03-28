@@ -13,7 +13,7 @@ use Test::Exception;
 use lib 't/lib';
 use CPAN::Metabase::Fact::TestFact;
 
-plan tests => 17;
+plan tests => 15;
 
 require_ok( 'CPAN::Metabase::Fact' );
 
@@ -34,24 +34,24 @@ for my $p ( qw/ resource content / ) {
     like( $err, qr/$p/, "... '$p' noted missing" );
 }
 
+is(
+  CPAN::Metabase::Fact->default_schema_version,
+  1,
+  "schema_version() defaults to 1",
+);
+
 #--------------------------------------------------------------------------#
 # fake an object and test methods
 #--------------------------------------------------------------------------#
 
-$obj = bless {}, 'CPAN::Metabase::Fact';
-
-# schema version default
-can_ok( $obj, 'schema_version' );
-is( $obj->schema_version, 1, "schema_version() defaults to 1");
-
 # type is class munged from "::" to "-"
-can_ok( $obj, 'type' );
 is( CPAN::Metabase::Fact->type, "CPAN-Metabase-Fact", 
-  "type() converts class name" 
+  "->type converts class name" 
 );
 
 # unimplemented
 for my $m ( qw/content_as_bytes content_from_bytes validate_content/ ) {
+    my $obj = bless {} => 'CPAN::Metabase::Fact';
     throws_ok { $obj->$m } qr/$m\(\) not implemented by CPAN::Metabase::Fact/,
       "$m not implemented";
 }

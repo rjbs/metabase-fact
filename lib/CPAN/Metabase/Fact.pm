@@ -37,7 +37,12 @@ sub new {
 
     # XXX: replace this, PV is not useful enough for us to require it
     my %args = Params::Validate::validate(@args, { 
-        resource => 1, content => 1, guid => 0
+        content        => 1,
+        created_at     => 0,
+        guid           => 0,
+        resource       => 1,
+        schema_version => 0,
+        type           => 0,
     } );
 
     my $self = bless { }, $class;
@@ -55,17 +60,28 @@ sub new {
 sub _init_guts {
   my ($self, $args) = @_;
 
+  $args->{schema_version} = $self->default_schema_version
+    unless defined $args->{schema_version};
+
+  $self->upgrade_fact($args)
+    if  $args->{schema_version} != $self->default_schema_version;
+
+  Carp::confess("illegal type ($args->{type}) for $self")
+    if defined $args->{type} and $args->{type} ne $self->type;
+
   $self->{content}              = $args->{content};
 
   $self->{core}{created_at}     = $args->{created_at} || time;
   $self->{core}{guid}           = $args->{guid}       || _guid;
   $self->{core}{resource}       = $args->{resource};
+  $self->{core}{schema_version} = $args->{schema_version};
 }
 
-sub created_at { $_[0]->{core}{created_at} }
-sub content    { $_[0]->{content}          }
-sub guid       { $_[0]->{core}{guid}       }
-sub resource   { $_[0]->{core}{resource}   }
+sub created_at       { $_[0]->{core}{created_at}       }
+sub content          { $_[0]->{content}                }
+sub guid             { $_[0]->{core}{guid}             }
+sub resource         { $_[0]->{core}{resource}         }
+sub schema_version   { $_[0]->{core}{schema_version}   }
 
 sub as_struct {
     my ($self) = @_;
@@ -83,9 +99,6 @@ sub from_struct {
   # XXX: cope with schema versions other than our own
   Carp::confess("invalid fact type: $core_meta->{type}[1]")
     unless $class->type eq $core_meta->{type}[1];
-
-  Carp::confess("invalid schema version number")
-    unless $class->schema_version == $core_meta->{schema_version}[1];
 
   $class->new({
     guid     => $core_meta->{guid}[1],
@@ -120,7 +133,7 @@ sub core_metadata {
 # schema_version recorded in 'version' attribution during new()
 # if format of content changes, class module should increment schema version
 # to check: if ( $obj->version != $class->schema_version ) ...
-sub schema_version() { 1 }
+sub default_schema_version() { 1 }
 
 #--------------------------------------------------------------------------#
 # abstract methods -- mostly fatal
@@ -141,6 +154,13 @@ sub content_from_bytes {
 sub validate_content {
     my ($self, $content) = @_;
     Carp::confess "validate_content() not implemented by " . ref $self;
+}
+
+# XXX: I'm not really excited about having this in here. -- rjbs, 2009-03-28
+sub type_to_class {
+    my (undef, $type) = @_;
+    $type =~ s/-/::/g;
+    return $type;
 }
 
 1;
