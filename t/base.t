@@ -13,7 +13,7 @@ use Test::Exception;
 use lib 't/lib';
 use CPAN::Metabase::Fact::TestFact;
 
-plan tests => 19;
+plan tests => 18;
 
 require_ok( 'CPAN::Metabase::Fact' );
 
@@ -30,7 +30,7 @@ my ($obj, $err);
 eval { $obj = CPAN::Metabase::Fact->new() };
 $err = $@;
 like( $err, qr/Mandatory parameters/, "new() without params throws error" );
-for my $p ( qw/ id content / ) {
+for my $p ( qw/ resource content / ) {
     like( $err, qr/$p/, "... '$p' noted missing" );
 }
 
@@ -51,7 +51,7 @@ is( CPAN::Metabase::Fact->type, "CPAN-Metabase-Fact",
 );
 
 # unimplemented
-for my $m ( qw/content_as_string content_from_string validate_content/ ) {
+for my $m ( qw/content_as_bytes content_from_bytes validate_content/ ) {
     throws_ok { $obj->$m } qr/$m\(\) not implemented by CPAN::Metabase::Fact/,
       "$m not implemented";
 }
@@ -63,8 +63,8 @@ for my $m ( qw/content_as_string content_from_string validate_content/ ) {
 my $string = "Who am I?";
 
 my $args = {
-    id => "JOHNDOE/Foo-Bar-1.23.tar.gz",
-    content     => $string,
+    resource => "JOHNDOE/Foo-Bar-1.23.tar.gz",
+    content  => $string,
 };
 
 lives_ok{ $obj = CPAN::Metabase::Fact::TestFact->new( $args ) } 
@@ -78,6 +78,5 @@ lives_ok{ $obj = CPAN::Metabase::Fact::TestFact->new( %$args ) }
 isa_ok( $obj, 'CPAN::Metabase::Fact::TestFact' );
 
 is( $obj->type, "CPAN-Metabase-Fact-TestFact", "object type is correct" );
-is( $obj->refers_to, "distribution", "object refers to distribution" );
 is( $obj->content, $string, "object content correct" );
 ok( ! $obj->is_submitted, "object is_submitted() is false" );

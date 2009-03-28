@@ -51,12 +51,10 @@ sub type {
 sub new {
     my ($class, @args) = @_;
 
+    # XXX: replace this, PV is not useful enough for us to require it
     my %args = Params::Validate::validate( @args, { 
-        id => 1, content => 1, refers_to => 0 } 
-    );
-    # default for optional argument
-    # XXX for future 'author', 'module' -- DG 04/20/08
-    $args{refers_to}  ||= 'distribution';  
+        resource => 1, content => 1,
+    } );
 
     my $self = bless \%args, $class;
 
@@ -68,7 +66,6 @@ sub new {
     # generated attributes
     $self->type( $class->type );
     $self->version( $class->schema_version );
-    $self->content_meta( $self->meta_from_content );
 
     return $self;
 }
@@ -84,11 +81,23 @@ sub as_struct {
     my ($self) = @_;
 
     return {
-      resource          => $self->resource_metadata,
-      resource_metadata => $self->resource_metadata,
+      resource          => $self->resource,
       core_metadata     => $self->core_metadata,
-      content_metadata  => $self->content_metadata,
+      content           => $self->content_as_bytes,
     };
+}
+
+sub from_struct {
+  my ($class, $struct) = @_;
+
+  # XXX: cope with schema versions other than our own
+  Carp::confess("invalid fact type")
+    unless $class->type eq $struct->{type};
+
+  Carp::confess("invalid schema version number")
+    unless $class->schema_version == $struct->{schema_version};
+
+  $class->new(%$struct);
 }
 
 sub resource_metadata {
@@ -105,6 +114,9 @@ sub core_metadata {
     my $self = shift;
 
     my %meta = (
+        # user goes here now -- rjbs, 2009-03-28
+        # guid?
+        # timestamp
         type           => $self->type,
         schema_version => $self->schema_version,
     );
@@ -125,6 +137,16 @@ sub schema_version() { 1 }
 #--------------------------------------------------------------------------#
 
 sub content_metadata { return }
+
+sub content_as_bytes {
+    my ($self, $content) = @_;
+    Carp::confess "content_as_bytes() not implemented by " . ref $self;
+}
+
+sub content_from_bytes {
+    my ($self, $bytes) = @_;
+    Carp::confess "content_from_bytes() not implemented by " . ref $self;
+}
 
 sub validate_content {
     my ($self, $content) = @_;
@@ -180,12 +202,6 @@ with CPAN.pm -- for example, 'TIMB/DBI-1.604.tar.gz' for the DBI distribution.
 A reference to the actual information associated with the fact.
 The exact form of the content is up to each Fact class to determine.
 
-=head3 refers_to (optional)
-
-Defaults to 'distribution'.  At some point, should CPAN::Metabase be expanded
-to support other CPAN objects, could be 'author', 'module', 'bundle' and 
-so on.
-
 =head2 Generated during construction
 
 These attributes are generated automatically during the call to C<new()>.  
@@ -234,26 +250,8 @@ submission of the fact (e.g. submitter name or timestamp).
     content => $content_structure,
   );
 
-Constructs a new Fact. The 'id' and 'content' attributes are required.  The
-'refers_to' attribute is optional and defaults to 'distribution'.  No other
-attributes may be provided to new().
-
-=head2 freeze()
-
- $frozen = $fact->freeze;
-
-Serializes the Fact to a scalar value.  Relies on C<content_as_string> to
-serialize the Fact's content.
-
-=head2 thaw()
-
-  $fact = CPAN::Metabase::Fact->thaw( $frozen );
-
-Regenerates a Fact from its serialized form.  Relies on C<content_from_string>
-to regenerated the Fact's content. 
-
-While this should be called as a class function on CPAN::Metabase::Fact, the
-object returned will be blessed into its original class.
+Constructs a new Fact. The 'id' and 'content' attributes are required.  No
+other attributes may be provided to new().
 
 =head1 CLASS METHODS
 
