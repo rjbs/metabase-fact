@@ -74,6 +74,12 @@ sub close {
   return $self;
 }
 
+# accessor for facts
+sub facts {
+  my ($self) = @_;
+  return @{ $self->content };
+}
+
 #--------------------------------------------------------------------------#
 # implement required abstract Fact methods
 #--------------------------------------------------------------------------#
