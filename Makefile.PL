@@ -6,6 +6,7 @@ requires('base'               => 0);
 requires('Carp'               => 0); # minimum version unknown
 requires('Params::Validate'   => 0); # minimum version unknown
 requires('JSON'               => 0); # minimum version unknown
+requires('Encode'             => 0); # minimum version unknown
 
 test_requires('Test::More'      => 0.62);
 test_requires('Test::Exception' => 0.26); # avoid bugs

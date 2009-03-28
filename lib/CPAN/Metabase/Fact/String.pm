@@ -1,14 +1,18 @@
 package CPAN::Metabase::Fact::String;
 use base 'CPAN::Metabase::Fact';
+use Encode ();
 
-sub content_as_struct {
+# document that content must be characters, not bytes -- dagolden, 2009-03-28 
+
+sub content_as_bytes {
   my ($self) = @_;
-  return { string => $self->content };
+  return Encode::encode_utf8($self->content);
 }
 
-sub content_from_struct { 
-  my ($class, $struct) = @_;
-  return $struct->{string} || '';
+sub content_from_bytes { 
+  my ($class, $bytes) = @_;
+  return Encode::decode_utf8($bytes);
 }
 
 1;
+
