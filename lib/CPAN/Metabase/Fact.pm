@@ -80,33 +80,35 @@ sub is_submitted {
     return defined $self->guid && defined $self->index_meta;
 }
 
-# freeze content then freeze self
-sub freeze {
-  my ($self) = @_;
-  local $self->{content} = $self->content_as_string;
-  return Storable::nfreeze($self);
+sub as_struct {
+    my ($self) = @_;
+
+    return {
+      resource          => $self->resource_metadata,
+      resource_metadata => $self->resource_metadata,
+      core_metadata     => $self->core_metadata,
+      content_metadata  => $self->content_metadata,
+    };
 }
 
-# thaw object then thaw content
-# Call as CPAN::Metabase::Fact->thaw($data)
-# XXX what should this do if the original class isn't available? Return
-# undef? Warn? Die? -- DG, 04/20/08
-sub thaw {
-  my ($class, $data) = @_;
-  my $self = Storable::thaw($data);
-  $self->{content} = $self->content_from_string( $self->{content} );
-  return $self
+sub resource_metadata {
+    my $self = shift;
+
+    my %meta = (
+        dist_author    => $self->{dist_author},
+        dist_file      => $self->{dist_file},
+    );
+    return \%meta;
 }
 
-sub core_meta {
-  my $self = shift;
-  my %meta = (
-    dist_author => $self->{dist_author},
-    dist_file => $self->{dist_file},
-    type => $self->type,
-    schema_version => $self->schema_version,
-  );
-  return \%meta;
+sub core_metadata {
+    my $self = shift;
+
+    my %meta = (
+        type           => $self->type,
+        schema_version => $self->schema_version,
+    );
+    return \%meta;
 }
 
 #--------------------------------------------------------------------------#
@@ -122,17 +124,7 @@ sub schema_version() { 1 }
 # abstract methods -- mostly fatal
 #--------------------------------------------------------------------------#
 
-sub content_as_string { 
-    my $self = shift;
-    Carp::confess "content_as_string() not implemented by " . ref $self;
-}
-
-sub content_from_string { 
-    my $self = shift;
-    Carp::confess "content_from_string() not implemented by " . ref $self;
-}
-
-sub meta_from_content { return }
+sub content_metadata { return }
 
 sub validate_content {
     my ($self, $content) = @_;
