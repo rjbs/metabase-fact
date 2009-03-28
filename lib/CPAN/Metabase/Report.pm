@@ -36,22 +36,21 @@ sub report_spec {
 sub open {
   my ($class, @args) = @_;
   
-  my %args = Params::Validate::validate( @args, { 
-      ( map { $_ => 1 } qw/resource/ ), 
-      ( map { $_ => 0 } qw/content/ ),
-    }
-  );
+  # XXX: replace this, PV is not useful enough for us to require it
+  my %args = Params::Validate::validate(@args, { 
+      resource => 1, content => 0, guid => 0
+  } );
+
   if ( $args{content} && ref $args{content} ne 'ARRAY' ) {
-    Carp::confess( "'content' argument to $class\->new() must be an array reference" );
+    Carp::confess( "'content' argument to $class->new() must be an array reference" );
   }
+
   $args{content} ||= [];
 
   # create and check
-  my $self = bless \%args, $class;
+  my $self = bless {}, $class;
 
-  # generated attributes
-  $self->type( $class->type );
-  $self->version( $class->schema_version );
+  $self->_init_guts(\%args);
 
   return $self;
 }
@@ -70,7 +69,7 @@ sub add {
 sub close {
   my ($self) = @_;
   my $class = ref $self;
-  eval { $self->validate_content( $self->content ) };
+  eval { $self->validate_content };
   if ($@) {
     Carp::confess( "$class object content invalid: $@" );
   }
@@ -109,10 +108,13 @@ sub content_from_bytes {
 }
 
 sub validate_content {
-  my ($self, $content) = @_;
-  my $spec = $self->report_spec;
+  my ($self) = @_;
+
+  my $spec    = $self->report_spec;
+  my $content = $self->content;
+
   die ref $self . " content must be an array reference of Fact object"
-  unless ref $content eq 'ARRAY';
+    unless ref $content eq 'ARRAY';
 
   my @fact_matched;
   # check that each spec matches

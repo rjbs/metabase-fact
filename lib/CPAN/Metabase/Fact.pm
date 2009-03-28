@@ -42,12 +42,7 @@ sub new {
 
     my $self = bless { }, $class;
 
-    # generated attributes
-    $self->{content}              = $args{content};
-
-    $self->{core}{created_at}     = $args{created_at} || time; # no zero!
-    $self->{core}{guid}           = $args{guid}       || _guid;
-    $self->{core}{resource}       = $args{resource};
+    $self->_init_guts(\%args);
 
     eval { $self->validate_content };
     if ($@) {
@@ -55,6 +50,16 @@ sub new {
     }
 
     return $self;
+}
+
+sub _init_guts {
+  my ($self, $args) = @_;
+
+  $self->{content}              = $args->{content};
+
+  $self->{core}{created_at}     = $args->{created_at} || time;
+  $self->{core}{guid}           = $args->{guid}       || _guid;
+  $self->{core}{resource}       = $args->{resource};
 }
 
 sub created_at { $_[0]->{core}{created_at} }
