@@ -14,7 +14,7 @@ use lib 't/lib';
 
 plan tests => 9;
 
-require_ok( 'CPAN::Metabase::Fact::String' );
+require_ok( 'FactSubclasses.pm' );
 
 #--------------------------------------------------------------------------#
 # fixtures
@@ -29,17 +29,17 @@ my $args = {
     content  => $string,
 };
 
-lives_ok{ $obj = CPAN::Metabase::Fact::String->new( $args ) } 
+lives_ok{ $obj = FactThree->new( $args ) } 
     "new( <hashref> ) doesn't die";
 
 isa_ok( $obj, 'CPAN::Metabase::Fact::String' ); 
 
-lives_ok{ $obj = CPAN::Metabase::Fact::String->new( %$args ) } 
+lives_ok{ $obj = FactThree->new( %$args ) } 
     "new( <list> ) doesn't die";
 
 isa_ok( $obj, 'CPAN::Metabase::Fact::String' );
 
-is( $obj->type, "CPAN-Metabase-Fact-String", "object type is correct" );
+is( $obj->type, "FactThree", "object type is correct" );
 is( $obj->resource, $args->{resource}, "object refers to distribution" );
 is( $obj->content, $string, "object content correct" );
 ok( ! $obj->is_submitted, "object is_submitted() is false" );
