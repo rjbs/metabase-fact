@@ -52,6 +52,9 @@ sub new_pa {
   isa_ok( $clone, $PA );
   is_deeply( $clone, $fact, "round tripped clone matches original" );
 
+  use Data::Dumper;
+  warn Dumper({ orig => $fact, clone => $clone });
+
   my $content_meta = {
     requires => [ keys %$sample_content ],
   };

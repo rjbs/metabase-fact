@@ -13,7 +13,7 @@ use Test::Exception;
 use lib 't/lib';
 use CPAN::Metabase::Fact::TestFact;
 
-plan tests => 18;
+plan tests => 17;
 
 require_ok( 'CPAN::Metabase::Fact' );
 
@@ -79,4 +79,3 @@ isa_ok( $obj, 'CPAN::Metabase::Fact::TestFact' );
 
 is( $obj->type, "CPAN-Metabase-Fact-TestFact", "object type is correct" );
 is( $obj->content, $string, "object content correct" );
-ok( ! $obj->is_submitted, "object is_submitted() is false" );

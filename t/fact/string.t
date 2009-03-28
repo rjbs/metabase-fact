@@ -34,15 +34,6 @@ my $args = {
     content  => $string,
 };
 
-my $as_struct = {
-  resource          => $args->{resource},
-  core_metadata     => {
-    type           => [ Str => 'FactThree' ],
-    schema_version => [ Num => 1 ],
-  },
-  content           => $string,
-};
-
 lives_ok{ $obj = FactThree->new( $args ) } 
     "new( <hashref> ) doesn't die";
 
@@ -57,7 +48,22 @@ is( $obj->type, "FactThree", "object type is correct" );
 is( $obj->resource, $args->{resource}, "object refers to distribution" );
 is_deeply( $obj->content_metadata, $meta, "object content_metadata() correct" );
 is( $obj->content, $string, "object content correct" );
-is_deeply( $obj->as_struct, $as_struct, "object as_struct() correct"); 
-# remove this? -- dagolden, 2009-03-28 
-ok( ! $obj->is_submitted, "object is_submitted() is false" );
+
+my $want_struct = {
+  core_metadata     => {
+    type           => [ Str => 'FactThree'       ],
+    schema_version => [ Num => 1                 ],
+    guid           => [ Str => $obj->guid        ],
+    resource       => [ Str => $args->{resource} ],
+  },
+  content           => $string,
+};
+
+my $have_struct = $obj->as_struct;
+ok(
+  (delete $have_struct->{core_metadata}{created_at}) - time < 60,
+  'we created the fact recently',
+);
+
+is_deeply($have_struct, $want_struct, "object as_struct() correct"); 
 

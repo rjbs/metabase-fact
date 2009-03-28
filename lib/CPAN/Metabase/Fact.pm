@@ -9,7 +9,7 @@ use 5.006;
 use strict;
 use warnings;
 use Params::Validate ();
-use Storable ();
+use Data::GUID guid_string => { -as => '_guid' };
 use Carp ();
 
 our $VERSION = '0.001';
@@ -19,29 +19,13 @@ $VERSION = eval $VERSION; # convert '1.23_45' to 1.2345
 # accessors
 #--------------------------------------------------------------------------#
 
-# XXX should any accessors be read-only? -- DG, 04/08/2008
-
-{ 
-  my @accessors = qw(
-    resource version guid content
-  );
-  no strict 'refs';
-  for my $s (@accessors) {
-      *$s = sub { $_[0]->{$s} = $_[1] if $_[1]; $_[0]->{$s} };
-  }
-}
-
 # object attribute or else convert class name
 sub type {
   my $self = shift;
-  if (ref $self) {
-    $self->{type} = shift if @_;
-    return $self->{type};
-  }
-  else {
-    $self =~ s{::}{-}g;
-    return $self;
-  }
+  my $type = ref $self || $self;
+
+  $type =~ s{::}{-}g;
+  return $type;
 }
 
 #--------------------------------------------------------------------------#
@@ -52,38 +36,38 @@ sub new {
     my ($class, @args) = @_;
 
     # XXX: replace this, PV is not useful enough for us to require it
-    my %args = Params::Validate::validate( @args, { 
-        resource => 1, content => 1,
+    my %args = Params::Validate::validate(@args, { 
+        resource => 1, content => 1, guid => 0
     } );
 
-    my $self = bless \%args, $class;
+    my $self = bless { }, $class;
 
-    eval { $self->validate_content( $self->content ) };
+    # generated attributes
+    $self->{content}              = $args{content};
+
+    $self->{core}{created_at}     = $args{created_at} || time; # no zero!
+    $self->{core}{guid}           = $args{guid}       || _guid;
+    $self->{core}{resource}       = $args{resource};
+
+    eval { $self->validate_content };
     if ($@) {
         Carp::confess( "$class object content invalid: $@" );
     }
 
-    # generated attributes
-    $self->type( $class->type );
-    $self->version( $class->schema_version );
-
     return $self;
 }
 
-# defined 'submitted' as having both guid and index_meta fields
-# XXX -- do we really still need this?  -- DG, 04/20/08
-sub is_submitted {
-    my ($self) = @_;
-    return defined $self->guid && defined $self->index_meta;
-}
+sub created_at { $_[0]->{core}{created_at} }
+sub content    { $_[0]->{content}          }
+sub guid       { $_[0]->{core}{guid}       }
+sub resource   { $_[0]->{core}{resource}   }
 
 sub as_struct {
     my ($self) = @_;
 
     return {
-      resource          => $self->resource,
-      core_metadata     => $self->core_metadata,
       content           => $self->content_as_bytes,
+      core_metadata     => $self->core_metadata,
     };
 }
 
@@ -99,7 +83,8 @@ sub from_struct {
     unless $class->schema_version == $core_meta->{schema_version}[1];
 
   $class->new({
-    resource => $struct->{resource},
+    guid     => $core_meta->{guid}[1],
+    resource => $core_meta->{resource}[1],
     content  => $class->content_from_bytes($struct->{content}),
   });
 }
@@ -107,24 +92,20 @@ sub from_struct {
 sub resource_metadata {
     my $self = shift;
 
-    my %meta = (
-        dist_author    => [ Str => $self->{dist_author} ],
-        dist_file      => [ Str => $self->{dist_file}   ],
-    );
-    return \%meta;
+    return {};
 }
 
 sub core_metadata {
     my $self = shift;
 
-    my %meta = (
-        # user goes here now -- rjbs, 2009-03-28
-        # guid?
-        # timestamp
+    return {
+        # user will go here -- rjbs, 2009-03-28
+        guid           => [ Str => $self->guid           ],
+        resource       => [ Str => $self->resource       ],
+        created_at     => [ Num => $self->created_at     ],
         type           => [ Str => $self->type           ],
         schema_version => [ Num => $self->schema_version ],
-    );
-    return \%meta;
+    }
 }
 
 #--------------------------------------------------------------------------#
