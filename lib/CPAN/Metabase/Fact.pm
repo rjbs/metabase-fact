@@ -143,17 +143,20 @@ sub content_metadata { return }
 
 sub content_as_bytes {
     my ($self, $content) = @_;
-    Carp::confess "content_as_bytes() not implemented by " . ref $self;
+    Carp::confess "content_as_bytes() not implemented by "
+      . (ref $self || $self)
 }
 
 sub content_from_bytes {
     my ($self, $bytes) = @_;
-    Carp::confess "content_from_bytes() not implemented by " . ref $self;
+    Carp::confess "content_from_bytes() not implemented by "
+      . (ref $self || $self)
 }
 
 sub validate_content {
     my ($self, $content) = @_;
-    Carp::confess "validate_content() not implemented by " . ref $self;
+    Carp::confess "validate_content() not implemented by "
+      . (ref $self || $self)
 }
 
 # XXX: I'm not really excited about having this in here. -- rjbs, 2009-03-28

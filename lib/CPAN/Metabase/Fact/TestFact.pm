@@ -16,7 +16,7 @@ sub content_as_bytes {
   JSON->new->encode({ payload => $self->content });
 }
 
-sub content_from_string { 
+sub content_from_bytes { 
   my ($class, $string) = @_;
 
   $string = $$string if ref $string;
