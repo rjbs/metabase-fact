@@ -69,19 +69,20 @@ sub _init_guts {
   Carp::confess("illegal type ($args->{type}) for $self")
     if defined $args->{type} and $args->{type} ne $self->type;
 
-  $self->{content}              = $args->{content};
+  my $meta = $self->{metadata} = { core => {} };
+  $self->{content} = $args->{content};
 
-  $self->{metadata}{core}{created_at}     = $args->{created_at} || time;
-  $self->{metadata}{core}{guid}           = $args->{guid}       || _guid;
-  $self->{metadata}{core}{resource}       = $args->{resource};
-  $self->{metadata}{core}{schema_version} = $args->{schema_version};
+  $meta->{core}{created_at}     = [ Num => $args->{created_at} || time  ];
+  $meta->{core}{guid}           = [ Str => $args->{guid}       || _guid ];
+  $meta->{core}{resource}       = [ Str => $args->{resource}            ];
+  $meta->{core}{schema_version} = [ Num => $args->{schema_version}      ];
 }
 
-sub created_at       { $_[0]->{metadata}{core}{created_at}       }
-sub content          { $_[0]->{content}                          }
-sub guid             { $_[0]->{metadata}{core}{guid}             }
-sub resource         { $_[0]->{metadata}{core}{resource}         }
-sub schema_version   { $_[0]->{metadata}{core}{schema_version}   }
+sub created_at       { $_[0]->{metadata}{core}{created_at}[1]     }
+sub content          { $_[0]->{content}                           }
+sub guid             { $_[0]->{metadata}{core}{guid}[1]           }
+sub resource         { $_[0]->{metadata}{core}{resource}[1]       }
+sub schema_version   { $_[0]->{metadata}{core}{schema_version}[1] }
 
 sub as_struct {
     my ($self) = @_;

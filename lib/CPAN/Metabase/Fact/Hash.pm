@@ -11,12 +11,12 @@ sub validate_content {
 
 sub content_as_bytes {
   my ($self) = @_;
-  return JSON::to_json($self->content);
+  return JSON->new->encode($self->content);
 }
 
 sub content_from_bytes { 
   my ($class, $bytes) = @_;
-  return JSON::from_json($bytes);
+  return JSON->new->decode($byte);
 }
 
 1;
