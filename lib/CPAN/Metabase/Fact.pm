@@ -76,6 +76,7 @@ sub _init_guts {
   $meta->{core}{guid}           = [ Str => $args->{guid}       || _guid ];
   $meta->{core}{resource}       = [ Str => $args->{resource}            ];
   $meta->{core}{schema_version} = [ Num => $args->{schema_version}      ];
+  $meta->{core}{type}           = [ Str => $self->type                  ];
 }
 
 sub created_at       { $_[0]->{metadata}{core}{created_at}[1]     }
@@ -124,15 +125,7 @@ sub resource_metadata {
 
 sub core_metadata {
     my $self = shift;
-
-    return {
-        # user will go here -- rjbs, 2009-03-28
-        guid           => [ Str => $self->guid           ],
-        resource       => [ Str => $self->resource       ],
-        created_at     => [ Num => $self->created_at     ],
-        type           => [ Str => $self->type           ],
-        schema_version => [ Num => $self->schema_version ],
-    }
+    $self->{metadata}{core};
 }
 
 #--------------------------------------------------------------------------#
