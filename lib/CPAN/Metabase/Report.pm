@@ -44,6 +44,7 @@ sub open {
       resource       => 1,
       schema_version => 0,
       type           => 0,
+      user_id        => 0, # require?
   } );
 
   if ( $args{content} && ref $args{content} ne 'ARRAY' ) {

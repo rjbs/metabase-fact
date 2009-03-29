@@ -43,6 +43,7 @@ sub new {
         resource       => 1,
         schema_version => 0,
         type           => 0,
+        user_id        => 0, # require?
     } );
 
     my $self = bless { }, $class;
@@ -84,6 +85,7 @@ sub content          { $_[0]->{content}                           }
 sub guid             { $_[0]->{metadata}{core}{guid}[1]           }
 sub resource         { $_[0]->{metadata}{core}{resource}[1]       }
 sub schema_version   { $_[0]->{metadata}{core}{schema_version}[1] }
+sub user_id          { $_[0]->{metadata}{core}{user_id}[1]        }
 
 sub as_struct {
     my ($self) = @_;
