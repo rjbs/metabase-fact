@@ -2,5 +2,6 @@
 # Development notes
 #--------------------------------------------------------------------------#
 
-- consider encoding to common charset before nfreeze
+- Make sure all subclasses and test classes take scalar or scalar ref
+  for content_as/from_bytes
 

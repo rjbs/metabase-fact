@@ -180,19 +180,41 @@ __END__
 
 =head1 NAME
 
-CPAN::Metabase::Fact - a fact in or for a CPAN metabase
+CPAN::Metabase::Fact - base class for Facts
 
 =head1 SYNOPSIS
 
-  my $fact = TestReport->new({
-    id => 'RJBS/CPAN-Metabase-Fact-0.001.tar.gz',
+  # defining the fact class
+  package MyFact;
+  use base 'CPAN::Metabase::Fact';
+
+  sub content_as_bytes {
+    ...
+  }
+
+  sub content_from_bytes {
+    ...
+  }
+
+  sub content_metadata {
+    ... 
+  }
+
+  sub validate_content {
+    ...
+  }
+
+  # using the fact class
+  my $fact = TestReport->new(
+    resource => 'RJBS/CPAN-Metabase-Fact-0.001.tar.gz',
     content     => {
       status => 'FAIL',
       time   => 3029,
     },
-  });
+  );
 
   $client->send_fact($fact);
+
 
 =head1 DESCRIPTION
 
@@ -212,7 +234,7 @@ that can be sent to or retrieved from a CPAN::Metabase system.
 
 =head2 Set during construction 
 
-=head3 id (required)
+=head3 resource (required)
 
 The canonical CPAN ID the Fact relates to.  For distributions, this is the 
 'AUTHOR/Distname-Version.Suffix' form used to install specific distributions
@@ -247,13 +269,6 @@ indexed, and are available when a Fact is queried from a Metabase.
 =head3 guid
 
 A global, unique identifier for a particular Fact in a particular Metabase.
-
-=head3 content_meta
-
-If a Fact subclass provides a C<meta_from_content()> method, it will be used to
-populate this attribute with a hash of content-specific key/value pairs to be
-used during indexing.  For example, a CPAN Testers report Fact might provide a
-'grade' key with a value indicating a test result of 'FAIL'. 
 
 =head1 METHODS
 
@@ -294,35 +309,47 @@ their usual RFC meanings.
 
 These methods MUST throw an exception if an error occurs.
 
-=head2 content_as_string() (required)
+=head2 content_as_bytes() (required)
 
-  $string = $fact->content_as_string;
+  $string = $fact->content_as_bytes;
 
-This method MUST serialize a Fact's content to a string (e.g. using 
-L<Storable>, L<JSON::XS>, L<Data::Dumper> etc.)
+This method MUST serialize a Fact's content as bytes in a scalar and return it.
+The method for serialization is up to the individual fact class to determine.
+Some common subclasses are available to handle serialization for common data types.
+See L<CPAN::Metabase::Fact::Hash> and L<CPAN::Metabase::Fact::String>.
 
-=head2 content_from_string() (required)
+=head2 content_from_bytes() (required)
 
-  $content = $fact->content_from_string( $string );
-  $content = $fact->content_from_string( \$string );
+  $content = $fact->content_from_bytes( $string );
+  $content = $fact->content_from_bytes( \$string );
 
-Given a string from C<content_as_string>, this method MUST regenerate and
-return the original content data structure.  It MUST accept either a string
-or string reference as an argument.  It MUST NOT overwrite the Fact's
-content attribute directly.
+Given a scalar, this method MUST regenerate and return the original content
+data structure.  It MUST accept either a string or string reference as an
+argument.  It MUST NOT overwrite the Fact's content attribute directly.
 
-=head2 meta_from_content()
+=head2 content_metadata() (optional)
 
-  $content_meta = $fact->meta_from_content;
+  $content_meta = $fact->content_metadata;
 
-If defined in a subclass, this method MUST return a hash_reference with
-content-specific indexing metadata for the Fact.  Hash values MUST either be
-simple scalars (strings or numbers) or array references.  An array reference
-indicates multiple values apply to the associated key.  For example:
+If defined in a subclass, this method MUST return a hash reference with
+content-specific indexing metadata for the Fact.  The key MUST be the name of
+the field for indexing.  ( XXX rjbs -- what format? ) 
 
-  {
-    md5sum => '6f93ee1d5f326dffb245711d38751e85',
-    tags => [ qw/text database csv/ ],
+Hash values MUST be an array_ref containing a type and the value for the either be
+simple scalars (strings or numbers) or array references.  Type MUST be one of
+
+ Str
+ Num
+
+Here is a hypothetical example of content metadata for an image fact:
+  
+  sub content_metdata {
+    my $self = shift;
+    return {
+      width   => [ Num => _compute_width  ( $self->content ) ],
+      height  => [ Num => _compute_height ( $self->content ) ],
+      comment => [ Str => _extract_comment( $self->content ) ],
+    }
   }
 
 It MUST return C<undef> if no content-specific metadata is available.
@@ -334,6 +361,15 @@ It MUST return C<undef> if no content-specific metadata is available.
 This method SHOULD check for the validity of content within the Fact.  It
 MUST throw an exception if the fact content is invalid.  (The return value is
 ignored.)
+
+Classes SHOULD call validate_content in their superclass:
+
+  sub validate_content {
+    my $self = shift;
+    $self->SUPER::validate_content;
+    my $error = _check_content( $self );
+    die $error if $error;
+  }
 
 =head1 BUGS
 
