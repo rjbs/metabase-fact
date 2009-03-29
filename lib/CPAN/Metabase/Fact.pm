@@ -71,46 +71,54 @@ sub _init_guts {
 
   $self->{content}              = $args->{content};
 
-  $self->{core}{created_at}     = $args->{created_at} || time;
-  $self->{core}{guid}           = $args->{guid}       || _guid;
-  $self->{core}{resource}       = $args->{resource};
-  $self->{core}{schema_version} = $args->{schema_version};
+  $self->{metadata}{core}{created_at}     = $args->{created_at} || time;
+  $self->{metadata}{core}{guid}           = $args->{guid}       || _guid;
+  $self->{metadata}{core}{resource}       = $args->{resource};
+  $self->{metadata}{core}{schema_version} = $args->{schema_version};
 }
 
-sub created_at       { $_[0]->{core}{created_at}       }
-sub content          { $_[0]->{content}                }
-sub guid             { $_[0]->{core}{guid}             }
-sub resource         { $_[0]->{core}{resource}         }
-sub schema_version   { $_[0]->{core}{schema_version}   }
+sub created_at       { $_[0]->{metadata}{core}{created_at}       }
+sub content          { $_[0]->{content}                          }
+sub guid             { $_[0]->{metadata}{core}{guid}             }
+sub resource         { $_[0]->{metadata}{core}{resource}         }
+sub schema_version   { $_[0]->{metadata}{core}{schema_version}   }
 
 sub as_struct {
     my ($self) = @_;
 
     return {
-      content           => $self->content_as_bytes,
-      core_metadata     => $self->core_metadata,
+      content  => $self->content_as_bytes,
+      metadata => {
+        core => $self->core_metadata,
+      }
     };
 }
 
 sub from_struct {
   my ($class, $struct) = @_;
-  my $core_meta = $struct->{core_metadata};
+  my $metadata  = $struct->{metadata};
+  my $core_meta = $metadata->{core};
 
-  # XXX: cope with schema versions other than our own
   Carp::confess("invalid fact type: $core_meta->{type}[1]")
     unless $class->type eq $core_meta->{type}[1];
 
-  $class->new({
+  # XXX: This is going to have to use something /other/ than ->new to handle
+  # facts coming from 
+  my $self = $class->new({
     (map { $_ => $core_meta->{$_}[1] } keys %$core_meta),
-    
     content  => $class->content_from_bytes($struct->{content}),
   });
+
+  $self->{metadata}{resource} = $metadata->{resource} if $metadata->{resource};
+  $self->{metadata}{content}  = $metadata->{content}  if $metadata->{content};
+
+  return $self;
 }
 
 sub resource_metadata {
     my $self = shift;
 
-    return {};
+    return $self->{metadata}{resource} ||= {};
 }
 
 sub core_metadata {

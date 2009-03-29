@@ -50,18 +50,20 @@ is_deeply( $obj->content_metadata, $meta, "object content_metadata() correct" );
 is( $obj->content, $string, "object content correct" );
 
 my $want_struct = {
-  core_metadata     => {
-    type           => [ Str => 'FactThree'       ],
-    schema_version => [ Num => 1                 ],
-    guid           => [ Str => $obj->guid        ],
-    resource       => [ Str => $args->{resource} ],
+  content  => $string,
+  metadata => {
+    core    => {
+      type           => [ Str => 'FactThree'       ],
+      schema_version => [ Num => 1                 ],
+      guid           => [ Str => $obj->guid        ],
+      resource       => [ Str => $args->{resource} ],
+    },
   },
-  content           => $string,
 };
 
 my $have_struct = $obj->as_struct;
 ok(
-  (delete $have_struct->{core_metadata}{created_at}) - time < 60,
+  (delete $have_struct->{metadata}{core}{created_at}) - time < 60,
   'we created the fact recently',
 );
 
