@@ -78,6 +78,10 @@ sub _init_guts {
   $meta->{core}{resource}       = [ Str => $args->{resource}            ];
   $meta->{core}{schema_version} = [ Num => $args->{schema_version}      ];
   $meta->{core}{type}           = [ Str => $self->type                  ];
+
+  if (defined $args->{user_id}) {
+    $meta->{core}{user_id}      = [ Str => $args->{user_id}             ];
+  }
 }
 
 sub created_at       { $_[0]->{metadata}{core}{created_at}[1]     }
