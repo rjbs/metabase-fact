@@ -45,7 +45,6 @@ sub set_creator_id {
 sub open {
   my ($class, @args) = @_;
   
-  # XXX: replace this, PV is not useful enough for us to require it
   my $args = $class->__validate_args(
     \@args,
     { 
@@ -55,7 +54,7 @@ sub open {
       resource       => 1,
       schema_version => 0,
       type           => 0,
-      user_id        => 0, # require?
+      creator_id     => 0,
     }
   );
 

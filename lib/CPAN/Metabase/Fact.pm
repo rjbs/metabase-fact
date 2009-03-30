@@ -69,7 +69,7 @@ sub new {
         resource       => 1,
         schema_version => 0,
         type           => 0,
-        user_id        => 0, # require?
+        creator_id     => 0,
       },
     );
 
@@ -106,8 +106,8 @@ sub _init_guts {
   $meta->{core}{schema_version} = [ Num => $args->{schema_version}      ];
   $meta->{core}{type}           = [ Str => $self->type                  ];
 
-  if (defined $args->{user_id}) {
-    $meta->{core}{user_id}      = [ Str => $args->{user_id}             ];
+  if (defined $args->{creator_id}) {
+    $meta->{core}{creator_id}   = [ Str => $args->{creator_id}          ];
   }
 }
 
