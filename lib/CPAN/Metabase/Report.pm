@@ -37,7 +37,7 @@ sub open {
   my ($class, @args) = @_;
   
   # XXX: replace this, PV is not useful enough for us to require it
-  my $args = $self->__validate_args(
+  my $args = $class->__validate_args(
     \@args,
     { 
       content        => 0,
