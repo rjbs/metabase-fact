@@ -13,6 +13,10 @@ $VERSION = eval $VERSION; ## no critic
 
 use base 'CPAN::Metabase::Report';
 
+use CPAN::Metabase::User::EmailAddress;
+use CPAN::Metabase::User::FullName;
+use CPAN::Metabase::User::Secret;
+
 sub report_spec { 
   return {
     'CPAN::Metabase::User::EmailAddress'  => '1+',
@@ -36,8 +40,8 @@ CPAN::Metabase::User::Profile - Metabase report class for user-related facts
   );
 
   $profile->add( 'CPAN::Metabase::User::EmailAddress' => 'jdoe@example.com' );
-  $profile->add( 'CPAN::Metabase::User::FullName' => 'John Doe' );
-  $profile->add( 'CPAN::Metabase::User::Secret' => 'aixuZuo8' );
+  $profile->add( 'CPAN::Metabase::User::FullName'     => 'John Doe' );
+  $profile->add( 'CPAN::Metabase::User::Secret'       => 'aixuZuo8' );
     
   $profile->close();
 
