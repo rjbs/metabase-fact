@@ -9,6 +9,7 @@ use warnings;
 
 use Test::More;
 use File::Find;
+use File::Spec;
 
 my @pms;
 find( sub { return if /^\.\.?$/; push @pms, $File::Find::name if /\.pm/ }, 'lib' );
@@ -20,8 +21,10 @@ else {
   plan skip_all => 'no .pm files found';
 }
 
+my $null = File::Spec->devnull;
+
 for my $file ( @pms ) {
-  system("$^X -c $file > /dev/null 2>&1");
+  system("$^X -c $file > $null 2>&1");
   ok( $? == 0, "compiled $file" );
 }
 
