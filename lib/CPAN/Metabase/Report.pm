@@ -70,6 +70,8 @@ sub open {
 sub add {
   my ($self, $fact_class, $content ) = @_;
 
+  Carp::confess("fact is already closed") if $self->{__closed};
+
   my $fact = $fact_class->new( 
     resource => $self->resource, 
     content  => $content,
@@ -85,10 +87,15 @@ sub add {
 sub close {
   my ($self) = @_;
   my $class = ref $self;
-  eval { $self->validate_content };
-  if ($@) {
-    Carp::confess( "$class object content invalid: $@" );
+
+  my $ok = eval { $self->validate_content; 1 };
+  unless ($ok) {
+    my $error = $@ || '(unknown error)';
+    Carp::confess( "$class object content invalid: $error" );
   }
+
+  $self->{__closed} = 1;
+
   return $self;
 }
 
@@ -102,8 +109,18 @@ sub facts {
 # implement required abstract Fact methods
 #--------------------------------------------------------------------------#
 
+sub from_struct {
+  my ($class, $struct) = @_;
+  my $self = $class->SUPER::from_struct($struct);
+  $self->{__closed} = 1;
+  return $self;
+}
+
 sub content_as_bytes { 
   my $self = shift;
+
+  Carp::confess("can't serialize an open report") unless $self->{__closed};
+
   my $content = [ map { $_->as_struct } @{ $self->content } ];
   JSON->new->encode( $content );
 }
