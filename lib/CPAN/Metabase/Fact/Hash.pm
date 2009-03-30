@@ -3,10 +3,24 @@ use base 'CPAN::Metabase::Fact';
 use JSON ();
 use Carp ();
 
+sub _dlength { defined( $_[0] ) && length( $_[0] ) }
+
 sub validate_content {
   my ($self) = @_;
+  my $content = $self->content;
+  my $class = ref $self;
   Carp::confess "content must be a hashref"
-    unless ref $self->content eq 'HASH';
+    unless ref $content eq 'HASH';
+  my $get_req =$self->can('required_keys') || sub { () }; 
+  my $get_opt =$self->can('optional_keys') || sub { () }; 
+  # find missing
+  my @missing =  grep { ! _dlength( $content->{$_} ) } $get_req->();
+  Carp::croak "missing required keys for $class\: @missing\n" if @missing;
+  # check for invalid
+  my %valid = map { $_ => 1 } ($get_req->(), $get_opt->());
+  my @invalid = grep { ! exists $valid{$_} } keys %$content;
+  Carp::croak "invalid keys for $class\: @invalid\n" if @invalid;
+  return 1;
 }
 
 sub content_as_bytes {
@@ -30,23 +44,24 @@ CPAN::Metabase::Fact::Hash - fact subtype for simple hashes
 =head1 SYNOPSIS
 
   # defining the fact class
-  package MyFact;
+  package MyComment;
   use base 'CPAN::Metabase::Fact::Hash';
+
+  sub required_keys { qw/poster/ }
+
+  sub optional_keys { qw/comment/ }
 
   sub content_metadata {
     my $self = shift;
     return {
-      'user_id' => [ Str => $self->content->{user_id} ],
+      'poster' => [ Str => $self->content->{poster} ],
     };
   }
 
   sub validate_content {
     my $self = shift;
-    $self->SUPER::validate_content;
-    die __PACKAGE__ . " content requires poster\n"
-      unless $self->content->{poster};
-    die __PACKAGE__ . " content requires comment\n"
-      unless $self->content->{comment};
+    $self->SUPER::validate_content; # required and optional keys
+    # other analysis of values
   }
 
   # using the fact class
