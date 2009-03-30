@@ -48,7 +48,6 @@ sub open {
   my $args = $class->__validate_args(
     \@args,
     { 
-      content        => 0,
       created_at     => 0,
       guid           => 0,
       resource       => 1,
@@ -57,10 +56,6 @@ sub open {
       creator_id     => 0,
     }
   );
-
-  if ($args->{content} && ref $args->{content} ne 'ARRAY' ) {
-    Carp::confess( "'content' argument to $class->new() must be an array reference" );
-  }
 
   $args->{content} ||= [];
 

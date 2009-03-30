@@ -10,7 +10,7 @@ use warnings;
 use Test::More;
 use Test::Exception;
 
-plan tests => 14;
+plan tests => 11;
 
 require_ok( 'CPAN::Metabase::Report' );
 require_ok( 'CPAN::Metabase::Fact::TestFact' );
@@ -37,15 +37,6 @@ my ($obj, $err);
 # report that takes 1 fact
 #--------------------------------------------------------------------------#
 
-lives_ok { 
-  $obj = JustOneFact->open( %params, content => [ $facts{FactOne} ] );
-} "lives: open() given 1 fact";
-
-isa_ok( $obj, 'JustOneFact' );
-
-lives_ok {
-  $obj->close;
-} "lives: close()";
 
 lives_ok { 
   $obj = JustOneFact->open( %params )
