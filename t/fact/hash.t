@@ -13,7 +13,7 @@ use JSON;
 
 use lib 't/lib';
 
-plan tests => 13;
+plan tests => 14;
 
 require_ok( 'FactSubclasses.pm' );
 
@@ -85,5 +85,10 @@ ok(
   'we created the fact recently',
 );
 
-is_deeply($have_struct, $want_struct, "object as_struct() correct"); 
+is_deeply($have_struct, $want_struct, "object as_struct correct"); 
 
+my $guid = '351E99EA-1D21-11DE-AB9C-3268421C7A0A';
+$obj->set_creator_id($guid);
+$want_struct->{metadata}{core}{creator_id} = [ Str => $guid ];
+
+is_deeply($have_struct, $want_struct, "object as_struct correct w/creator"); 

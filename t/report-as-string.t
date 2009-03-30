@@ -10,7 +10,7 @@ use warnings;
 use Test::More;
 use Test::Exception;
 
-plan tests => 9;
+plan tests => 13;
 
 require_ok( 'CPAN::Metabase::Report' );
 require_ok( 'CPAN::Metabase::Fact::TestFact' );
@@ -66,4 +66,15 @@ isa_ok( $report2, $class );
     
 is_deeply( $report, $report2, "report2 is a clone of report" );
 
+# set_creator_id
+for my $fact ($report, $report->facts) {
+  is($fact->creator_id, undef, "no creator id (round 1)");
+}
 
+my $guid = '351E99EA-1D21-11DE-AB9C-3268421C7A0A';
+
+$report->set_creator_id($guid);
+
+for my $fact ($report, $report->facts) {
+  is($fact->creator_id, $guid, "creator set properly (round 2)");
+}

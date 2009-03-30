@@ -116,8 +116,22 @@ sub content          { $_[0]->{content}                           }
 sub guid             { $_[0]->{metadata}{core}{guid}[1]           }
 sub resource         { $_[0]->{metadata}{core}{resource}[1]       }
 sub schema_version   { $_[0]->{metadata}{core}{schema_version}[1] }
-sub user_id          { $_[0]->{metadata}{core}{user_id}[1]        }
 
+sub creator_id       {
+  my ($self) = @_;
+  return unless my $creator_id_datum = $_[0]->{metadata}{core}{creator_id};
+  return $creator_id_datum->[1];
+}
+
+sub set_creator_id {
+  my ($self, $guid) = @_;
+
+  Carp::confess("can't set creator_id; it is already set")
+    if $self->creator_id;
+
+  $self->{metadata}{core}{creator_id} = [ Str => $guid ];
+}
+  
 sub as_struct {
     my ($self) = @_;
 

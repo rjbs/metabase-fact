@@ -24,6 +24,16 @@ sub report_spec {
   Carp::confess "report_spec() not implemented by " . ref $self;
 }
 
+sub set_creator_id {
+  my ($self, $guid) = @_;
+
+  $self->SUPER::set_creator_id($guid);
+
+  for my $fact ($self->facts) {
+    $fact->set_creator_id($guid);
+  }
+}
+
 #--------------------------------------------------------------------------#
 # alternate constructor methods
 #--------------------------------------------------------------------------#
@@ -65,10 +75,14 @@ sub open {
 
 sub add {
   my ($self, $fact_class, $content ) = @_;
+
   my $fact = $fact_class->new( 
     resource => $self->resource, 
     content  => $content,
   );
+
+  $fact->set_creator_id($self->creator_id) if $self->creator_id;
+
   push @{$self->{content}}, $fact;
   return $self;
 }
