@@ -113,6 +113,7 @@ sub content_from_bytes {
   return \@facts;
 }
 
+# XXX what if spec is '0' (not '0+')?  -- dagolden, 2009-03-30 
 sub validate_content {
   my ($self) = @_;
 
