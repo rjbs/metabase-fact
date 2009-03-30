@@ -29,7 +29,7 @@ my ($obj, $err);
 
 eval { $obj = CPAN::Metabase::Fact->new() };
 $err = $@;
-like( $err, qr/Mandatory parameters/, "new() without params throws error" );
+like( $err, qr/missing required/, "new() without params throws error" );
 for my $p ( qw/ resource content / ) {
     like( $err, qr/$p/, "... '$p' noted missing" );
 }
