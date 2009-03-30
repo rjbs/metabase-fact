@@ -24,10 +24,8 @@ sub content_metadata    {
 
 package FactFour;
 use base 'CPAN::Metabase::Fact::Hash';
-sub validate_content    { 
-  $_[0]->SUPER::validate_content;
-  die "not a hash-ref" unless ref $_[0]->content eq 'HASH'; 
-}
+sub required_keys {qw/ first /};
+sub optional_keys {qw/ second /};
 sub content_metadata    { 
   return { 'size' => [ Num => scalar keys %{ $_[0]->content } ] } 
 }

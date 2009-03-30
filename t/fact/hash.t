@@ -13,7 +13,7 @@ use JSON;
 
 use lib 't/lib';
 
-plan tests => 11;
+plan tests => 13;
 
 require_ok( 'FactSubclasses.pm' );
 
@@ -33,12 +33,27 @@ my $meta = {
 };
 
 my $args = {
-  resource => "JOHNDOE/Foo-Bar-1.23.tar.gz",
+  resource => "cpan:///JOHNDOE/Foo-Bar-1.23.tar.gz",
   content  => $struct,
 };
 
-lives_ok{ $obj = FactFour->new( $args ) } 
+my $test_args = {
+  resource => $args->{resource},
+  content => { },
+};
+
+throws_ok { $obj = FactFour->new( $test_args ) } qr/missing required keys.+?first/, 
+  'missing required dies';
+
+$test_args->{content}{first} = 1;
+
+lives_ok{ $obj = FactFour->new( $test_args ) } 
     "new( <hashref> ) doesn't die";
+
+$test_args->{content}{third} = 3;
+
+throws_ok { $obj = FactFour->new( $test_args ) } qr/invalid keys.+?third/, 
+  'invalid key dies';
 
 isa_ok( $obj, 'CPAN::Metabase::Fact::Hash' ); 
 
