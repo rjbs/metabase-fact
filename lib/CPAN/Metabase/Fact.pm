@@ -8,7 +8,6 @@ package CPAN::Metabase::Fact;
 use 5.006;
 use strict;
 use warnings;
-use Params::Validate ();
 use Data::GUID guid_string => { -as => '_guid' };
 use Carp ();
 
@@ -32,11 +31,38 @@ sub type {
 # main API methods -- shouldn't be overridden
 #--------------------------------------------------------------------------#
 
+# We originally used Params::Validate, but only for
+# required/optional/disallowed, and it was Yet Another Prereq for what
+# needed to be a very small set of libraries.  Sadly, we've rolled our
+# own... -- rjbs, 2009-03-30
+sub __validate_args {
+  my ($self, $args, $spec) = @_;
+  my $hash = (@$args == 1 and ref $args->[0]) ? { %{ $args->[0]  } }
+           : (@$args == 0)                    ? { }
+           :                                    { @$args };
+  
+  my @errors;
+
+  for my $key (keys %$hash) {
+    push @errors, qq{unknown argument "$key" when constructing $self}
+      unless exists $spec->{ $key };
+  }
+
+  for my $key (grep { $spec->{ $_ } } keys %$spec) {
+    push @errors, qq{missing required argument "$key" when constructing $self}
+      unless defined $hash->{ $key };
+  }
+
+  Carp::confess(join qq{\n}, @errors) if @errors;
+
+  return $hash;
+}
+
 sub new {
     my ($class, @args) = @_;
-
-    # XXX: replace this, PV is not useful enough for us to require it
-    my %args = Params::Validate::validate(@args, { 
+    my $args = $class->__validate_args(
+      \@args,
+      { 
         content        => 1,
         created_at     => 0,
         guid           => 0,
@@ -44,11 +70,12 @@ sub new {
         schema_version => 0,
         type           => 0,
         user_id        => 0, # require?
-    } );
+      },
+    );
 
     my $self = bless { }, $class;
 
-    $self->_init_guts(\%args);
+    $self->_init_guts($args);
 
     eval { $self->validate_content };
     if ($@) {
