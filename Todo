@@ -5,3 +5,5 @@
 - Make sure all subclasses and test classes take scalar or scalar ref
   for content_as/from_bytes
 
+- document a standard for whether to die/croak/confess when facts fail
+  validation
