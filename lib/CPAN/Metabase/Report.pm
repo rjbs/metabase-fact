@@ -8,7 +8,6 @@ package CPAN::Metabase::Report;
 use 5.006;
 use strict;
 use warnings;
-use Params::Validate ();
 use Carp ();
 use JSON ();
 use base 'CPAN::Metabase::Fact';
