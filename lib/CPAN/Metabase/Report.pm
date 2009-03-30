@@ -37,7 +37,9 @@ sub open {
   my ($class, @args) = @_;
   
   # XXX: replace this, PV is not useful enough for us to require it
-  my %args = Params::Validate::validate(@args, { 
+  my $args = $self->__validate_args(
+    \@args,
+    { 
       content        => 0,
       created_at     => 0,
       guid           => 0,
@@ -45,18 +47,19 @@ sub open {
       schema_version => 0,
       type           => 0,
       user_id        => 0, # require?
-  } );
+    }
+  );
 
-  if ( $args{content} && ref $args{content} ne 'ARRAY' ) {
+  if ($args->{content} && ref $args->{content} ne 'ARRAY' ) {
     Carp::confess( "'content' argument to $class->new() must be an array reference" );
   }
 
-  $args{content} ||= [];
+  $args->{content} ||= [];
 
   # create and check
   my $self = bless {}, $class;
 
-  $self->_init_guts(\%args);
+  $self->_init_guts($args);
 
   return $self;
 }
