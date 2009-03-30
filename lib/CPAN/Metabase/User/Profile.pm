@@ -13,6 +13,21 @@ $VERSION = eval $VERSION; ## no critic
 
 use base 'CPAN::Metabase::Report';
 
+use CPAN::Metabase::User::EmailAddress;
+use CPAN::Metabase::User::FullName;
+use CPAN::Metabase::User::Secret;
+
+# XXX: Maybe we also want validate_other crap or just validate.
+# -- rjbs, 2009-03-30
+sub validate_content {
+  my ($self) = @_;
+
+  my ($guid) = $self->resource =~ m{^metabase:user:(.+)$};
+  Carp::confess "resource guid differs from fact guid" if $guid ne $self->guid;
+
+  $self->SUPER::validate_content;
+}
+
 sub report_spec { 
   return {
     'CPAN::Metabase::User::EmailAddress'  => '1+',
@@ -36,8 +51,8 @@ CPAN::Metabase::User::Profile - Metabase report class for user-related facts
   );
 
   $profile->add( 'CPAN::Metabase::User::EmailAddress' => 'jdoe@example.com' );
-  $profile->add( 'CPAN::Metabase::User::FullName' => 'John Doe' );
-  $profile->add( 'CPAN::Metabase::User::Secret' => 'aixuZuo8' );
+  $profile->add( 'CPAN::Metabase::User::FullName'     => 'John Doe' );
+  $profile->add( 'CPAN::Metabase::User::Secret'       => 'aixuZuo8' );
     
   $profile->close();
 
