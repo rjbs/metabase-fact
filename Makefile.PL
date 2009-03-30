@@ -2,8 +2,7 @@ require 5.006;
 use inc::Module::Install;
 all_from('lib/CPAN/Metabase/Fact.pm');
 
-requires('base'               => 0);
-requires('Carp'               => 0); # minimum version unknown
+requires('Data::GUID'         => 0); # minimum version unknown
 requires('JSON'               => 0); # minimum version unknown
 requires('Encode'             => 0); # minimum version unknown
 
