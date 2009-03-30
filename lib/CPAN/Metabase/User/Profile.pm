@@ -17,6 +17,17 @@ use CPAN::Metabase::User::EmailAddress;
 use CPAN::Metabase::User::FullName;
 use CPAN::Metabase::User::Secret;
 
+# XXX: Maybe we also want validate_other crap or just validate.
+# -- rjbs, 2009-03-30
+sub validate_content {
+  my ($self) = @_;
+
+  my ($guid) = $self->resource =~ m{^metabase:user:(.+)$};
+  Carp::confess "resource guid differs from fact guid" if $guid ne $self->guid;
+
+  $self->SUPER::validate_content;
+}
+
 sub report_spec { 
   return {
     'CPAN::Metabase::User::EmailAddress'  => '1+',
