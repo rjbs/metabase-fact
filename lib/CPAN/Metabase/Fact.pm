@@ -15,19 +15,6 @@ our $VERSION = '0.001';
 $VERSION = eval $VERSION; # convert '1.23_45' to 1.2345
 
 #--------------------------------------------------------------------------#
-# accessors
-#--------------------------------------------------------------------------#
-
-# object attribute or else convert class name
-sub type {
-  my $self = shift;
-  my $type = ref $self || $self;
-
-  $type =~ s{::}{-}g;
-  return $type;
-}
-
-#--------------------------------------------------------------------------#
 # main API methods -- shouldn't be overridden
 #--------------------------------------------------------------------------#
 
@@ -187,6 +174,27 @@ sub core_metadata {
 }
 
 #--------------------------------------------------------------------------#
+# utilities for all facts to do class/type conversions
+#--------------------------------------------------------------------------#
+
+# type_from_class
+sub type {
+  my $self = shift;
+  my $type = ref $self || $self;
+
+  $type =~ s{::}{-}g;
+  return $type;
+}
+
+# XXX: I'm not really excited about having this in here. -- rjbs, 2009-03-28
+# XXX: Need it type() for symmetry.  Make it private? -- dagolden, 2009-03-31
+sub class_from_type {
+    my (undef, $type) = @_;
+    $type =~ s/-/::/g;
+    return $type;
+}
+
+#--------------------------------------------------------------------------#
 # class methods
 #--------------------------------------------------------------------------#
 
@@ -227,14 +235,6 @@ sub validate_content {
     my ($self, $content) = @_;
     Carp::confess "validate_content() not implemented by "
       . (ref $self || $self)
-}
-
-# XXX: I'm not really excited about having this in here. -- rjbs, 2009-03-28
-# XXX: Need it type() for symmetry.  Make it private? -- dagolden, 2009-03-31
-sub type_to_class {
-    my (undef, $type) = @_;
-    $type =~ s/-/::/g;
-    return $type;
 }
 
 1;
