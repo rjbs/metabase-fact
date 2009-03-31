@@ -101,7 +101,7 @@ sub _init_guts {
     if  $args->{schema_version} != $self->default_schema_version;
 
   Carp::confess("illegal type ($args->{type}) for $self")
-    if defined $args->{type} and $args->{type} ne $self->type;
+    if $args->{type} ne $self->type;
 
   my $meta = $self->{metadata} = { core => {} };
   $self->{content} = $args->{content};
