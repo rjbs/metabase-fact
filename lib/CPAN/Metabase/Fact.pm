@@ -64,12 +64,14 @@ sub new {
       \@args,
       { 
         content        => 1,
-        created_at     => 0,
+        created_at     => 0,  # time or location? -- dagolden, 2009-03-31
         guid           => 0,
-        resource       => 1,
+        resource       => 1,  # where to validate? -- dagolden, 2009-03-31
+        creator_id     => 0,
+        # these shouldn't be set by users creating "new" facts; should be automatic.
+        # when from_struct doesn't call new, these can go away -- dagolden, 2009-03-31 
         schema_version => 0,
         type           => 0,
-        creator_id     => 0,
       },
     );
 
@@ -77,6 +79,7 @@ sub new {
 
     $self->_init_guts($args);
 
+    # XXX rename to validate -- dagolden, 2009-03-31
     eval { $self->validate_content };
     if ($@) {
         Carp::confess( "$class object content invalid: $@" );
@@ -91,6 +94,9 @@ sub _init_guts {
   $args->{schema_version} = $self->default_schema_version
     unless defined $args->{schema_version};
 
+  $args->{type} = $self->type
+    unless defined $args->{type};
+
   $self->upgrade_fact($args)
     if  $args->{schema_version} != $self->default_schema_version;
 
@@ -100,6 +106,7 @@ sub _init_guts {
   my $meta = $self->{metadata} = { core => {} };
   $self->{content} = $args->{content};
 
+  # XXX I hate seeing ...[1] everywhere for metadata -- dagolden, 2009-03-31 
   $meta->{core}{created_at}     = [ Num => $args->{created_at} || time  ];
   $meta->{core}{guid}           = [ Str => $args->{guid}       || _guid ];
   $meta->{core}{resource}       = [ Str => $args->{resource}            ];
@@ -152,7 +159,11 @@ sub from_struct {
     unless $class->type eq $core_meta->{type}[1];
 
   # XXX: This is going to have to use something /other/ than ->new to handle
-  # facts coming from 
+  # facts coming from -- rjbs
+  # XXX: have this and new() be thin wrappers around an _init that takes 
+  # data (post arg checking) and returns a blessed object.  They just need
+  # different argument checks, I think.  These can have schema and type and
+  # new should not -- dagolden, 2009-03-31 
   my $self = $class->new({
     (map { $_ => $core_meta->{$_}[1] } keys %$core_meta),
     content  => $class->content_from_bytes($struct->{content}),
@@ -182,6 +193,9 @@ sub core_metadata {
 # schema_version recorded in 'version' attribution during new()
 # if format of content changes, class module should increment schema version
 # to check: if ( $obj->version != $class->schema_version ) ...
+
+# XXX should this be a fatal abstract?  Forcing classes to be
+# explicit about schema versions? Annoying, but correct -- dagolden, 2009-03-31
 sub default_schema_version() { 1 }
 
 #--------------------------------------------------------------------------#
@@ -189,6 +203,12 @@ sub default_schema_version() { 1 }
 #--------------------------------------------------------------------------#
 
 sub content_metadata { return }
+
+sub upgrade_fact {
+    my ($self) = @_;
+    Carp::confess "Detected a schema mismatch, but upgrade_fact() not implemented by "
+      . (ref $self || $self)
+}
 
 sub content_as_bytes {
     my ($self, $content) = @_;
@@ -202,6 +222,7 @@ sub content_from_bytes {
       . (ref $self || $self)
 }
 
+# XXX rename to validate -- dagolden, 2009-03-31 
 sub validate_content {
     my ($self, $content) = @_;
     Carp::confess "validate_content() not implemented by "
@@ -209,6 +230,7 @@ sub validate_content {
 }
 
 # XXX: I'm not really excited about having this in here. -- rjbs, 2009-03-28
+# XXX: Need it type() for symmetry.  Make it private? -- dagolden, 2009-03-31
 sub type_to_class {
     my (undef, $type) = @_;
     $type =~ s/-/::/g;
@@ -238,10 +260,14 @@ CPAN::Metabase::Fact - base class for Facts
   }
 
   sub content_metadata {
-    ... 
+    ...
   }
 
   sub validate_content {
+    ...
+  }
+
+  sub upgrade_fact {
     ...
   }
 
@@ -288,7 +314,7 @@ The exact form of the content is up to each Fact class to determine.
 
 =head2 Generated during construction
 
-These attributes are generated automatically during the call to C<new()>.  
+These attributes are generated automatically during the call to C<new()>.
 
 =head3 type
 
@@ -343,7 +369,7 @@ to a type, just as with the 'type' attribute.
 =head1 ABSTRACT METHODS
 
 Methods marked as 'required' must be implemented by a Fact subclass.  (The
-version in CPAN::Metabase::Fact will die with an error if called.)  
+version in CPAN::Metabase::Fact will die with an error if called.)
 
 In the documentation below, the terms 'must, 'must not', 'should', etc. have
 their usual RFC meanings.
@@ -374,7 +400,7 @@ argument.  It MUST NOT overwrite the Fact's content attribute directly.
 
 If defined in a subclass, this method MUST return a hash reference with
 content-specific indexing metadata for the Fact.  The key MUST be the name of
-the field for indexing.  ( XXX rjbs -- what format? ) 
+the field for indexing.  ( XXX rjbs -- what format? )
 
 Hash values MUST be an array_ref containing a type and the value for the either be
 simple scalars (strings or numbers) or array references.  Type MUST be one of
@@ -414,8 +440,8 @@ Classes SHOULD call validate_content in their superclass:
 
 =head1 BUGS
 
-Please report any bugs or feature using the CPAN Request Tracker.  
-Bugs can be submitted through the web interface at 
+Please report any bugs or feature using the CPAN Request Tracker.
+Bugs can be submitted through the web interface at
 L<http://rt.cpan.org/Dist/Display.html?Queue=CPAN-Metabase-Fact>
 
 When submitting a bug or request, please include a test-file or a patch to an
@@ -433,12 +459,12 @@ existing test-file that illustrates the bug or desired feature.
 
 =head1 COPYRIGHT AND LICENSE
 
- Portions copyright (c) 2008 by David A. Golden
- Portions copyright (c) 2008 by Ricardo J. B. Signes
+ Portions copyright (c) 2008-2009 by David A. Golden
+ Portions copyright (c) 2008-2009 by Ricardo J. B. Signes
 
 Licensed under the same terms as Perl itself (the "License").
 You may not use this file except in compliance with the License.
-A copy of the License was distributed with this file or you may obtain a 
+A copy of the License was distributed with this file or you may obtain a
 copy of the License from http://dev.perl.org/licenses/
 
 Unless required by applicable law or agreed to in writing, software

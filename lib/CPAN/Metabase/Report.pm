@@ -42,6 +42,9 @@ sub set_creator_id {
 # content field is optional -- should other fields be optional at this
 # stage?  Maybe we shouldn't let any fields be optional
 
+# XXX should probably refactor arg_spec for Fact->new so we can reuse it
+# and just make the content one optional.  -- dagolden, 2009-03-31 
+
 sub open {
   my ($class, @args) = @_;
   
@@ -70,7 +73,7 @@ sub open {
 sub add {
   my ($self, $fact_class, $content ) = @_;
 
-  Carp::confess("fact is already closed") if $self->{__closed};
+  Carp::confess("report is already closed") if $self->{__closed};
 
   my $fact = $fact_class->new( 
     resource => $self->resource, 
@@ -99,7 +102,8 @@ sub close {
   return $self;
 }
 
-# accessor for facts
+# accessor for facts -- this must work regardless of __closed so 
+# that facts can be added using content_meta of facts already added
 sub facts {
   my ($self) = @_;
   return @{ $self->content };
