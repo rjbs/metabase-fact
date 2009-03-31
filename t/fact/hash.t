@@ -13,7 +13,7 @@ use JSON;
 
 use lib 't/lib';
 
-plan tests => 14;
+plan tests => 16;
 
 require_ok( 'FactSubclasses.pm' );
 
@@ -62,6 +62,7 @@ lives_ok{ $obj = FactFour->new( %$args ) }
 
 isa_ok( $obj, 'CPAN::Metabase::Fact::Hash' );
 is( $obj->type, "FactFour", "object type is correct" );
+is( $obj->{metadata}{core}{type}[1], "FactFour", "object type is set internally" );
 
 is( $obj->resource, $args->{resource}, "object refers to distribution" );
 is_deeply( $obj->content_metadata, $meta, "object content_metadata() correct" );
@@ -92,3 +93,10 @@ $obj->set_creator_id($guid);
 $want_struct->{metadata}{core}{creator_id} = [ Str => $guid ];
 
 is_deeply($have_struct, $want_struct, "object as_struct correct w/creator"); 
+
+#--------------------------------------------------------------------------#
+
+$obj = FactFour->new( %$args );
+my $obj2 = FactFour->from_struct( $obj->as_struct );
+is_deeply( $obj2, $obj, "roundtrip as->from struct" );
+
