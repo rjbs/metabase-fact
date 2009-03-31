@@ -138,8 +138,9 @@ sub content_from_bytes {
   my @facts;
   for my $struct (@$fact_structs) {
     my $class = $self->class_from_type( $struct->{metadata}{core}{type}[1] );
-    eval "require $class; 1" or Carp::confess "Failed to load '$class': $@";
-    push @facts, $class->from_struct($struct);
+    my $fact = eval { $class->from_struct($struct) }
+      or Carp::confess "Unable to create a '$class' object: $@";
+    push @facts, $fact;
   }
 
   return \@facts;
