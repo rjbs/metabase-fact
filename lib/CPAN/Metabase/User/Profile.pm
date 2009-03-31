@@ -12,10 +12,7 @@ our $VERSION = '0.001';
 $VERSION = eval $VERSION; ## no critic
 
 use base 'CPAN::Metabase::Report';
-
-use CPAN::Metabase::User::EmailAddress;
-use CPAN::Metabase::User::FullName;
-use CPAN::Metabase::User::Secret;
+__PACKAGE__->load_fact_classes;
 
 # XXX: Maybe we also want validate_other crap or just validate.
 # -- rjbs, 2009-03-30

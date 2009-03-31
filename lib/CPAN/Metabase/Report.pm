@@ -188,16 +188,45 @@ sub validate_content {
   return;
 }
 
+#--------------------------------------------------------------------------#
+# class methods
+#--------------------------------------------------------------------------#
+
+sub fact_classes {
+  my ($self) = @_;
+  my $class = ref $self || $self;
+  return keys %{ $self->report_spec }
+}
+
+sub load_fact_classes {
+  my ($self) = @_;
+  for my $f ( $self->fact_classes ) {
+    eval "require $f; 1" or Carp::confess "Could not load '$f': $@";
+  }
+  return;
+}
+
 1;
 
 __END__
 
 =head1 NAME
 
-CPAN::Metabase::Report - a collection of CPAN::Metabase facts
+CPAN::Metabase::Report - a base class for collections of CPAN::Metabase facts
 
 =head1 SYNOPSIS
 
+  package MyReport;
+
+  use base 'CPAN::Metabase::Report';
+  __PACKAGE__->load_fact_classes;
+
+  sub report_spec {
+    return {
+      Fact::One => 1,     # one of Fact::One
+      Fact::Two => "0+",  # zero or more of Fact::Two
+    }
+  }
 
 =head1 DESCRIPTION
 
@@ -247,11 +276,19 @@ Using the 'id' attribute of the report, this method constructs a new Fact from
 a class and a content argument.  The resulting Fact is appended to the Report's
 content array.
 
-=head3 close()
+=head2 close()
 
   $report->close;
 
 This method validates the report based on all Facts added so far.
+
+=head1 CLASS METHODS
+
+=head2 fact_classes()
+
+=head2 load_fact_classes()
+
+Loads each class listed in the report spec.
 
 =head1 ABSTRACT METHODS
 
