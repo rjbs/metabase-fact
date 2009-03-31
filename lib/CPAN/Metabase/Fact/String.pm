@@ -1,4 +1,7 @@
 package CPAN::Metabase::Fact::String;
+use 5.006;
+use strict;
+use warnings;
 use base 'CPAN::Metabase::Fact';
 use Carp ();
 use Encode ();

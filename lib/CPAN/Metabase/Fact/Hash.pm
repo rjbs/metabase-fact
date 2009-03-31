@@ -1,4 +1,7 @@
 package CPAN::Metabase::Fact::Hash;
+use 5.006;
+use strict;
+use warnings;
 use base 'CPAN::Metabase::Fact';
 use JSON ();
 use Carp ();
@@ -30,7 +33,7 @@ sub content_as_bytes {
 
 sub content_from_bytes { 
   my ($class, $bytes) = @_;
-  return JSON->new->decode($byte);
+  return JSON->new->decode($bytes);
 }
 
 1;
