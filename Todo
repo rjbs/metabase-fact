@@ -13,7 +13,7 @@
 - create validator classes with utility routines?
   sub validate { 
     my $self = shift;
-    $self->validate_with( 'SUPER' );  # CPAN::Metabase::Validator::SUPER
-    $self->validate_with( 'HoH' );    # CPAN::Metabase::Validator::HoH
+    $self->validate_with( 'SUPER' );  # Metabase::Validator::SUPER
+    $self->validate_with( 'HoH' );    # Metabase::Validator::HoH
   }
 

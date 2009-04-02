@@ -45,7 +45,7 @@ is(
 #--------------------------------------------------------------------------#
 
 # type is class munged from "::" to "-"
-is( Metabase::Fact->type, "CPAN-Metabase-Fact", 
+is( Metabase::Fact->type, "Metabase-Fact", 
   "->type converts class name" 
 );
 
@@ -77,5 +77,5 @@ lives_ok{ $obj = Metabase::Fact::TestFact->new( %$args ) }
 
 isa_ok( $obj, 'Metabase::Fact::TestFact' );
 
-is( $obj->type, "CPAN-Metabase-Fact-TestFact", "object type is correct" );
+is( $obj->type, "Metabase-Fact-TestFact", "object type is correct" );
 is( $obj->content, $string, "object content correct" );

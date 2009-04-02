@@ -285,10 +285,10 @@ Metabase::Fact - base class for Facts
 
 =head1 DESCRIPTION
 
-L<Metabase|Metabase> is a system for associating metadata with CPAN
-distributions.  The metabase can be used to store test reports, reviews,
-coverage analysis reports, reports on static analysis of coding style, or
-anything else for which datatypes are constructed.
+L<Metabase|Metabase> is a system for associating metadata with arbitrary
+resources.  The metabase can be used to store test reports, reviews, coverage
+analysis reports, reports on static analysis of coding style, or anything else
+for which datatypes are constructed.
 
 Metabase::Fact is a base class for facts (really opinions or analyses)
 that can be sent to or retrieved from a Metabase system.
@@ -303,9 +303,8 @@ that can be sent to or retrieved from a Metabase system.
 
 =head3 resource (required)
 
-The canonical CPAN ID the Fact relates to.  For distributions, this is the 
-'AUTHOR/Distname-Version.Suffix' form used to install specific distributions
-with CPAN.pm -- for example, 'TIMB/DBI-1.604.tar.gz' for the DBI distribution.
+The canonical resource (URI) the Fact relates to.  For CPAN distributions, this
+is a C<cpan:///distfile> URL.
 
 =head3 content (required)
 
@@ -319,7 +318,7 @@ These attributes are generated automatically during the call to C<new()>.
 =head3 type
 
 The object's class name, with double-colons converted to dashes to be more
-URI-friendly.  E.g.  'Metabase::Fact' would be 'CPAN-Metabase-Fact'.
+URI-friendly.  E.g.  'Metabase::Fact' would be 'Metabase-Fact'.
 
 =head3 version
 
