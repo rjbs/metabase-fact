@@ -1,6 +1,6 @@
 require 5.006;
 use inc::Module::Install;
-all_from('lib/CPAN/Metabase/Fact.pm');
+all_from('lib/Metabase/Fact.pm');
 
 requires('Data::GUID'         => 0); # minimum version unknown
 requires('JSON'               => 0); # minimum version unknown
