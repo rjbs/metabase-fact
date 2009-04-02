@@ -51,12 +51,13 @@ sub new {
       \@args,
       { 
         content        => 1,
-        created_at     => 0,  # time or location? -- dagolden, 2009-03-31
+        created_at     => 0,  # time of creation -- rjbs, 2009-04-02
         guid           => 0,
         resource       => 1,  # where to validate? -- dagolden, 2009-03-31
         creator_id     => 0,
-        # these shouldn't be set by users creating "new" facts; should be automatic.
-        # when from_struct doesn't call new, these can go away -- dagolden, 2009-03-31 
+        # these shouldn't be set by users creating "new" facts; should be
+        # automatic.  when from_struct doesn't call new, these can go away --
+        # dagolden, 2009-03-31 
         schema_version => 0,
         type           => 0,
       },
