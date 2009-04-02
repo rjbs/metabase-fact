@@ -1,8 +1,8 @@
-package CPAN::Metabase::Fact::Hash;
+package Metabase::Fact::Hash;
 use 5.006;
 use strict;
 use warnings;
-use base 'CPAN::Metabase::Fact';
+use base 'Metabase::Fact';
 use JSON ();
 use Carp ();
 
@@ -42,13 +42,13 @@ __END__
 
 =head1 NAME
 
-CPAN::Metabase::Fact::Hash - fact subtype for simple hashes
+Metabase::Fact::Hash - fact subtype for simple hashes
 
 =head1 SYNOPSIS
 
   # defining the fact class
   package MyComment;
-  use base 'CPAN::Metabase::Fact::Hash';
+  use base 'Metabase::Fact::Hash';
 
   sub required_keys { qw/poster/ }
 

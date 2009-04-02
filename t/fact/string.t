@@ -37,12 +37,12 @@ my $args = {
 lives_ok{ $obj = FactThree->new( $args ) } 
     "new( <hashref> ) doesn't die";
 
-isa_ok( $obj, 'CPAN::Metabase::Fact::String' ); 
+isa_ok( $obj, 'Metabase::Fact::String' ); 
 
 lives_ok{ $obj = FactThree->new( %$args ) } 
     "new( <list> ) doesn't die";
 
-isa_ok( $obj, 'CPAN::Metabase::Fact::String' );
+isa_ok( $obj, 'Metabase::Fact::String' );
 is( $obj->type, "FactThree", "object type is correct" );
 
 is( $obj->resource, $args->{resource}, "object refers to distribution" );

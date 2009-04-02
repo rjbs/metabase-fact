@@ -1,8 +1,8 @@
-package CPAN::Metabase::Fact::String;
+package Metabase::Fact::String;
 use 5.006;
 use strict;
 use warnings;
-use base 'CPAN::Metabase::Fact';
+use base 'Metabase::Fact';
 use Carp ();
 use Encode ();
 
@@ -30,13 +30,13 @@ __END__
 
 =head1 NAME
 
-CPAN::Metabase::Fact::String - fact subtype for simple strings
+Metabase::Fact::String - fact subtype for simple strings
 
 =head1 SYNOPSIS
 
   # defining the fact class
   package MyFact;
-  use base 'CPAN::Metabase::Fact::String';
+  use base 'Metabase::Fact::String';
 
   sub content_metadata {
     my $self = shift;

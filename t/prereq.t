@@ -7,7 +7,7 @@ use Storable qw/thaw/;
 
 plan tests => 10; 
 
-my $PA = 'CPAN::Metabase::Fact::PrereqAnalysis';
+my $PA = 'Metabase::Fact::PrereqAnalysis';
 
 require_ok $PA;
 

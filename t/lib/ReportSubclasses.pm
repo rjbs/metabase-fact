@@ -2,15 +2,15 @@ use strict;
 use warnings;
 
 package JustOneFact;
-our @ISA = ('CPAN::Metabase::Report');
-sub report_spec { return {'CPAN::Metabase::Fact' => 1} }
+our @ISA = ('Metabase::Report');
+sub report_spec { return {'Metabase::Fact' => 1} }
 
 package OneOrMoreFacts;
-our @ISA = ('CPAN::Metabase::Report');
-sub report_spec { return {'CPAN::Metabase::Fact' => '1+'} }
+our @ISA = ('Metabase::Report');
+sub report_spec { return {'Metabase::Fact' => '1+'} }
 
 package OneOfEach;
-our @ISA = ('CPAN::Metabase::Report');
+our @ISA = ('Metabase::Report');
 sub report_spec { 
   return {
     'FactOne' => '1',
@@ -19,11 +19,11 @@ sub report_spec {
 }
 
 package OneSpecificAtLeastThreeTotal;
-our @ISA = ('CPAN::Metabase::Report');
+our @ISA = ('Metabase::Report');
 sub report_spec { 
   return {
     'FactOne' => '1',
-    'CPAN::Metabase::Fact' => '3',
+    'Metabase::Fact' => '3',
   }
 }
 

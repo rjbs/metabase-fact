@@ -11,11 +11,11 @@ use Test::More;
 use Test::Exception;
 
 use lib 't/lib';
-use CPAN::Metabase::Fact::TestFact;
+use Metabase::Fact::TestFact;
 
 plan tests => 15;
 
-require_ok( 'CPAN::Metabase::Fact' );
+require_ok( 'Metabase::Fact' );
 
 #--------------------------------------------------------------------------#
 # fixtures
@@ -27,7 +27,7 @@ my ($obj, $err);
 # required parameters missing
 #--------------------------------------------------------------------------#
 
-eval { $obj = CPAN::Metabase::Fact->new() };
+eval { $obj = Metabase::Fact->new() };
 $err = $@;
 like( $err, qr/missing required/, "new() without params throws error" );
 for my $p ( qw/ resource content / ) {
@@ -35,7 +35,7 @@ for my $p ( qw/ resource content / ) {
 }
 
 is(
-  CPAN::Metabase::Fact->default_schema_version,
+  Metabase::Fact->default_schema_version,
   1,
   "schema_version() defaults to 1",
 );
@@ -45,14 +45,14 @@ is(
 #--------------------------------------------------------------------------#
 
 # type is class munged from "::" to "-"
-is( CPAN::Metabase::Fact->type, "CPAN-Metabase-Fact", 
+is( Metabase::Fact->type, "CPAN-Metabase-Fact", 
   "->type converts class name" 
 );
 
 # unimplemented
 for my $m ( qw/content_as_bytes content_from_bytes validate_content/ ) {
-    my $obj = bless {} => 'CPAN::Metabase::Fact';
-    throws_ok { $obj->$m } qr/$m\(\) not implemented by CPAN::Metabase::Fact/,
+    my $obj = bless {} => 'Metabase::Fact';
+    throws_ok { $obj->$m } qr/$m\(\) not implemented by Metabase::Fact/,
       "$m not implemented";
 }
 
@@ -67,15 +67,15 @@ my $args = {
     content  => $string,
 };
 
-lives_ok{ $obj = CPAN::Metabase::Fact::TestFact->new( $args ) } 
+lives_ok{ $obj = Metabase::Fact::TestFact->new( $args ) } 
     "new( <hashref> ) doesn't die";
 
-isa_ok( $obj, 'CPAN::Metabase::Fact::TestFact' ); 
+isa_ok( $obj, 'Metabase::Fact::TestFact' ); 
 
-lives_ok{ $obj = CPAN::Metabase::Fact::TestFact->new( %$args ) } 
+lives_ok{ $obj = Metabase::Fact::TestFact->new( %$args ) } 
     "new( <list> ) doesn't die";
 
-isa_ok( $obj, 'CPAN::Metabase::Fact::TestFact' );
+isa_ok( $obj, 'Metabase::Fact::TestFact' );
 
 is( $obj->type, "CPAN-Metabase-Fact-TestFact", "object type is correct" );
 is( $obj->content, $string, "object content correct" );

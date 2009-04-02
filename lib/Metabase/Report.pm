@@ -4,13 +4,13 @@
 # A copy of the License was distributed with this file or you may obtain a 
 # copy of the License from http://dev.perl.org/licenses/
 
-package CPAN::Metabase::Report;
+package Metabase::Report;
 use 5.006;
 use strict;
 use warnings;
 use Carp ();
 use JSON ();
-use base 'CPAN::Metabase::Fact';
+use base 'Metabase::Fact';
 
 our $VERSION = '0.001';
 $VERSION = eval $VERSION; # convert '1.23_45' to 1.2345
@@ -212,13 +212,13 @@ __END__
 
 =head1 NAME
 
-CPAN::Metabase::Report - a base class for collections of CPAN::Metabase facts
+Metabase::Report - a base class for collections of Metabase facts
 
 =head1 SYNOPSIS
 
   package MyReport;
 
-  use base 'CPAN::Metabase::Report';
+  use base 'Metabase::Report';
   __PACKAGE__->load_fact_classes;
 
   sub report_spec {
@@ -230,15 +230,15 @@ CPAN::Metabase::Report - a base class for collections of CPAN::Metabase facts
 
 =head1 DESCRIPTION
 
-L<CPAN::Metabase|CPAN::Metabase> is a system for associating metadata with CPAN
+L<Metabase|Metabase> is a system for associating metadata with CPAN
 distributions.  The metabase can be used to store test reports, reviews,
 coverage analysis reports, reports on static analysis of coding style, or
 anything else for which datatypes are constructed.
 
-CPAN::Metabase::Report is a base class for collections of CPAN::Metabase::Fact
-objects that can be sent to or retrieved from a CPAN::Metabase system.
+Metabase::Report is a base class for collections of Metabase::Fact
+objects that can be sent to or retrieved from a Metabase system.
 
-CPAN::Metabase::Report is itself a subclass of CPAN::Metabase::Fact and 
+Metabase::Report is itself a subclass of Metabase::Fact and 
 offers the same API, except as described below.
 
 =head1 USAGE
@@ -250,7 +250,7 @@ offers the same API, except as described below.
 =head3 content
 
 The 'content' attribute of a Report must be a reference to an array of 
-CPAN::Metabase::Fact subclass objects.
+Metabase::Fact subclass objects.
 
 =head1 METHODS
 
@@ -293,7 +293,7 @@ Loads each class listed in the report spec.
 =head1 ABSTRACT METHODS
 
 Methods marked as 'required' must be implemented by a report subclass.  (The
-version in CPAN::Metabase::Report will die with an error if called.)  
+version in Metabase::Report will die with an error if called.)  
 
 In the documentation below, the terms 'must, 'must not', 'should', etc. have
 their usual RFC meanings.

@@ -12,8 +12,8 @@ use Test::Exception;
 
 plan tests => 13;
 
-require_ok( 'CPAN::Metabase::Report' );
-require_ok( 'CPAN::Metabase::Fact::TestFact' );
+require_ok( 'Metabase::Report' );
+require_ok( 'Metabase::Fact::TestFact' );
 
 #--------------------------------------------------------------------------#
 # fixtures

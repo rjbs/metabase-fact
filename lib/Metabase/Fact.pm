@@ -4,7 +4,7 @@
 # A copy of the License was distributed with this file or you may obtain a 
 # copy of the License from http://dev.perl.org/licenses/
 
-package CPAN::Metabase::Fact;
+package Metabase::Fact;
 use 5.006;
 use strict;
 use warnings;
@@ -243,13 +243,13 @@ __END__
 
 =head1 NAME
 
-CPAN::Metabase::Fact - base class for Facts
+Metabase::Fact - base class for Facts
 
 =head1 SYNOPSIS
 
   # defining the fact class
   package MyFact;
-  use base 'CPAN::Metabase::Fact';
+  use base 'Metabase::Fact';
 
   sub content_as_bytes {
     ...
@@ -285,13 +285,13 @@ CPAN::Metabase::Fact - base class for Facts
 
 =head1 DESCRIPTION
 
-L<CPAN::Metabase|CPAN::Metabase> is a system for associating metadata with CPAN
+L<Metabase|Metabase> is a system for associating metadata with CPAN
 distributions.  The metabase can be used to store test reports, reviews,
 coverage analysis reports, reports on static analysis of coding style, or
 anything else for which datatypes are constructed.
 
-CPAN::Metabase::Fact is a base class for facts (really opinions or analyses)
-that can be sent to or retrieved from a CPAN::Metabase system.
+Metabase::Fact is a base class for facts (really opinions or analyses)
+that can be sent to or retrieved from a Metabase system.
 
 =head1 USAGE
 
@@ -319,7 +319,7 @@ These attributes are generated automatically during the call to C<new()>.
 =head3 type
 
 The object's class name, with double-colons converted to dashes to be more
-URI-friendly.  E.g.  'CPAN::Metabase::Fact' would be 'CPAN-Metabase-Fact'.
+URI-friendly.  E.g.  'Metabase::Fact' would be 'CPAN-Metabase-Fact'.
 
 =head3 version
 
@@ -329,7 +329,7 @@ versions of the class have been released since the object was created.
 
 =head2 Generated during indexing
 
-These attributes should only be set or modified by a CPAN::Metabase::Index
+These attributes should only be set or modified by a Metabase::Index
 object.  Thus, they are 'undef' when a fact is created, are populated when
 indexed, and are available when a Fact is queried from a Metabase.
 
@@ -341,7 +341,7 @@ A global, unique identifier for a particular Fact in a particular Metabase.
 
 =head2 new()
 
-  $fact = CPAN::Metabase::Fact::TestFact->new(
+  $fact = Metabase::Fact::TestFact->new(
     id => 'AUTHORID/Foo-Bar-1.23.tar.gz',
     content => $content_structure,
   );
@@ -369,7 +369,7 @@ to a type, just as with the 'type' attribute.
 =head1 ABSTRACT METHODS
 
 Methods marked as 'required' must be implemented by a Fact subclass.  (The
-version in CPAN::Metabase::Fact will die with an error if called.)
+version in Metabase::Fact will die with an error if called.)
 
 In the documentation below, the terms 'must, 'must not', 'should', etc. have
 their usual RFC meanings.
@@ -383,7 +383,7 @@ These methods MUST throw an exception if an error occurs.
 This method MUST serialize a Fact's content as bytes in a scalar and return it.
 The method for serialization is up to the individual fact class to determine.
 Some common subclasses are available to handle serialization for common data types.
-See L<CPAN::Metabase::Fact::Hash> and L<CPAN::Metabase::Fact::String>.
+See L<Metabase::Fact::Hash> and L<Metabase::Fact::String>.
 
 =head2 content_from_bytes() (required)
 

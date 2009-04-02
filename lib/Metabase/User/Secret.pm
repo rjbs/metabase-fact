@@ -4,14 +4,14 @@
 # A copy of the License was distributed with this file or you may obtain a 
 # copy of the License from http://dev.perl.org/licenses/
 
-package CPAN::Metabase::User::Secret;
+package Metabase::User::Secret;
 use 5.006;
 use strict;
 use warnings;
 our $VERSION = '0.001';
 $VERSION = eval $VERSION; ## no critic
 
-use base 'CPAN::Metabase::Fact::String';
+use base 'Metabase::Fact::String';
   
 1;
 
@@ -19,11 +19,11 @@ __END__
 
 =head1 NAME
 
-CPAN::Metabase::User::Secret - Metabase fact for user shared authentication secret
+Metabase::User::Secret - Metabase fact for user shared authentication secret
 
 =head1 SYNOPSIS
 
-  my $email = CPAN::Metabase::User::Secret->new(
+  my $email = Metabase::User::Secret->new(
     resource => 'metabase:user:B66C7662-1D34-11DE-A668-0DF08D1878C0',
     content => 'aixuZuo8',
   );

@@ -4,14 +4,14 @@
 # A copy of the License was distributed with this file or you may obtain a 
 # copy of the License from http://dev.perl.org/licenses/
 
-package CPAN::Metabase::User::Profile;
+package Metabase::User::Profile;
 use 5.006;
 use strict;
 use warnings;
 our $VERSION = '0.001';
 $VERSION = eval $VERSION; ## no critic
 
-use base 'CPAN::Metabase::Report';
+use base 'Metabase::Report';
 __PACKAGE__->load_fact_classes;
 
 # XXX: Maybe we also want validate_other crap or just validate.
@@ -27,9 +27,9 @@ sub validate_content {
 
 sub report_spec { 
   return {
-    'CPAN::Metabase::User::EmailAddress'  => '1+',
-    'CPAN::Metabase::User::FullName'      => '1',
-    'CPAN::Metabase::User::Secret'        => '1',
+    'Metabase::User::EmailAddress'  => '1+',
+    'Metabase::User::FullName'      => '1',
+    'Metabase::User::Secret'        => '1',
   }
 }
   
@@ -39,17 +39,17 @@ __END__
 
 =head1 NAME
 
-CPAN::Metabase::User::Profile - Metabase report class for user-related facts
+Metabase::User::Profile - Metabase report class for user-related facts
 
 =head1 SYNOPSIS
 
-  my $profile = CPAN::Metabase::User::Profile->open(
+  my $profile = Metabase::User::Profile->open(
     resource => 'metabase:user:B66C7662-1D34-11DE-A668-0DF08D1878C0'
   );
 
-  $profile->add( 'CPAN::Metabase::User::EmailAddress' => 'jdoe@example.com' );
-  $profile->add( 'CPAN::Metabase::User::FullName'     => 'John Doe' );
-  $profile->add( 'CPAN::Metabase::User::Secret'       => 'aixuZuo8' );
+  $profile->add( 'Metabase::User::EmailAddress' => 'jdoe@example.com' );
+  $profile->add( 'Metabase::User::FullName'     => 'John Doe' );
+  $profile->add( 'Metabase::User::Secret'       => 'aixuZuo8' );
     
   $profile->close();
 

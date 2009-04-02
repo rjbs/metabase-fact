@@ -1,8 +1,8 @@
-package CPAN::Metabase::Fact::PrereqAnalysis;
+package Metabase::Fact::PrereqAnalysis;
 use 5.006;
 use strict;
 use warnings;
-use base 'CPAN::Metabase::Fact';
+use base 'Metabase::Fact';
 
 use Storable ();
 

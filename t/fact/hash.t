@@ -55,12 +55,12 @@ $test_args->{content}{third} = 3;
 throws_ok { $obj = FactFour->new( $test_args ) } qr/invalid keys.+?third/, 
   'invalid key dies';
 
-isa_ok( $obj, 'CPAN::Metabase::Fact::Hash' ); 
+isa_ok( $obj, 'Metabase::Fact::Hash' ); 
 
 lives_ok{ $obj = FactFour->new( %$args ) } 
     "new( <list> ) doesn't die";
 
-isa_ok( $obj, 'CPAN::Metabase::Fact::Hash' );
+isa_ok( $obj, 'Metabase::Fact::Hash' );
 is( $obj->type, "FactFour", "object type is correct" );
 is( $obj->{metadata}{core}{type}[1], "FactFour", "object type is set internally" );
 
