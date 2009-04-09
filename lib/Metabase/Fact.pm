@@ -341,12 +341,12 @@ A global, unique identifier for a particular Fact in a particular Metabase.
 
 =head2 new()
 
-  $fact = Metabase::Fact::TestFact->new(
-    id => 'AUTHORID/Foo-Bar-1.23.tar.gz',
+  $fact = myfact->new(
+    resource => 'AUTHORID/Foo-Bar-1.23.tar.gz',
     content => $content_structure,
   );
 
-Constructs a new Fact. The 'id' and 'content' attributes are required.  No
+Constructs a new Fact. The 'resource' and 'content' attributes are required.  No
 other attributes may be provided to new().
 
 =head1 CLASS METHODS

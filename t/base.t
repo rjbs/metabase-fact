@@ -11,7 +11,7 @@ use Test::More;
 use Test::Exception;
 
 use lib 't/lib';
-use Metabase::Fact::TestFact;
+use Test::Metabase::StringFact;
 
 plan tests => 15;
 
@@ -67,15 +67,15 @@ my $args = {
     content  => $string,
 };
 
-lives_ok{ $obj = Metabase::Fact::TestFact->new( $args ) } 
+lives_ok{ $obj = Test::Metabase::StringFact->new( $args ) } 
     "new( <hashref> ) doesn't die";
 
-isa_ok( $obj, 'Metabase::Fact::TestFact' ); 
+isa_ok( $obj, 'Test::Metabase::StringFact' ); 
 
-lives_ok{ $obj = Metabase::Fact::TestFact->new( %$args ) } 
+lives_ok{ $obj = Test::Metabase::StringFact->new( %$args ) } 
     "new( <list> ) doesn't die";
 
-isa_ok( $obj, 'Metabase::Fact::TestFact' );
+isa_ok( $obj, 'Test::Metabase::StringFact' );
 
-is( $obj->type, "Metabase-Fact-TestFact", "object type is correct" );
+is( $obj->type, "Test-Metabase-StringFact", "object type is correct" );
 is( $obj->content, $string, "object content correct" );
