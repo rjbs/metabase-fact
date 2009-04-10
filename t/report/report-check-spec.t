@@ -9,11 +9,12 @@ use warnings;
 
 use Test::More;
 use Test::Exception;
+use lib 't/lib';
 
 plan tests => 9;
 
 require_ok( 'Metabase::Report' );
-require_ok( 'Metabase::Fact::TestFact' );
+require_ok( 'Test::Metabase::StringFact' );
 
 #--------------------------------------------------------------------------#
 # fixtures

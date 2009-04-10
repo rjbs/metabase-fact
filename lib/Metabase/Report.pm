@@ -71,14 +71,21 @@ sub open {
 }
 
 sub add {
-  my ($self, $fact_class, $content ) = @_;
-
+  my ($self, @args) = @_;
   Carp::confess("report is already closed") if $self->{__closed};
 
-  my $fact = $fact_class->new( 
-    resource => $self->resource, 
-    content  => $content,
-  );
+  my ($fact, $fact_class, $content );
+  
+  if ( @args == 1 && $args[0]->isa('Metabase::Fact') ) {
+    $fact = $args[0];
+  }
+  else {
+    ($fact_class, $content) = @args;
+    $fact = $fact_class->new( 
+      resource => $self->resource, 
+      content  => $content,
+    );
+  }
 
   $fact->set_creator_id($self->creator_id) if $self->creator_id;
 

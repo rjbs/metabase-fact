@@ -9,11 +9,12 @@ use warnings;
 
 use Test::More;
 use Test::Exception;
+use lib 't/lib';
 
-plan tests => 11;
+plan tests => 15;
 
 require_ok( 'Metabase::Report' );
-require_ok( 'Metabase::Fact::TestFact' );
+require_ok( 'Test::Metabase::StringFact' );
 
 #--------------------------------------------------------------------------#
 # fixtures
@@ -47,6 +48,25 @@ isa_ok( $obj, 'JustOneFact' );
 lives_ok {
   $obj->add( 'FactOne' => 'This is FactOne' );
 } "lives: add( 'Class' => 'foo' )";
+
+lives_ok {
+    $obj->close;
+} "lives: close()";
+
+#--------------------------------------------------------------------------#
+# add takes a fact directly
+#--------------------------------------------------------------------------#
+
+lives_ok { 
+  $obj = JustOneFact->open( %params )
+} "lives: open() given no facts";
+
+isa_ok( $obj, 'JustOneFact' );
+
+
+lives_ok {
+  $obj->add( $facts{FactOne} );
+} "lives: add( \$fact )";
 
 lives_ok {
     $obj->close;

@@ -2,13 +2,16 @@ package FactSubClasses;
 use strict;
 use warnings;
 
+use Metabase::Fact::String;
+use Metabase::Fact::Hash;
+
 package FactOne;
-our @ISA = ('Metabase::Fact::TestFact');
+our @ISA = ('Metabase::Fact::String');
 sub content_as_bytes    { return reverse($_[0]->{content})  };
 sub content_from_bytes  { return reverse($_[1])             };
 
 package FactTwo;
-our @ISA = ('Metabase::Fact::TestFact');
+our @ISA = ('Metabase::Fact::String');
 sub content_as_bytes    { return reverse($_[0]->{content})  };
 sub content_from_bytes  { return reverse($_[1])             };
 
