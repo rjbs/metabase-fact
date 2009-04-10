@@ -11,8 +11,58 @@ use warnings;
 our $VERSION = '0.001';
 $VERSION = eval $VERSION; ## no critic
 
+use Carp;
+use JSON;
+use Data::GUID guid_string => { -as => '_guid' };
+
 use base 'Metabase::Report';
 __PACKAGE__->load_fact_classes;
+
+#--------------------------------------------------------------------------#
+# public API
+#--------------------------------------------------------------------------#
+
+sub create {
+  my ($class, @args) = @_;
+  my $args = $class->__validate_args(
+    \@args,
+    { 
+      full_name       => 1,
+      email_address   => 1,
+      secret          => 1,
+    }
+  );
+  my $guid = _guid;
+  my $profile = $class->open(
+    resource => "metabase:user:$guid",
+    guid => $guid
+  );
+  $profile->add( 'Metabase::User::FullName' => $args->{full_name} );
+  $profile->add( 'Metabase::User::EmailAddress' => $args->{email_address} );
+  $profile->add( 'Metabase::User::Secret' => $args->{secret} );
+  $profile->close;
+  return $profile;
+}
+
+sub save {
+  my ($self, $filename ) = @_;
+  open my $fh, ">", $filename or Carp::confess "Error saving profile: $!";
+  print {$fh} JSON->new->encode( $self->as_struct );
+  close $fh;
+  return 1;
+}
+
+sub load { 
+  my ($class, $filename) = @_;
+  open my $fh, "<", $filename or Carp::confess "Error loading profile: $!";
+  my $string = do { local $/; <$fh> };
+  close $fh;
+  return $class->from_struct( JSON->new->decode( $string ) );
+}
+
+#--------------------------------------------------------------------------#
+# internals
+#--------------------------------------------------------------------------#
 
 # XXX: Maybe we also want validate_other crap or just validate.
 # -- rjbs, 2009-03-30
@@ -43,6 +93,31 @@ Metabase::User::Profile - Metabase report class for user-related facts
 
 =head1 SYNOPSIS
 
+  use Metabase::User::Profile;
+
+  my $profile = Metabase::User::Profile->create(
+    full_name     => 'John Doe',
+    email_address => 'jdoe@example.com',
+    secret        => 'aixuZuo8',
+  );
+
+
+=head1 DESCRIPTION
+
+Metabase report class encapsulating Facts about a metabase user
+
+=head1 USAGE
+
+=head2 The short way
+
+  my $profile = Metabase::User::Profile->create(
+    full_name     => 'John Doe',
+    email_address => 'jdoe@example.com',
+    secret        => 'aixuZuo8',
+  );
+
+=head2 The long way
+
   my $profile = Metabase::User::Profile->open(
     resource => 'metabase:user:B66C7662-1D34-11DE-A668-0DF08D1878C0'
   );
@@ -52,13 +127,6 @@ Metabase::User::Profile - Metabase report class for user-related facts
   $profile->add( 'Metabase::User::Secret'       => 'aixuZuo8' );
     
   $profile->close();
-
-=head1 DESCRIPTION
-
-Metabase report class encapsulating Facts about a metabase user
-
-=head1 USAGE
-
 
 =head1 BUGS
 
