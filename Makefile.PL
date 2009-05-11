@@ -8,7 +8,9 @@ requires('Encode'             => 0); # minimum version unknown
 
 test_requires('Test::More'      => 0.62);
 test_requires('Test::Exception' => 0.26); # avoid bugs
-  
+
+install_script('bin/metabase-profile');
+ 
 extra_tests;
 tests_recursive;
 
