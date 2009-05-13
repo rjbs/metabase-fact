@@ -51,21 +51,13 @@ sub new {
       \@args,
       { 
         content        => 1,
-        created_at     => 0,  # time of creation -- rjbs, 2009-04-02
-        guid           => 0,
         resource       => 1,  # where to validate? -- dagolden, 2009-03-31
+        # still optional so we can manipulate anonymous facts -- dagolden, 2009-05-12
         creator_id     => 0,
-        # these shouldn't be set by users creating "new" facts; should be
-        # automatic.  when from_struct doesn't call new, these can go away --
-        # dagolden, 2009-03-31 
-        schema_version => 0,
-        type           => 0,
       },
     );
 
-    my $self = bless { }, $class;
-
-    $self->_init_guts($args);
+    my $self = $class->_init_guts($args);
 
     # XXX rename to validate -- dagolden, 2009-03-31
     eval { $self->validate_content };
@@ -77,7 +69,8 @@ sub new {
 }
 
 sub _init_guts {
-  my ($self, $args) = @_;
+  my ($class, $args) = @_;
+  my $self = bless {}, $class;
 
   $args->{schema_version} = $self->default_schema_version
     unless defined $args->{schema_version};
@@ -104,6 +97,8 @@ sub _init_guts {
   if (defined $args->{creator_id}) {
     $meta->{core}{creator_id}   = [ Str => $args->{creator_id}          ];
   }
+
+  return $self;
 }
 
 sub created_at       { $_[0]->{metadata}{core}{created_at}[1]     }
@@ -146,17 +141,30 @@ sub from_struct {
   Carp::confess("invalid fact type: $core_meta->{type}[1]")
     unless $class->type eq $core_meta->{type}[1];
 
-  # XXX: This is going to have to use something /other/ than ->new to handle
-  # facts coming from -- rjbs
-  # XXX: have this and new() be thin wrappers around an _init that takes 
-  # data (post arg checking) and returns a blessed object.  They just need
-  # different argument checks, I think.  These can have schema and type and
-  # new should not -- dagolden, 2009-03-31 
-  my $self = $class->new({
+  # transfrom struct into content and core metadata arguments the way they
+  # would be given to new(), then validate these and get an object from _init_guts()
+  my @args = ( 
     (map { $_ => $core_meta->{$_}[1] } keys %$core_meta),
     content  => $class->content_from_bytes($struct->{content}),
-  });
+  );
+  my $args = $class->__validate_args(
+    \@args,
+    { 
+      # when thawing, all of these must be provided
+      content        => 1,
+      created_at     => 1,
+      guid           => 1,
+      resource       => 1,
+      schema_version => 1,
+      type           => 1,
+      # still optional so we can manipulate anonymous facts -- dagolden, 2009-05-12
+      creator_id     => 0, 
+    },
+  );
+  my $self = $class->_init_guts($args);
 
+  # if metadata from resource or content were included in struct, add them
+  # back to the object
   $self->{metadata}{resource} = $metadata->{resource} if $metadata->{resource};
   $self->{metadata}{content}  = $metadata->{content}  if $metadata->{content};
 

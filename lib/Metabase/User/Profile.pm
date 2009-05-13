@@ -32,11 +32,13 @@ sub create {
       secret          => 1,
     }
   );
-  my $guid = _guid;
   my $profile = $class->open(
-    resource => "metabase:user:$guid",
-    guid => $guid
+    # placeholder guid in resource
+    resource => "metabase:user:00000000-0000-0000-0000-000000000000",
   );
+  # fix-up our resource string to refer to our assigned guid
+  $profile->{metadata}{core}{resource} = [ Str => "metabase:user:" . $profile->guid ];
+  # add facts
   $profile->add( 'Metabase::User::FullName' => $args->{full_name} );
   $profile->add( 'Metabase::User::EmailAddress' => $args->{email_address} );
   $profile->add( 'Metabase::User::Secret' => $args->{secret} );

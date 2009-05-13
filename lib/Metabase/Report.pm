@@ -51,11 +51,8 @@ sub open {
   my $args = $class->__validate_args(
     \@args,
     { 
-      created_at     => 0,
-      guid           => 0,
       resource       => 1,
-      schema_version => 0,
-      type           => 0,
+      # still optional so we can manipulate anonymous facts -- dagolden, 2009-05-12
       creator_id     => 0,
     }
   );
@@ -63,9 +60,7 @@ sub open {
   $args->{content} ||= [];
 
   # create and check
-  my $self = bless {}, $class;
-
-  $self->_init_guts($args);
+  my $self = $class->_init_guts($args);
 
   return $self;
 }
