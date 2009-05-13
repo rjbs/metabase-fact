@@ -252,7 +252,7 @@ __END__
 
 =head1 NAME
 
-Metabase::Fact - base class for Facts
+Metabase::Fact - base class for Metabase Facts
 
 =head1 SYNOPSIS
 
@@ -294,8 +294,8 @@ Metabase::Fact - base class for Facts
 
 =head1 DESCRIPTION
 
-L<Metabase|Metabase> is a system for associating metadata with arbitrary
-resources.  The metabase can be used to store test reports, reviews, coverage
+L<Metabase> is a framework for associating metadata with arbitrary
+resources.  A Metabase can be used to store test reports, reviews, coverage
 analysis reports, reports on static analysis of coding style, or anything else
 for which datatypes are constructed.
 
@@ -308,42 +308,46 @@ that can be sent to or retrieved from a Metabase system.
 
 =head1 ATTRIBUTES
 
-=head2 Set during construction 
+Unless otherwise noted, all attributes are read-only and are either provided as 
+arguments to the constructor or are generated during construction.
+
+=head2 Arguments provided to C<new()>
 
 =head3 resource (required)
 
 The canonical resource (URI) the Fact relates to.  For CPAN distributions, this
-is a C<cpan:///distfile> URL.
+would be a C<cpan:///distfile/> URL.  (See L<URI::cpan>.)
 
 =head3 content (required)
 
 A reference to the actual information associated with the fact.
 The exact form of the content is up to each Fact class to determine.
 
+=head3 creator_id (optional)
+
+A L<Metabase::User::Profile> URI that indicates the creator of the Fact.  This
+is normally set by the Metabase when a Fact is submitted based on the
+submitter's Profile, but can be set during construction if the creator and
+submitter are not the same person.  The C<set_creator_id> mutator may be called
+to set C<creator_id>, but only if it is not previously set.
+
 =head2 Generated during construction
 
 These attributes are generated automatically during the call to C<new()>.
 
-=head3 type
+=head3 guid
 
-The object's class name, with double-colons converted to dashes to be more
-URI-friendly.  E.g.  'Metabase::Fact' would be 'Metabase-Fact'.
+The Fact object's Globally Unique IDentifier.
 
-=head3 version
+=head3 schema_version
 
 The schema_version() of the Fact subclass that created the object. This may or
 may not be the same as the current schema_version() of the class if newer
 versions of the class have been released since the object was created.
 
-=head2 Generated during indexing
+=head3 created_at
 
-These attributes should only be set or modified by a Metabase::Index
-object.  Thus, they are 'undef' when a fact is created, are populated when
-indexed, and are available when a Fact is queried from a Metabase.
-
-=head3 guid
-
-A global, unique identifier for a particular Fact in a particular Metabase.
+Fact creation time in epoch seconds.
 
 =head1 METHODS
 
@@ -355,24 +359,32 @@ A global, unique identifier for a particular Fact in a particular Metabase.
   );
 
 Constructs a new Fact. The 'resource' and 'content' attributes are required.  No
-other attributes may be provided to new().
+other attributes may be provided to new() except 'creator_id'.
 
 =head1 CLASS METHODS
 
-=head2 schema_version()
+=head2 default_schema_version()
 
-  $version = Fact::Subclass->schema_version;
+  $version = Fact::Subclass->default_schema_version;
 
 Defaults to 1.  Subclasses should override this method if they make a
 backwards-incompatible change to the internals of the content attribute.
-Schema version numbers should be monotonically-increasing integers.
+Schema version numbers should be monotonically-increasing integers.  The 
+default schema version is used to set an objects schema_version attribution
+on creation.
 
 =head2 type()
 
   $type = Fact::Subclass->type;
 
-If C<type()> is called as a class method, it returns the class name converted
-to a type, just as with the 'type' attribute.
+The class name, with double-colons converted to dashes to be more
+URI-friendly.  E.g.  'Metabase::Fact' would be 'Metabase-Fact'.
+
+=head2 class_from_type()
+
+  $class = Metabase::Fact->class_from_type( $type );
+
+A utility function to invert the operation of the type() method.
 
 =head1 ABSTRACT METHODS
 
