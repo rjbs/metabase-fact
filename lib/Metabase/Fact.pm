@@ -21,7 +21,7 @@ sub __validate_args {
   my $hash = (@$args == 1 and ref $args->[0]) ? { %{ $args->[0]  } }
            : (@$args == 0)                    ? { }
            :                                    { @$args };
-  
+
   my @errors;
 
   for my $key (keys %$hash) {
@@ -115,7 +115,7 @@ sub set_creator_id {
 
   $self->{metadata}{core}{creator_id} = [ '//str' => $guid ];
 }
-  
+
 sub as_struct {
     my ($self) = @_;
 
@@ -424,7 +424,7 @@ of:
  //num
 
 Here is a hypothetical example of content metadata for an image fact:
-  
+
   sub content_metdata {
     my $self = shift;
     return {
