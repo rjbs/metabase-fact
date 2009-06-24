@@ -54,7 +54,7 @@ Metabase::Fact::String - fact subtype for simple strings
 
   # using the fact class
   my $fact = MyFact->new(
-    resource => 'RJBS/CPAN-Metabase-Fact-0.001.tar.gz',
+    resource => 'RJBS/Metabase-Fact-0.001.tar.gz',
     content => "Hello World",
   );
 
@@ -104,7 +104,7 @@ The exact form of the content is up to each Fact class to determine.
 
 Please report any bugs or feature using the CPAN Request Tracker.  
 Bugs can be submitted through the web interface at 
-L<http://rt.cpan.org/Dist/Display.html?Queue=CPAN-Metabase-Fact>
+L<http://rt.cpan.org/Dist/Display.html?Queue=Metabase-Fact>
 
 When submitting a bug or request, please include a test-file or a patch to an
 existing test-file that illustrates the bug or desired feature.
