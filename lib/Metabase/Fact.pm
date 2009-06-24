@@ -123,6 +123,11 @@ sub as_struct {
   return {
     content  => $self->content_as_bytes,
     metadata => {
+      # We only provide core metadata here, not resource or content metadata,
+      # because we use as_struct for serialized transmission.  The remote that
+      # receives the transmission should reconstruct the metadata for itself,
+      # as it is more likely to have an improved metadata producer. -- rjbs,
+      # 2009-06-24
       core => $self->core_metadata,
     }
   };
@@ -160,11 +165,6 @@ sub from_struct {
   );
 
   my $self = $class->_init_guts($args);
-
-  # if metadata from resource or content were included in struct, add them
-  # back to the object
-  $self->{metadata}{resource} = $metadata->{resource} if $metadata->{resource};
-  $self->{metadata}{content}  = $metadata->{content}  if $metadata->{content};
 
   return $self;
 }
