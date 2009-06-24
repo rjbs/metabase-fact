@@ -1,4 +1,5 @@
-Revision history for Metabase
+Revision history for Metabase-Fact
 
-0.01 in progress
-    - original skeleton created at Oslo QA hackathon 2008
+0.001     2009-06-24
+          "YAPC::NA::2009, Pittsburgh" Release
+          first release
