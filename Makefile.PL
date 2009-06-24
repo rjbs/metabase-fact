@@ -11,6 +11,7 @@ test_requires('Test::Exception' => 0.26); # avoid bugs
 
 install_script('bin/metabase-profile');
  
+auto_manifest;
 extra_tests;
 tests_recursive;
 
