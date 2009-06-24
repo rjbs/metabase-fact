@@ -15,7 +15,7 @@ $VERSION = eval $VERSION; # convert '1.23_45' to 1.2345
 
 sub report_spec {
   my $self = shift;
-  Carp::confess "report_spec() not implemented by " . ref $self;
+  Carp::confess "report_spec method not implemented by " . ref $self;
 }
 
 sub set_creator_id {
@@ -46,7 +46,7 @@ sub open {
     \@args,
     { 
       resource       => 1,
-      # still optional so we can manipulate anonymous facts -- dagolden, 2009-05-12
+      # still optional so we can manipulate anon facts -- dagolden, 2009-05-12
       creator_id     => 0,
     }
   );
@@ -67,8 +67,7 @@ sub add {
   
   if ( @args == 1 && $args[0]->isa('Metabase::Fact') ) {
     $fact = $args[0];
-  }
-  else {
+  } else {
     ($fact_class, $content) = @args;
     $fact = $fact_class->new( 
       resource => $self->resource, 
@@ -166,11 +165,11 @@ sub validate_content {
         $fact_matched[$i] = 1;
       }
     }
+
     if ( $exact ) {
       die "expected $minimum of $k, but found $found\n"
       if $found != $minimum;
-    }
-    else {
+    } else {
       die "expected at least $minimum of $k, but found $found\n"
       if $found < $minimum;
     }
@@ -196,9 +195,11 @@ sub fact_classes {
 
 sub load_fact_classes {
   my ($self) = @_;
+
   for my $f ( $self->fact_classes ) {
     eval "require $f; 1" or Carp::confess "Could not load '$f': $@";
   }
+
   return;
 }
 
@@ -231,30 +232,29 @@ distributions.  The metabase can be used to store test reports, reviews,
 coverage analysis reports, reports on static analysis of coding style, or
 anything else for which datatypes are constructed.
 
-Metabase::Report is a base class for collections of Metabase::Fact
-objects that can be sent to or retrieved from a Metabase system.
+Metabase::Report is a base class for collections of Metabase::Fact objects that
+can be sent to or retrieved from a Metabase system.
 
-Metabase::Report is itself a subclass of Metabase::Fact and 
-offers the same API, except as described below.
+Metabase::Report is itself a subclass of Metabase::Fact and offers the same
+API, except as described below.
 
-=head1 USAGE
+=head1 SUBCLASSING
 
-[Talk about how to subclass...]
+A subclass of Metabase::Report only requires one method, C<L</report_spec>>.
 
 =head1 ATTRIBUTES
 
 =head3 content
 
-The 'content' attribute of a Report must be a reference to an array of 
+The C<content> attribute of a Report must be a reference to an array of
 Metabase::Fact subclass objects.
 
 =head1 METHODS
 
-In addition to the standard C<new()> constructor, the following C<open()>,
-C<add()> and C<close()> methods may be used to construct a report piecemeal,
-instead.
+In addition to the standard C<new> constructor, the following C<open>, C<add>
+and C<close> methods may be used to construct a report piecemeal, instead.
 
-=head2 open()
+=head2 open
 
   $report = Report::Subclass->open(
     id => 'AUTHORID/Foo-Bar-1.23.tar.gz',
@@ -262,9 +262,9 @@ instead.
 
 Constructs a new, empty report. The 'id' attribute is required.  The
 'refers_to' attribute is optional.  The 'content' attribute may be provided,
-but see C<add()> below. No other attributes may be provided to new().
+but see C<add> below. No other attributes may be provided to C<new>.
 
-=head2 add()
+=head2 add
 
   $report->add( 'Fact::Subclass' => $content );
 
@@ -272,7 +272,7 @@ Using the 'id' attribute of the report, this method constructs a new Fact from
 a class and a content argument.  The resulting Fact is appended to the Report's
 content array.
 
-=head2 close()
+=head2 close
 
   $report->close;
 
@@ -280,9 +280,9 @@ This method validates the report based on all Facts added so far.
 
 =head1 CLASS METHODS
 
-=head2 fact_classes()
+=head2 fact_classes
 
-=head2 load_fact_classes()
+=head2 load_fact_classes
 
 Loads each class listed in the report spec.
 
@@ -292,11 +292,13 @@ Methods marked as 'required' must be implemented by a report subclass.  (The
 version in Metabase::Report will die with an error if called.)  
 
 In the documentation below, the terms 'must, 'must not', 'should', etc. have
-their usual RFC meanings.
+their usual RFC 2119 meanings.
 
 Methods MUST throw an exception if an error occurs.
 
-=head2 report_spec() (required)
+=head2 report_spec
+
+B<required>
 
   $spec = Report::Subclass->report_spec;
 
@@ -316,8 +318,8 @@ For example:
 
 =head1 BUGS
 
-Please report any bugs or feature using the CPAN Request Tracker.  
-Bugs can be submitted through the web interface at 
+Please report any bugs or feature using the CPAN Request Tracker.  Bugs can be
+submitted through the web interface at
 L<http://rt.cpan.org/Dist/Display.html?Queue=Metabase-Fact>
 
 When submitting a bug or request, please include a test-file or a patch to an
@@ -335,8 +337,8 @@ existing test-file that illustrates the bug or desired feature.
 
 =head1 COPYRIGHT AND LICENSE
 
- Portions copyright (c) 2008 by David A. Golden
- Portions copyright (c) 2008 by Ricardo J. B. Signes
+  Portions copyright (c) 2008 by David A. Golden
+  Portions copyright (c) 2008 by Ricardo J. B. Signes
 
 Licensed under the same terms as Perl itself (the "License").
 You may not use this file except in compliance with the License.

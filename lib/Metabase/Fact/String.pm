@@ -52,53 +52,26 @@ Metabase::Fact::String - fact subtype for simple strings
       if length $self->content < 0;
   }
 
+...and then...
+
   # using the fact class
   my $fact = MyFact->new(
     resource => 'RJBS/Metabase-Fact-0.001.tar.gz',
-    content => "Hello World",
+    content  => "Hello World",
   );
 
   $client->send_fact($fact);
 
 =head1 DESCRIPTION
 
-Base class for facts that are just strings of text.  Strings must be characters,
-not bytes.
+Base class for facts that are just strings of text.  Strings must be
+characters, not bytes.
 
-=head1 USAGE
+You may wish to implement a C<content_metadata> method to generate metadata
+about the hash contents.
 
-[Talk more about how to subclass...]
-
-=head1 ATTRIBUTES
-
-=head2 Set during construction 
-
-=head3 required (required)
-
-The canonical CPAN ID the Fact relates to.  For distributions, this is the 
-'AUTHOR/Distname-Version.Suffix' form used to install specific distributions
-with CPAN.pm -- for example, 'TIMB/DBI-1.604.tar.gz' for the DBI distribution.
-
-=head3 content (required)
-
-A reference to the actual information associated with the fact.
-The exact form of the content is up to each Fact class to determine.
-
-=head1 METHODS
-
-=head2 Provided by this class
-
-=head3 content_as_bytes()
-
-=head3 content_from_bytes()
-
-=head3 validate_content()
-
-=head2 To be implemented by subclasses
-
-=head3 content_metadata() (required)
-
-=head3 validate_content() (optional)
+You should also implement a C<validate_content> method to validate the
+structure of the hash you're given.
 
 =head1 BUGS
 

@@ -19,14 +19,13 @@ Metabase::User::Secret - Metabase fact for user shared authentication secret
 
   my $email = Metabase::User::Secret->new(
     resource => 'metabase:user:B66C7662-1D34-11DE-A668-0DF08D1878C0',
-    content => 'aixuZuo8',
+    content  => 'aixuZuo8',
   );
 
 =head1 DESCRIPTION
 
-
-=head1 USAGE
-
+This fact is a simple string, storing the shared secret that will be used to
+authenticate user during fact submission.
 
 =head1 BUGS
 
@@ -49,18 +48,15 @@ existing test-file that illustrates the bug or desired feature.
 
 Copyright (c) 2009 by David A. Golden
 
-Licensed under the same terms as Perl itself (the "License").
-You may not use this file except in compliance with the License.
-A copy of the License was distributed with this file or you may obtain a 
-copy of the License from http://dev.perl.org/licenses/
+Licensed under the same terms as Perl itself (the "License").  You may not use
+this file except in compliance with the License.  A copy of the License was
+distributed with this file or you may obtain a copy of the License from
+http://dev.perl.org/licenses/
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+Unless required by applicable law or agreed to in writing, software distributed
+under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+CONDITIONS OF ANY KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations under the License.
 
 =cut
-
-
 

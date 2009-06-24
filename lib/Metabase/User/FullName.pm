@@ -13,7 +13,7 @@ __END__
 
 =head1 NAME
 
-Metabase::User::FullName - Metabase fact for user email address
+Metabase::User::FullName - Metabase fact for user full name
 
 =head1 SYNOPSIS
 
@@ -24,9 +24,8 @@ Metabase::User::FullName - Metabase fact for user email address
 
 =head1 DESCRIPTION
 
-
-=head1 USAGE
-
+This is just a simple string fact that stores the real name of a user in his
+profile.
 
 =head1 BUGS
 
@@ -61,6 +60,4 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 =cut
-
-
 

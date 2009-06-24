@@ -57,21 +57,24 @@ Metabase::Fact::Hash - fact subtype for simple hashes
   sub content_metadata {
     my $self = shift;
     return {
-      'poster' => [ '//str' => $self->content->{poster} ],
+      poster => [ '//str' => $self->content->{poster} ],
     };
   }
 
   sub validate_content {
     my $self = shift;
     $self->SUPER::validate_content; # required and optional keys
+
     # other analysis of values
   }
+
+...and then...
 
   # using the fact class
   my $fact = MyFact->new(
     resource => 'RJBS/Metabase-Fact-0.001.tar.gz',
     content => {
-      poster => 'larry',
+      poster  => 'larry',
       comment => 'Metabase rocks!',
     }
   );
@@ -80,42 +83,39 @@ Metabase::Fact::Hash - fact subtype for simple hashes
 
 =head1 DESCRIPTION
 
-Base class for facts that are just hashes.  
+Many (if not most) facts to be stored in a Metabase are just hashes of simple
+data.  Metabase::Fact::Hash is a subclass of L<Metabase::Fact|Metabase::Fact>
+with most of the required Fact methods already implemented.  If you write your
+class as a subclass of Metabase::Fact::Hash, you can store simple hashes in it.
 
-=head1 USAGE
+You may wish to implement a C<content_metadata> method to generate metadata
+about the hash contents.
 
-[Talk more about how to subclass...]
+You should also implement a C<validate_content> method to validate the
+structure of the hash you're given.
 
 =head1 ATTRIBUTES
 
-=head2 Set during construction 
+=head2 Arguments provided to new
 
-=head3 required (required)
+=head3 resource
 
-The canonical CPAN ID the Fact relates to.  For distributions, this is the 
-'AUTHOR/Distname-Version.Suffix' form used to install specific distributions
-with CPAN.pm -- for example, 'TIMB/DBI-1.604.tar.gz' for the DBI distribution.
+B<required>
 
-=head3 content (required)
+The canonical resource (URI) the Fact relates to.  For CPAN distributions, this
+would be a C<cpan:///distfile/> URL.  (See L<URI::cpan>.)
+
+=head3 content
+
+B<required>
 
 A reference to the actual information associated with the fact.
 The exact form of the content is up to each Fact class to determine.
 
 =head1 METHODS
 
-=head2 Provided by this class
-
-=head3 content_as_bytes()
-
-=head3 content_from_bytes()
-
-=head3 validate_content()
-
-=head2 To be implemented by subclasses
-
-=head3 content_metadata() (required)
-
-=head3 validate_content() (optional)
+For information on the methods provided by this class, see
+L<Metabase::Fact|Metabase::Fact>.
 
 =head1 BUGS
 
@@ -123,7 +123,7 @@ Please report any bugs or feature using the CPAN Request Tracker.
 Bugs can be submitted through the web interface at 
 L<http://rt.cpan.org/Dist/Display.html?Queue=Metabase-Fact>
 
-When submitting a bug or request, please include a test-file or a patch to an
+When submitting a bug or request, please include a test file or a patch to an
 existing test-file that illustrates the bug or desired feature.
 
 =head1 AUTHOR

@@ -26,12 +26,17 @@ sub create {
       secret          => 1,
     }
   );
+
   my $profile = $class->open(
     # placeholder guid in resource
     resource => "metabase:user:00000000-0000-0000-0000-000000000000",
   );
+
   # fix-up our resource string to refer to our assigned guid
-  $profile->{metadata}{core}{resource} = [ '//str' => "metabase:user:" . $profile->guid ];
+  $profile->{metadata}{core}{resource} = [
+    '//str' => "metabase:user:" . $profile->guid
+  ];
+
   # add facts
   $profile->add( 'Metabase::User::FullName' => $args->{full_name} );
   $profile->add( 'Metabase::User::EmailAddress' => $args->{email_address} );
@@ -97,7 +102,6 @@ Metabase::User::Profile - Metabase report class for user-related facts
     secret        => 'aixuZuo8',
   );
 
-
 =head1 DESCRIPTION
 
 Metabase report class encapsulating Facts about a metabase user
@@ -122,7 +126,7 @@ Metabase report class encapsulating Facts about a metabase user
   $profile->add( 'Metabase::User::FullName'     => 'John Doe' );
   $profile->add( 'Metabase::User::Secret'       => 'aixuZuo8' );
     
-  $profile->close();
+  $profile->close;
 
 =head1 BUGS
 
@@ -157,6 +161,4 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 =cut
-
-
 
