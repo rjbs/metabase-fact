@@ -40,26 +40,26 @@ sub __validate_args {
 }
 
 sub new {
-    my ($class, @args) = @_;
-    my $args = $class->__validate_args(
-      \@args,
-      { 
-        content        => 1,
-        resource       => 1,  # where to validate? -- dagolden, 2009-03-31
-        # still optional so we can manipulate anonymous facts -- dagolden, 2009-05-12
-        creator_id     => 0,
-      },
-    );
+  my ($class, @args) = @_;
+  my $args = $class->__validate_args(
+    \@args,
+    {
+      content  => 1,
+      resource => 1,  # where to validate? -- dagolden, 2009-03-31
+      # still optional so we can manipulate anon facts -- dagolden, 2009-05-12
+      creator_id => 0,
+    },
+  );
 
-    my $self = $class->_init_guts($args);
+  my $self = $class->_init_guts($args);
 
-    # XXX rename to validate -- dagolden, 2009-03-31
-    eval { $self->validate_content };
-    if ($@) {
-        Carp::confess( "$class object content invalid: $@" );
-    }
+  # XXX rename to validate -- dagolden, 2009-03-31
+  eval { $self->validate_content };
+  if ($@) {
+    Carp::confess("$class object content invalid: $@");
+  }
 
-    return $self;
+  return $self;
 }
 
 sub _init_guts {
@@ -81,7 +81,8 @@ sub _init_guts {
   my $meta = $self->{metadata} = { core => {} };
   $self->{content} = $args->{content};
 
-  # XXX I hate seeing ...[1] everywhere for metadata -- dagolden, 2009-03-31 
+  # XXX I hate seeing ... [1] everywhere for metadata -- dagolden, 2009-03-31 
+  # XXX So do I! -- rjbs, 2009-06-24
   $meta->{core}{created_at}     = [ '//num' => $args->{created_at} || time  ];
   $meta->{core}{guid}           = [ '//str' => $args->{guid}       || _guid ];
   $meta->{core}{resource}       = [ '//str' => $args->{resource}            ];
@@ -117,14 +118,14 @@ sub set_creator_id {
 }
 
 sub as_struct {
-    my ($self) = @_;
+  my ($self) = @_;
 
-    return {
-      content  => $self->content_as_bytes,
-      metadata => {
-        core => $self->core_metadata,
-      }
-    };
+  return {
+    content  => $self->content_as_bytes,
+    metadata => {
+      core => $self->core_metadata,
+    }
+  };
 }
 
 sub from_struct {
@@ -136,11 +137,13 @@ sub from_struct {
     unless $class->type eq $core_meta->{type}[1];
 
   # transfrom struct into content and core metadata arguments the way they
-  # would be given to new(), then validate these and get an object from _init_guts()
+  # would be given to new, then validate these and get an object from
+  # _init_guts
   my @args = ( 
     (map { $_ => $core_meta->{$_}[1] } keys %$core_meta),
     content  => $class->content_from_bytes($struct->{content}),
   );
+
   my $args = $class->__validate_args(
     \@args,
     { 
@@ -151,10 +154,11 @@ sub from_struct {
       resource       => 1,
       schema_version => 1,
       type           => 1,
-      # still optional so we can manipulate anonymous facts -- dagolden, 2009-05-12
+      # still optional so we can manipulate anon facts -- dagolden, 2009-05-12
       creator_id     => 0, 
     },
   );
+
   my $self = $class->_init_guts($args);
 
   # if metadata from resource or content were included in struct, add them
@@ -166,14 +170,14 @@ sub from_struct {
 }
 
 sub resource_metadata {
-    my $self = shift;
+  my $self = shift;
 
-    return $self->{metadata}{resource} ||= {};
+  return $self->{metadata}{resource} ||= {};
 }
 
 sub core_metadata {
-    my $self = shift;
-    $self->{metadata}{core};
+  my $self = shift;
+  $self->{metadata}{core};
 }
 
 #--------------------------------------------------------------------------#
@@ -192,9 +196,9 @@ sub type {
 # XXX: I'm not really excited about having this in here. -- rjbs, 2009-03-28
 # XXX: Need it type() for symmetry.  Make it private? -- dagolden, 2009-03-31
 sub class_from_type {
-    my (undef, $type) = @_;
-    $type =~ s/-/::/g;
-    return $type;
+  my (undef, $type) = @_;
+  $type =~ s/-/::/g;
+  return $type;
 }
 
 #--------------------------------------------------------------------------#
@@ -216,28 +220,26 @@ sub default_schema_version() { 1 }
 sub content_metadata { return }
 
 sub upgrade_fact {
-    my ($self) = @_;
-    Carp::confess "Detected a schema mismatch, but upgrade_fact() not implemented by "
-      . (ref $self || $self)
+  my ($self) = @_;
+  Carp::confess "Detected a schema mismatch, but upgrade_fact() not implemented by "
+    . (ref $self || $self)
 }
 
 sub content_as_bytes {
-    my ($self, $content) = @_;
-    Carp::confess "content_as_bytes() not implemented by "
-      . (ref $self || $self)
+  my ($self, $content) = @_;
+  Carp::confess "content_as_bytes() not implemented by " . (ref $self || $self)
 }
 
 sub content_from_bytes {
-    my ($self, $bytes) = @_;
-    Carp::confess "content_from_bytes() not implemented by "
-      . (ref $self || $self)
+  my ($self, $bytes) = @_;
+  Carp::confess "content_from_bytes() not implemented by "
+    . (ref $self || $self)
 }
 
 # XXX rename to validate -- dagolden, 2009-03-31 
 sub validate_content {
-    my ($self, $content) = @_;
-    Carp::confess "validate_content() not implemented by "
-      . (ref $self || $self)
+  my ($self, $content) = @_;
+  Carp::confess "validate_content() not implemented by " . (ref $self || $self)
 }
 
 1;
@@ -256,8 +258,8 @@ Metabase::Fact - base class for Metabase Facts
 
   # using the fact class
   my $fact = TestReport->new(
-    resource => 'RJBS/Metabase-Fact-0.001.tar.gz',
-    content     => {
+    resource   => 'RJBS/Metabase-Fact-0.001.tar.gz',
+    content    => {
       status => 'FAIL',
       time   => 3029,
     },
@@ -280,7 +282,7 @@ that can be sent to or retrieved from a Metabase system.
 Unless otherwise noted, all attributes are read-only and are either provided as 
 arguments to the constructor or are generated during construction.
 
-=head2 Arguments provided to C<new()>
+=head2 Arguments provided to new
 
 =head3 resource
 
@@ -409,8 +411,8 @@ Hash values MUST be an array_ref containing a type and the value for the either
 be simple scalars (strings or numbers) or array references.  Type MUST be one
 of:
 
- //str
- //num
+  //str
+  //num
 
 Here is a hypothetical example of content metadata for an image fact:
 
@@ -465,8 +467,8 @@ existing test-file that illustrates the bug or desired feature.
 
 =head1 COPYRIGHT AND LICENSE
 
- Portions copyright (c) 2008-2009 by David A. Golden
- Portions copyright (c) 2008-2009 by Ricardo J. B. Signes
+  Portions copyright (c) 2008-2009 by David A. Golden
+  Portions copyright (c) 2008-2009 by Ricardo J. B. Signes
 
 Licensed under the same terms as Perl itself (the "License").
 You may not use this file except in compliance with the License.
