@@ -88,14 +88,14 @@ sub _init_guts {
   $self->{content} = $args->{content};
 
   # XXX I hate seeing ...[1] everywhere for metadata -- dagolden, 2009-03-31 
-  $meta->{core}{created_at}     = [ Num => $args->{created_at} || time  ];
-  $meta->{core}{guid}           = [ Str => $args->{guid}       || _guid ];
-  $meta->{core}{resource}       = [ Str => $args->{resource}            ];
-  $meta->{core}{schema_version} = [ Num => $args->{schema_version}      ];
-  $meta->{core}{type}           = [ Str => $self->type                  ];
+  $meta->{core}{created_at}     = [ '//num' => $args->{created_at} || time  ];
+  $meta->{core}{guid}           = [ '//str' => $args->{guid}       || _guid ];
+  $meta->{core}{resource}       = [ '//str' => $args->{resource}            ];
+  $meta->{core}{schema_version} = [ '//num' => $args->{schema_version}      ];
+  $meta->{core}{type}           = [ '//str' => $self->type                  ];
 
   if (defined $args->{creator_id}) {
-    $meta->{core}{creator_id}   = [ Str => $args->{creator_id}          ];
+    $meta->{core}{creator_id}   = [ '//str' => $args->{creator_id}          ];
   }
 
   return $self;
@@ -119,7 +119,7 @@ sub set_creator_id {
   Carp::confess("can't set creator_id; it is already set")
     if $self->creator_id;
 
-  $self->{metadata}{core}{creator_id} = [ Str => $guid ];
+  $self->{metadata}{core}{creator_id} = [ '//str' => $guid ];
 }
   
 sub as_struct {
@@ -422,20 +422,21 @@ If defined in a subclass, this method MUST return a hash reference with
 content-specific indexing metadata for the Fact.  The key MUST be the name of
 the field for indexing.  ( XXX rjbs -- what format? )
 
-Hash values MUST be an array_ref containing a type and the value for the either be
-simple scalars (strings or numbers) or array references.  Type MUST be one of
+Hash values MUST be an array_ref containing a type and the value for the either
+be simple scalars (strings or numbers) or array references.  Type MUST be one
+of:
 
- Str
- Num
+ //str
+ //num
 
 Here is a hypothetical example of content metadata for an image fact:
   
   sub content_metdata {
     my $self = shift;
     return {
-      width   => [ Num => _compute_width  ( $self->content ) ],
-      height  => [ Num => _compute_height ( $self->content ) ],
-      comment => [ Str => _extract_comment( $self->content ) ],
+      width   => [ '//num' => _compute_width  ( $self->content ) ],
+      height  => [ '//num' => _compute_height ( $self->content ) ],
+      comment => [ '//str' => _extract_comment( $self->content ) ],
     }
   }
 

@@ -26,7 +26,7 @@ my ($obj, $err);
 my $string = "Who am I?";
 
 my $meta = {
-  'length' => [ Num => length $string ],
+  'length' => [ '//num' => length $string ],
 };
 
 my $args = {
@@ -53,10 +53,10 @@ my $want_struct = {
   content  => $string,
   metadata => {
     core    => {
-      type           => [ Str => 'FactThree'       ],
-      schema_version => [ Num => 1                 ],
-      guid           => [ Str => $obj->guid        ],
-      resource       => [ Str => $args->{resource} ],
+      type           => [ '//str' => 'FactThree'       ],
+      schema_version => [ '//num' => 1                 ],
+      guid           => [ '//str' => $obj->guid        ],
+      resource       => [ '//str' => $args->{resource} ],
     },
   },
 };

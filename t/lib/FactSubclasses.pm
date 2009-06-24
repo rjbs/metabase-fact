@@ -22,7 +22,7 @@ sub validate_content    {
   die "content not positive length" unless length $_[0]->content > 0;
 }
 sub content_metadata    { 
-  return { 'length' => [ 'Num' => length $_[0]->content ] } 
+  return { 'length' => [ '//num' => length $_[0]->content ] } 
 }
 
 package FactFour;
@@ -30,7 +30,7 @@ use base 'Metabase::Fact::Hash';
 sub required_keys {qw/ first /};
 sub optional_keys {qw/ second /};
 sub content_metadata    { 
-  return { 'size' => [ Num => scalar keys %{ $_[0]->content } ] } 
+  return { 'size' => [ '//num' => scalar keys %{ $_[0]->content } ] } 
 }
 
 

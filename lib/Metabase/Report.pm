@@ -225,8 +225,8 @@ Metabase::Report - a base class for collections of Metabase facts
 
   sub report_spec {
     return {
-      Fact::One => 1,     # one of Fact::One
-      Fact::Two => "0+",  # zero or more of Fact::Two
+      'Fact::One' => 1,     # one of Fact::One
+      'Fact::Two' => "0+",  # zero or more of Fact::Two
     }
   }
 

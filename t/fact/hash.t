@@ -29,7 +29,7 @@ my $struct = {
 };
 
 my $meta = {
-  size => [ Num => 2 ],
+  size => [ '//num' => 2 ],
 };
 
 my $args = {
@@ -72,10 +72,10 @@ my $want_struct = {
   content  => to_json($struct),
   metadata => {
     core    => {
-      type           => [ Str => 'FactFour'        ],
-      schema_version => [ Num => 1                 ],
-      guid           => [ Str => $obj->guid        ],
-      resource       => [ Str => $args->{resource} ],
+      type           => [ '//str' => 'FactFour'        ],
+      schema_version => [ '//num' => 1                 ],
+      guid           => [ '//str' => $obj->guid        ],
+      resource       => [ '//str' => $args->{resource} ],
     },
   }
 };
@@ -90,7 +90,7 @@ is_deeply($have_struct, $want_struct, "object as_struct correct");
 
 my $guid = '351E99EA-1D21-11DE-AB9C-3268421C7A0A';
 $obj->set_creator_id($guid);
-$want_struct->{metadata}{core}{creator_id} = [ Str => $guid ];
+$want_struct->{metadata}{core}{creator_id} = [ '//str' => $guid ];
 
 is_deeply($have_struct, $want_struct, "object as_struct correct w/creator"); 
 

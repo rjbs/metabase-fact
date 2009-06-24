@@ -41,7 +41,7 @@ Metabase::Fact::String - fact subtype for simple strings
   sub content_metadata {
     my $self = shift;
     return {
-      'size' => [ Num => length $self->content ],
+      'size' => [ '//num' => length $self->content ],
     };
   }
 

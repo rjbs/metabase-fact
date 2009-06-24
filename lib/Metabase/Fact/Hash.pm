@@ -57,7 +57,7 @@ Metabase::Fact::Hash - fact subtype for simple hashes
   sub content_metadata {
     my $self = shift;
     return {
-      'poster' => [ Str => $self->content->{poster} ],
+      'poster' => [ '//str' => $self->content->{poster} ],
     };
   }
 

@@ -37,7 +37,7 @@ sub create {
     resource => "metabase:user:00000000-0000-0000-0000-000000000000",
   );
   # fix-up our resource string to refer to our assigned guid
-  $profile->{metadata}{core}{resource} = [ Str => "metabase:user:" . $profile->guid ];
+  $profile->{metadata}{core}{resource} = [ '//str' => "metabase:user:" . $profile->guid ];
   # add facts
   $profile->add( 'Metabase::User::FullName' => $args->{full_name} );
   $profile->add( 'Metabase::User::EmailAddress' => $args->{email_address} );
