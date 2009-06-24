@@ -252,27 +252,7 @@ Metabase::Fact - base class for Metabase Facts
 
   # defining the fact class
   package MyFact;
-  use base 'Metabase::Fact';
-
-  sub content_as_bytes {
-    ...
-  }
-
-  sub content_from_bytes {
-    ...
-  }
-
-  sub content_metadata {
-    ...
-  }
-
-  sub validate_content {
-    ...
-  }
-
-  sub upgrade_fact {
-    ...
-  }
+  use base 'Metabase::Fact::Hash';
 
   # using the fact class
   my $fact = TestReport->new(
@@ -285,20 +265,15 @@ Metabase::Fact - base class for Metabase Facts
 
   $client->send_fact($fact);
 
-
 =head1 DESCRIPTION
 
-L<Metabase> is a framework for associating metadata with arbitrary
-resources.  A Metabase can be used to store test reports, reviews, coverage
-analysis reports, reports on static analysis of coding style, or anything else
-for which datatypes are constructed.
+L<Metabase> is a framework for associating metadata with arbitrary resources.
+A Metabase can be used to store test reports, reviews, coverage analysis
+reports, reports on static analysis of coding style, or anything else for which
+datatypes are constructed.
 
 Metabase::Fact is a base class for facts (really opinions or analyses)
 that can be sent to or retrieved from a Metabase system.
-
-=head1 USAGE
-
-[Talk about how to subclass...]
 
 =head1 ATTRIBUTES
 
@@ -307,17 +282,23 @@ arguments to the constructor or are generated during construction.
 
 =head2 Arguments provided to C<new()>
 
-=head3 resource (required)
+=head3 resource
+
+B<required>
 
 The canonical resource (URI) the Fact relates to.  For CPAN distributions, this
 would be a C<cpan:///distfile/> URL.  (See L<URI::cpan>.)
 
-=head3 content (required)
+=head3 content
+
+B<required>
 
 A reference to the actual information associated with the fact.
 The exact form of the content is up to each Fact class to determine.
 
-=head3 creator_id (optional)
+=head3 creator_id
+
+B<optional>
 
 A L<Metabase::User::Profile> URI that indicates the creator of the Fact.  This
 is normally set by the Metabase when a Fact is submitted based on the
@@ -335,8 +316,8 @@ The Fact object's Globally Unique IDentifier.
 
 =head3 schema_version
 
-The schema_version() of the Fact subclass that created the object. This may or
-may not be the same as the current schema_version() of the class if newer
+The C<schema_version> of the Fact subclass that created the object. This may or
+may not be the same as the current C<schema_version> of the class if newer
 versions of the class have been released since the object was created.
 
 =head3 created_at
@@ -345,21 +326,21 @@ Fact creation time in epoch seconds.
 
 =head1 METHODS
 
-=head2 new()
+=head2 new
 
-  $fact = myfact->new(
+  $fact = MyFact->new(
     resource => 'AUTHORID/Foo-Bar-1.23.tar.gz',
     content => $content_structure,
   );
 
-Constructs a new Fact. The 'resource' and 'content' attributes are required.  No
-other attributes may be provided to new() except 'creator_id'.
+Constructs a new Fact. The C<resource> and C<content> attributes are required.
+No other attributes may be provided to C<new> except C<creator_id>.
 
 =head1 CLASS METHODS
 
-=head2 default_schema_version()
+=head2 default_schema_version
 
-  $version = Fact::Subclass->default_schema_version;
+  $version = MyFact->default_schema_version;
 
 Defaults to 1.  Subclasses should override this method if they make a
 backwards-incompatible change to the internals of the content attribute.
@@ -367,39 +348,43 @@ Schema version numbers should be monotonically-increasing integers.  The
 default schema version is used to set an objects schema_version attribution
 on creation.
 
-=head2 type()
+=head2 type
 
-  $type = Fact::Subclass->type;
+  $type = MyFact->type;
 
 The class name, with double-colons converted to dashes to be more
-URI-friendly.  E.g.  'Metabase::Fact' would be 'Metabase-Fact'.
+URI-friendly.  e.g.  C<Metabase::Fact> would be C<Metabase-Fact>.
 
-=head2 class_from_type()
+=head2 class_from_type
 
-  $class = Metabase::Fact->class_from_type( $type );
+  $class = MyFact->class_from_type( $type );
 
 A utility function to invert the operation of the type() method.
 
 =head1 ABSTRACT METHODS
 
-Methods marked as 'required' must be implemented by a Fact subclass.  (The
+Methods marked as F<required> must be implemented by a Fact subclass.  (The
 version in Metabase::Fact will die with an error if called.)
 
-In the documentation below, the terms 'must, 'must not', 'should', etc. have
-their usual RFC meanings.
+In the documentation below, the terms F<must>, F<must not>, F<should>, etc.
+have their usual RFC 2119 meanings.
 
 These methods MUST throw an exception if an error occurs.
 
-=head2 content_as_bytes() (required)
+=head2 content_as_bytes
+
+B<required>
 
   $string = $fact->content_as_bytes;
 
 This method MUST serialize a Fact's content as bytes in a scalar and return it.
 The method for serialization is up to the individual fact class to determine.
-Some common subclasses are available to handle serialization for common data types.
-See L<Metabase::Fact::Hash> and L<Metabase::Fact::String>.
+Some common subclasses are available to handle serialization for common data
+types.  See L<Metabase::Fact::Hash> and L<Metabase::Fact::String>.
 
-=head2 content_from_bytes() (required)
+=head2 content_from_bytes
+
+B<required>
 
   $content = $fact->content_from_bytes( $string );
   $content = $fact->content_from_bytes( \$string );
@@ -408,13 +393,17 @@ Given a scalar, this method MUST regenerate and return the original content
 data structure.  It MUST accept either a string or string reference as an
 argument.  It MUST NOT overwrite the Fact's content attribute directly.
 
-=head2 content_metadata() (optional)
+=head2 content_metadata
+
+B<optional>
 
   $content_meta = $fact->content_metadata;
 
 If defined in a subclass, this method MUST return a hash reference with
 content-specific indexing metadata for the Fact.  The key MUST be the name of
-the field for indexing.  ( XXX rjbs -- what format? )
+the field for indexing. 
+
+=for comment XXX rjbs -- what format?
 
 Hash values MUST be an array_ref containing a type and the value for the either
 be simple scalars (strings or numbers) or array references.  Type MUST be one
@@ -436,9 +425,11 @@ Here is a hypothetical example of content metadata for an image fact:
 
 It MUST return C<undef> if no content-specific metadata is available.
 
-=head2 validate_content() (required)
+=head2 validate_content
 
- eval{ $fact->validate_content };
+B<required>
+
+ eval { $fact->validate_content };
 
 This method SHOULD check for the validity of content within the Fact.  It
 MUST throw an exception if the fact content is invalid.  (The return value is
