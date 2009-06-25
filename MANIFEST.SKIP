@@ -34,3 +34,4 @@
 \.swp$
 \.bak$
 ^pod.*\.tmp$
+^Metabase-Fact-.+
