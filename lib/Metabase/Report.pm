@@ -7,7 +7,7 @@ use JSON ();
 use base 'Metabase::Fact';
 
 our $VERSION = '0.001';
-$VERSION = eval $VERSION; # convert '1.23_45' to 1.2345
+$VERSION = eval $VERSION;
 
 #--------------------------------------------------------------------------#
 # abstract methods -- fatal
