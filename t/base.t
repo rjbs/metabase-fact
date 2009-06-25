@@ -52,7 +52,7 @@ is( Metabase::Fact->type, "Metabase-Fact",
 # unimplemented
 for my $m ( qw/content_as_bytes content_from_bytes validate_content/ ) {
     my $obj = bless {} => 'Metabase::Fact';
-    throws_ok { $obj->$m } qr/$m\(\) not implemented by Metabase::Fact/,
+    throws_ok { $obj->$m } qr/$m not implemented by Metabase::Fact/,
       "$m not implemented";
 }
 

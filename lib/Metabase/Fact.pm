@@ -194,7 +194,7 @@ sub type {
 }
 
 # XXX: I'm not really excited about having this in here. -- rjbs, 2009-03-28
-# XXX: Need it type() for symmetry.  Make it private? -- dagolden, 2009-03-31
+# XXX: Need it ->type for symmetry.  Make it private? -- dagolden, 2009-03-31
 sub class_from_type {
   my (undef, $type) = @_;
   $type =~ s/-/::/g;
@@ -205,7 +205,7 @@ sub class_from_type {
 # class methods
 #--------------------------------------------------------------------------#
 
-# schema_version recorded in 'version' attribution during new()
+# schema_version recorded in 'version' attribution during ->new
 # if format of content changes, class module should increment schema version
 # to check: if ( $obj->version != $class->schema_version ) ...
 
@@ -221,25 +221,25 @@ sub content_metadata { return }
 
 sub upgrade_fact {
   my ($self) = @_;
-  Carp::confess "Detected a schema mismatch, but upgrade_fact() not implemented by "
+  Carp::confess "Detected a schema mismatch, but upgrade_fact not implemented by "
     . (ref $self || $self)
 }
 
 sub content_as_bytes {
   my ($self, $content) = @_;
-  Carp::confess "content_as_bytes() not implemented by " . (ref $self || $self)
+  Carp::confess "content_as_bytes not implemented by " . (ref $self || $self)
 }
 
 sub content_from_bytes {
   my ($self, $bytes) = @_;
-  Carp::confess "content_from_bytes() not implemented by "
+  Carp::confess "content_from_bytes not implemented by "
     . (ref $self || $self)
 }
 
 # XXX rename to validate -- dagolden, 2009-03-31 
 sub validate_content {
   my ($self, $content) = @_;
-  Carp::confess "validate_content() not implemented by " . (ref $self || $self)
+  Carp::confess "validate_content not implemented by " . (ref $self || $self)
 }
 
 1;
@@ -310,7 +310,7 @@ to set C<creator_id>, but only if it is not previously set.
 
 =head2 Generated during construction
 
-These attributes are generated automatically during the call to C<new()>.
+These attributes are generated automatically during the call to C<new>.
 
 =head3 guid
 
@@ -361,7 +361,53 @@ URI-friendly.  e.g.  C<Metabase::Fact> would be C<Metabase-Fact>.
 
   $class = MyFact->class_from_type( $type );
 
-A utility function to invert the operation of the type() method.
+A utility function to invert the operation of the type method.
+
+=head1 OBJECT METHODS
+
+=head2 as_struct
+
+This returns a simple data structure that represents the fact and can be used
+for transmission over the wire.  It serializes the content and core metadata,
+but not other metadata, which should be recomputed by the receiving end.
+
+=head2 from_struct
+
+This takes the output of the C<as_struct> method and reconstitutes a Fact
+object.
+
+=head2 core_metadata
+
+This returns a hashref containing the fact's core metadata.  This includes
+things like the guid, creation time, described resource, and so on.
+
+Values are arrayrefs with two entries, in the form:
+
+  [ type => value ]
+
+The type will be either C<//num> or C<//str>.
+
+=head2 resource_metadata
+
+This method returns metadata describing the resource.
+
+B<Unimplemented>: In general, this is likely to be an empty hashref.  Resource
+metadata is not yet implemented (much?).
+
+=head2 set_creator_id
+
+  $fact->set_creator_id($profile_guid);
+
+This method sets the C<creator_id> core metadata for the core metadata for the
+fact.  If the fact's C<creator_id> is already set, an exception will be thrown.
+
+=head2 upgrade_fact
+
+This method will be called when initializing a fact from a data structure that
+claims to be of a schema version other than the schema version reported by the
+loaded class's C<default_schema_version> method.  It will be passed the hashref
+of args being used to initialized the fact object, and should alter that hash
+in place.
 
 =head1 ABSTRACT METHODS
 
