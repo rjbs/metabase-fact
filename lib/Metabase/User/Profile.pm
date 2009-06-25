@@ -128,6 +128,33 @@ Metabase report class encapsulating Facts about a metabase user
     
   $profile->close;
 
+=head1 METHODS
+
+=head2 create
+
+  my $new_profile = Metabase::User::Profile->create(%arg);
+
+This method creates a new user profile object from the given parameters.
+
+Valid parameters include:
+
+  full_name      - the user's full name
+  email_address  - the user's email address
+  secret         - the shared secret to use for authentication
+
+=head2 load
+
+  my $profile = Metabase::User::Profile->load($filename);
+
+This method loads a profile from disk and returns it.
+
+=head2 save
+
+  $profile->save($filename);
+
+This method writes out the profile to a file.  If the file cannot be written,
+an exception is raised.  If the save is successful, a true value is returned.
+
 =head1 BUGS
 
 Please report any bugs or feature using the CPAN Request Tracker.  
