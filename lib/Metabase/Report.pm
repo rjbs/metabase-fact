@@ -278,6 +278,11 @@ content array.
 
 This method validates the report based on all Facts added so far.
 
+=head2 facts
+
+This method returns a list of all the facts in the report.  In scalar context,
+it returns the number of facts in the report.
+
 =head1 CLASS METHODS
 
 =head2 fact_classes
