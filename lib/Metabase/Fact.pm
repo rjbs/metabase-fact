@@ -3,6 +3,7 @@ use 5.006;
 use strict;
 use warnings;
 use Data::GUID guid_string => { -as => '_guid' };
+use JSON ();
 use Carp ();
 
 our $VERSION = '0.001';
@@ -81,7 +82,7 @@ sub _init_guts {
   my $meta = $self->{metadata} = { core => {} };
   $self->{content} = $args->{content};
 
-  # XXX I hate seeing ... [1] everywhere for metadata -- dagolden, 2009-03-31 
+  # XXX I hate seeing ... [1] everywhere for metadata -- dagolden, 2009-03-31
   # XXX So do I! -- rjbs, 2009-06-24
   $meta->{core}{created_at}     = [ '//num' => $args->{created_at} || time  ];
   $meta->{core}{guid}           = [ '//str' => $args->{guid}       || _guid ];
@@ -144,14 +145,14 @@ sub from_struct {
   # transfrom struct into content and core metadata arguments the way they
   # would be given to new, then validate these and get an object from
   # _init_guts
-  my @args = ( 
+  my @args = (
     (map { $_ => $core_meta->{$_}[1] } keys %$core_meta),
     content  => $class->content_from_bytes($struct->{content}),
   );
 
   my $args = $class->__validate_args(
     \@args,
-    { 
+    {
       # when thawing, all of these must be provided
       content        => 1,
       created_at     => 1,
@@ -160,7 +161,7 @@ sub from_struct {
       schema_version => 1,
       type           => 1,
       # still optional so we can manipulate anon facts -- dagolden, 2009-05-12
-      creator_id     => 0, 
+      creator_id     => 0,
     },
   );
 
@@ -178,6 +179,16 @@ sub resource_metadata {
 sub core_metadata {
   my $self = shift;
   $self->{metadata}{core};
+}
+
+sub save {
+  my ($self, $filename ) = @_;
+  my $class = ref($self);
+  open my $fh, ">", $filename
+    or Carp::confess "Error saving $class to '$filename'\: $!";
+  print {$fh} JSON->new->encode( $self->as_struct );
+  close $fh;
+  return 1;
 }
 
 #--------------------------------------------------------------------------#
@@ -213,6 +224,15 @@ sub class_from_type {
 # explicit about schema versions? Annoying, but correct -- dagolden, 2009-03-31
 sub default_schema_version() { 1 }
 
+sub load {
+  my ($class, $filename) = @_;
+  open my $fh, "<", $filename
+    or Carp::confess "Error loading $class from '$filename'\: $!";
+  my $string = do { local $/; <$fh> };
+  close $fh;
+  return $class->from_struct( JSON->new->decode( $string ) );
+}
+
 #--------------------------------------------------------------------------#
 # abstract methods -- mostly fatal
 #--------------------------------------------------------------------------#
@@ -236,7 +256,7 @@ sub content_from_bytes {
     . (ref $self || $self)
 }
 
-# XXX rename to validate -- dagolden, 2009-03-31 
+# XXX rename to validate -- dagolden, 2009-03-31
 sub validate_content {
   my ($self, $content) = @_;
   Carp::confess "validate_content not implemented by " . (ref $self || $self)
@@ -279,7 +299,7 @@ that can be sent to or retrieved from a Metabase system.
 
 =head1 ATTRIBUTES
 
-Unless otherwise noted, all attributes are read-only and are either provided as 
+Unless otherwise noted, all attributes are read-only and are either provided as
 arguments to the constructor or are generated during construction.
 
 =head2 Arguments provided to new
@@ -346,7 +366,7 @@ No other attributes may be provided to C<new> except C<creator_id>.
 
 Defaults to 1.  Subclasses should override this method if they make a
 backwards-incompatible change to the internals of the content attribute.
-Schema version numbers should be monotonically-increasing integers.  The 
+Schema version numbers should be monotonically-increasing integers.  The
 default schema version is used to set an objects schema_version attribution
 on creation.
 
@@ -362,6 +382,13 @@ URI-friendly.  e.g.  C<Metabase::Fact> would be C<Metabase-Fact>.
   $class = MyFact->class_from_type( $type );
 
 A utility function to invert the operation of the type method.
+
+=head2 load
+
+  my $fact = MyFact->load($filename);
+
+This method loads a fact from a JSON format file and returns it.  If the
+file cannot be read or is not valid JSON, and exception is thrown
 
 =head1 OBJECT METHODS
 
@@ -409,6 +436,14 @@ loaded class's C<default_schema_version> method.  It will be passed the hashref
 of args being used to initialized the fact object, and should alter that hash
 in place.
 
+=head2 save
+
+  $fact->save($filename);
+
+This method writes out the fact to a file in JSON format.  If the file cannot
+be written, an exception is raised.  If the save is successful, a true value is
+returned.
+
 =head1 ABSTRACT METHODS
 
 Methods marked as F<required> must be implemented by a Fact subclass.  (The
@@ -449,7 +484,7 @@ B<optional>
 
 If defined in a subclass, this method MUST return a hash reference with
 content-specific indexing metadata for the Fact.  The key MUST be the name of
-the field for indexing. 
+the field for indexing.
 
 =for comment XXX rjbs -- what format?
 
@@ -503,7 +538,7 @@ existing test-file that illustrates the bug or desired feature.
 
 =head1 AUTHOR
 
-=over 
+=over
 
 =item * David A. Golden (DAGOLDEN)
 

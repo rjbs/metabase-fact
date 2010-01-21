@@ -43,22 +43,6 @@ sub create {
   return $profile;
 }
 
-sub save {
-  my ($self, $filename ) = @_;
-  open my $fh, ">", $filename or Carp::confess "Error saving profile: $!";
-  print {$fh} JSON->new->encode( $self->as_struct );
-  close $fh;
-  return 1;
-}
-
-sub load { 
-  my ($class, $filename) = @_;
-  open my $fh, "<", $filename or Carp::confess "Error loading profile: $!";
-  my $string = do { local $/; <$fh> };
-  close $fh;
-  return $class->from_struct( JSON->new->decode( $string ) );
-}
-
 #--------------------------------------------------------------------------#
 # internals
 #--------------------------------------------------------------------------#

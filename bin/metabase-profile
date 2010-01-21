@@ -7,27 +7,38 @@ our $VERSION = 0.001;
 use Getopt::Long;
 use JSON;
 use Metabase::User::Profile;
+use Metabase::User::Secret;
 use Pod::Usage;
 
-my (%profile, $help, $output, $full_name, $email_address, $secret);
-my $result = GetOptions( 
+my (%profile, $help, $output, $full_name, $email_address, $password);
+my $result = GetOptions(
   'help|h'      => \$help,
   'output|o:s'  => \$output,
   'name:s'      => \$full_name,
   'email:s'     => \$email_address,
-  'secret:s'    => \$secret,
+  'secret:s'    => \$password,
 );
 
 pod2usage({-verbose => 2}) if ! $result || $help;
 
+my ($profile_file, $secret_file);
+
+if ( $output ) {
+  $profile_file = $output . ".profile.json";
+  $secret_file = $output . ".secret.json";
+}
+else {
+  die "$0: '--output' argument required\n";
+}
+
 $profile{full_name}     = $full_name      if defined $full_name;
 $profile{email_address} = $email_address  if defined $email_address;
-$profile{secret}        = $secret         if defined $secret;
+$profile{password}      = $password         if defined $password;
 
 my @prompts = (
   full_name     => 'full name',
   email_address => 'email address',
-  secret        => 'password/secret',
+  password      => 'password/secret',
 );
 
 $|++; # autoflush prompts
@@ -39,16 +50,21 @@ while (@prompts) {
   $profile{$key} = $answer;
 }
 
+$password = delete $profile{password};
+
 my $profile = Metabase::User::Profile->create( %profile );
 
-if ( $output ) {
-  print "Writing profile to '$output'\n";
-  $profile->save( $output );
-  chmod 0600, $output;
-}
-else {
-  print JSON->new->encode( $profile->as_struct );
-}
+my $secret = Metabase::User::Secret->new(
+  resource => $profile->resource,
+  content  => $password,
+);
+
+print "Writing profile to '$profile_file'\n";
+$profile->save( $profile_file );
+
+print "Writing secret to '$secret_file'\n";
+$secret->save( $secret_file );
+chmod 0600, $secret_file;
 
 __END__
 
@@ -58,41 +74,43 @@ metabase-profile - create a metabase profile
 
 =head1 SYNOPSIS
 
-  $ metabase-profile -o myprofile.json
+  $ metabase-profile -o userdata
   Enter full name: John Doe
   Enter email address: jdoe@example.com
   Enter password/secret: zqxjkh
-  Writing profile to 'myprofile.json'
-
+  Writing profile to 'userdata.profile.json'
+  Writing secret to 'userdata.secret.json'
 
 =head1 USAGE
 
 The metabase-profile program makes it easy to create a user profile for
-submitting facts and reports to a Metabase server.  
+submitting facts and reports to a Metabase server.
 
 Valid options include:
 
-  -o, --output  FILE      filename to save profile in
+  -o, --output  PREFIX    (REQUIRED) filename prefix for output files
       --name    FULLNAME  full user name, eg "John Doe"
       --email   ADDRESS   user email address eg "jd@example.com"
       --secret  PASSWORD  password for authentication
   -h, --help              print man page
 
-Unless an output filename is provided, the profile will be printed to
-STDOUT.
+An output filename prefix is required.  Two files will be created in JSON
+format, one containing the user profile and the other containing the user's
+shared secret.
 
-The profile contains a shared-secret password.  Typically, when a Metabase server
-first receives a report from a new user profile, the shared secret is recorded and
-will be used to authenticate subsequent submissions.  This file should not be 
-shared publicly or made group or world readable.
+Typically, when a Metabase server first receives a report from a new user
+profile, the shared secret is recorded and will be used to authenticate
+subsequent submissions.  This secret file should not be shared publicly or
+made group or world readable.
 
-Use the resulting profile according to the instructions of your Metabase client
-program. You may wish to copy it across computers if you would like to be 
-identified consistently when submitting reports from different locations.
+Use the resulting fiels according to the instructions of your Metabase
+client program. You may wish to copy it across computers if you would like
+to be identified consistently when submitting reports from different
+locations.
 
 =head1 AUTHOR
 
-=over 
+=over
 
 =item * David A. Golden (DAGOLDEN)
 
@@ -104,7 +122,7 @@ Copyright (c) 2009 by David A. Golden
 
 Licensed under the same terms as Perl itself (the "License").
 You may not use this file except in compliance with the License.
-A copy of the License was distributed with this file or you may obtain a 
+A copy of the License was distributed with this file or you may obtain a
 copy of the License from http://dev.perl.org/licenses/
 
 Unless required by applicable law or agreed to in writing, software

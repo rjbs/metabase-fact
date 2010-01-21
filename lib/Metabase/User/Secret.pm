@@ -6,7 +6,7 @@ our $VERSION = '0.001';
 $VERSION = eval $VERSION; ## no critic
 
 use base 'Metabase::Fact::String';
-  
+
 1;
 
 __END__
@@ -17,7 +17,7 @@ Metabase::User::Secret - Metabase fact for user shared authentication secret
 
 =head1 SYNOPSIS
 
-  my $email = Metabase::User::Secret->new(
+  my $secret = Metabase::User::Secret->new(
     resource => 'metabase:user:B66C7662-1D34-11DE-A668-0DF08D1878C0',
     content  => 'aixuZuo8',
   );
@@ -29,8 +29,8 @@ authenticate user during fact submission.
 
 =head1 BUGS
 
-Please report any bugs or feature using the CPAN Request Tracker.  
-Bugs can be submitted through the web interface at 
+Please report any bugs or feature using the CPAN Request Tracker.
+Bugs can be submitted through the web interface at
 L<http://rt.cpan.org/Dist/Display.html?Queue=Metabase-Fact>
 
 When submitting a bug or request, please include a test-file or a patch to an
@@ -38,7 +38,7 @@ existing test-file that illustrates the bug or desired feature.
 
 =head1 AUTHOR
 
-=over 
+=over
 
 =item * David A. Golden (DAGOLDEN)
 
@@ -46,7 +46,7 @@ existing test-file that illustrates the bug or desired feature.
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2009 by David A. Golden
+Copyright (c) 2009-2010 by David A. Golden and Contributors.
 
 Licensed under the same terms as Perl itself (the "License").  You may not use
 this file except in compliance with the License.  A copy of the License was

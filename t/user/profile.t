@@ -16,7 +16,7 @@ sub _compare {
       $report2->core_metadata->{resource}[1],
       "Checking URI");
   is ( $report1->guid,  $report2->guid, "Checking GUID" );
-  for my $i ( 0 .. 2 ) {
+  for my $i ( 0 .. 1 ) {
     is_deeply( $report1->{content}[$i]->as_struct, 
         $report2->{content}[$i]->as_struct,
         "Checking fact $i",
@@ -32,6 +32,7 @@ sub _compare {
 plan 'no_plan';
 
 require_ok( 'Metabase::User::Profile' );
+require_ok( 'Metabase::User::Secret' );
 
 #--------------------------------------------------------------------------#
 # new profile creation
@@ -43,7 +44,6 @@ lives_ok {
   $profile = Metabase::User::Profile->create(
     full_name => "John Doe",
     email_address => 'jdoe@example.com',
-    secret => '1234567890',
   );
 } "create new profile";
 
@@ -68,9 +68,15 @@ isa_ok($profile_copy, 'Metabase::User::Profile');
 _compare( $profile, $profile_copy );
 
 # try profile-generator
-my $profile_file2 = File::Spec->catfile( $tempdir, 'myprofile.json' );
+my $prefix = File::Spec->catfile( $tempdir, 'my' );
+my $profile_file2 = File::Spec->catfile( $tempdir, 'my.profile.json' );
+my $secret_file = File::Spec->catfile( $tempdir, 'my.secret.json' );
 my $bin = File::Spec->catfile( qw/bin metabase-profile/ );
-qx/$^X $bin -o $profile_file2 --name "JohnPublic" --email jp\@example.com --secret 3.14159/;
-ok( -r $profile_file2, 'created  profile with metabase-profile' );
+qx/$^X $bin -o $prefix --name "JohnPublic" --email jp\@example.com --secret 3.14159/;
+ok( -r $profile_file2, 'created profile file with metabase-profile' );
+ok( -r $secret_file, 'created secret file with metabase-profile' );
 my $profile_copy2 = Metabase::User::Profile->load( $profile_file2 );
 ok( $profile_copy2, "Loaded profile file" );
+my $secret_copy2 = Metabase::User::Secret->load( $secret_file );
+ok( $secret_copy2, "Loaded secret file" );
+
