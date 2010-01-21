@@ -23,7 +23,6 @@ sub create {
     { 
       full_name       => 1,
       email_address   => 1,
-      secret          => 1,
     }
   );
 
@@ -40,7 +39,6 @@ sub create {
   # add facts
   $profile->add( 'Metabase::User::FullName' => $args->{full_name} );
   $profile->add( 'Metabase::User::EmailAddress' => $args->{email_address} );
-  $profile->add( 'Metabase::User::Secret' => $args->{secret} );
   $profile->close;
   return $profile;
 }
@@ -78,9 +76,8 @@ sub validate_content {
 
 sub report_spec { 
   return {
-    'Metabase::User::EmailAddress'  => '1+',
     'Metabase::User::FullName'      => '1',
-    'Metabase::User::Secret'        => '1',
+    'Metabase::User::EmailAddress'  => '1+',
   }
 }
   
@@ -99,7 +96,6 @@ Metabase::User::Profile - Metabase report class for user-related facts
   my $profile = Metabase::User::Profile->create(
     full_name     => 'John Doe',
     email_address => 'jdoe@example.com',
-    secret        => 'aixuZuo8',
   );
 
 =head1 DESCRIPTION
@@ -113,7 +109,6 @@ Metabase report class encapsulating Facts about a metabase user
   my $profile = Metabase::User::Profile->create(
     full_name     => 'John Doe',
     email_address => 'jdoe@example.com',
-    secret        => 'aixuZuo8',
   );
 
 =head2 The long way
@@ -124,7 +119,6 @@ Metabase report class encapsulating Facts about a metabase user
 
   $profile->add( 'Metabase::User::EmailAddress' => 'jdoe@example.com' );
   $profile->add( 'Metabase::User::FullName'     => 'John Doe' );
-  $profile->add( 'Metabase::User::Secret'       => 'aixuZuo8' );
     
   $profile->close;
 
@@ -140,7 +134,6 @@ Valid parameters include:
 
   full_name      - the user's full name
   email_address  - the user's email address
-  secret         - the shared secret to use for authentication
 
 =head2 load
 
@@ -174,7 +167,7 @@ existing test-file that illustrates the bug or desired feature.
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2009 by David A. Golden
+Copyright (c) 2009-2010 by David A. Golden
 
 Licensed under the same terms as Perl itself (the "License").
 You may not use this file except in compliance with the License.
