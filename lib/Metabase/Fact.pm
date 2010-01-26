@@ -2,6 +2,7 @@ package Metabase::Fact;
 use 5.006;
 use strict;
 use warnings;
+use Metabase::Resource;
 use Data::GUID guid_string => { -as => '_guid' };
 use JSON ();
 use Carp ();
@@ -54,7 +55,12 @@ sub new {
 
   my $self = $class->_init_guts($args);
 
-  # XXX rename to validate -- dagolden, 2009-03-31
+  eval { $self->_validate_resource };
+  if ($@) {
+    my $resource = $self->resource;
+    Carp::confess("$class object resource '$resource' invalid: $@");
+  }
+
   eval { $self->validate_content };
   if ($@) {
     Carp::confess("$class object content invalid: $@");
@@ -82,32 +88,51 @@ sub _init_guts {
   my $meta = $self->{metadata} = { core => {} };
   $self->{content} = $args->{content};
 
-  # XXX I hate seeing ... [1] everywhere for metadata -- dagolden, 2009-03-31
-  # XXX So do I! -- rjbs, 2009-06-24
-  $meta->{core}{created_at}     = [ '//num' => $args->{created_at} || time  ];
-  $meta->{core}{guid}           = [ '//str' => $args->{guid}       || _guid ];
-  $meta->{core}{resource}       = [ '//str' => $args->{resource}            ];
-  $meta->{core}{schema_version} = [ '//num' => $args->{schema_version}      ];
-  $meta->{core}{type}           = [ '//str' => $self->type                  ];
+  $meta->{core}{created_at}     = $args->{created_at} || time;
+  $meta->{core}{guid}           = $args->{guid}       || _guid;
+  $meta->{core}{resource}       = $args->{resource};
+  $meta->{core}{schema_version} = $args->{schema_version};
+  $meta->{core}{type}           = $self->type;
 
   if (defined $args->{creator_id}) {
-    $meta->{core}{creator_id}   = [ '//str' => $args->{creator_id}          ];
+    $meta->{core}{creator_id}   = $args->{creator_id};
   }
 
   return $self;
 }
 
-sub created_at       { $_[0]->{metadata}{core}{created_at}[1]     }
-sub content          { $_[0]->{content}                           }
-sub guid             { $_[0]->{metadata}{core}{guid}[1]           }
-sub resource         { $_[0]->{metadata}{core}{resource}[1]       }
-sub schema_version   { $_[0]->{metadata}{core}{schema_version}[1] }
-
-sub creator_id       {
+sub _validate_resource {
   my ($self) = @_;
-  return unless my $creator_id_datum = $_[0]->{metadata}{core}{creator_id};
-  return $creator_id_datum->[1];
+  # Metabase::Resource->new dies if invalid
+  my $obj = Metabase::Resource->new($self->resource);
+  return 1;
 }
+
+sub core_metadata_types {
+  return {
+    created_at      => '//num',
+    creator_id      => '//str',
+    guid            => '//str',
+    resource        => '//str',
+    schema_version  => '//num',
+    type            => '//str',
+    updated_at      => '//num',
+  }
+}
+
+# Content accessor
+sub content         { $_[0]->{content}                        }
+
+# Accessors for core metadata
+
+sub created_at      { $_[0]->{metadata}{core}{created_at}     }
+sub guid            { $_[0]->{metadata}{core}{guid}           }
+sub resource        { $_[0]->{metadata}{core}{resource}       }
+sub schema_version  { $_[0]->{metadata}{core}{schema_version} }
+
+# Creator ID can be set once after the fact is created
+
+sub creator_id      { $_[0]->{metadata}{core}{creator_id}     }
 
 sub set_creator_id {
   my ($self, $guid) = @_;
@@ -115,8 +140,31 @@ sub set_creator_id {
   Carp::confess("can't set creator_id; it is already set")
     if $self->creator_id;
 
-  $self->{metadata}{core}{creator_id} = [ '//str' => $guid ];
+  $self->{metadata}{core}{creator_id} = $guid;
 }
+
+# updated_at can always be modified
+
+sub updated_at      { $_[0]->{metadata}{core}{updated_at}     }
+
+sub set_updated_at {
+  my ($self, $time) = @_;
+  $self->{metadata}{core}{updated_at} = $time || time;
+}
+  
+# data structure accessors
+
+sub resource_metadata {
+  my $self = shift;
+
+  return $self->{metadata}{resource} ||= {};
+}
+
+sub core_metadata {
+  my $self = shift;
+  $self->{metadata}{core};
+}
+
 
 sub as_struct {
   my ($self) = @_;
@@ -168,17 +216,6 @@ sub from_struct {
   my $self = $class->_init_guts($args);
 
   return $self;
-}
-
-sub resource_metadata {
-  my $self = shift;
-
-  return $self->{metadata}{resource} ||= {};
-}
-
-sub core_metadata {
-  my $self = shift;
-  $self->{metadata}{core};
 }
 
 sub save {
@@ -517,15 +554,6 @@ B<required>
 This method SHOULD check for the validity of content within the Fact.  It
 MUST throw an exception if the fact content is invalid.  (The return value is
 ignored.)
-
-Classes SHOULD call validate_content in their superclass:
-
-  sub validate_content {
-    my $self = shift;
-    $self->SUPER::validate_content;
-    my $error = _check_content( $self );
-    die $error if $error;
-  }
 
 =head1 BUGS
 
