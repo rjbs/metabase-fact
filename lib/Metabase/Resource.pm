@@ -1,4 +1,4 @@
-package Metabase::Fact;
+package Metabase::Resource;
 use 5.006;
 use strict;
 use warnings;
@@ -28,14 +28,22 @@ sub new {
     unless defined $resource && length $resource;
 
   # parse scheme
+  my ($scheme) = $resource =~ m{\A([^:]+):};
+  Carp::confess("could not determine URI scheme from '$resource'\n")
+    unless defined $scheme && length $scheme;
 
   # load subclass
+  my $subclass = "Metabase::Resource::$scheme";
+  eval "require $subclass; 1"
+    or Carp::confess("Could not load '$subclass': $@");
 
-  # construct subclass object
-  
-  my $self = { content => $resource };
-
-  # validate it
+  # construct & validate subclass object
+  my $self = { 
+    content => $resource,
+    scheme  => $scheme,
+  };
+  bless $self, $subclass;
+  $self->validate;
 
   return $self;
 }
@@ -44,18 +52,27 @@ sub content {
   return $_[0]->{content}
 }
 
+sub scheme {
+  return $_[0]->{scheme}
+}
+
 #--------------------------------------------------------------------------#
 # abstract methods -- fatal
 #--------------------------------------------------------------------------#
 
 sub validate {
-  my ($self, $content) = @_;
-  Carp::confess "validate_resource not implemented by " . (ref $self || $self)
+  my ($self) = @_;
+  Carp::confess "validate not implemented by " . (ref $self || $self)
 }
 
 sub metadata {
-  my ($self, $content) = @_;
+  my ($self) = @_;
   Carp::confess "metadata not implemented by " . (ref $self || $self)
+}
+
+sub metadata_types {
+  my ($self) = @_;
+  Carp::confess "metadata_types not implemented by " . (ref $self || $self)
 }
 
 1;

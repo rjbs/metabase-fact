@@ -497,7 +497,7 @@ of:
 
 Here is a hypothetical example of content metadata for an image fact:
 
-  sub content_metdata {
+  sub content_metadata {
     my $self = shift;
     return {
       width   => [ '//num' => _compute_width  ( $self->content ) ],
