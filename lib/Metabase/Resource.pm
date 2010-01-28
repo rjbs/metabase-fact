@@ -41,6 +41,7 @@ sub new {
   my $self = { 
     content => $resource,
     scheme  => $scheme,
+    _cache  => {},
   };
   bless $self, $subclass;
   $self->validate;
@@ -54,6 +55,10 @@ sub content {
 
 sub scheme {
   return $_[0]->{scheme}
+}
+
+sub _cache {
+  return $_[0]->{_cache}
 }
 
 #--------------------------------------------------------------------------#
