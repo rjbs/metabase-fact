@@ -1,8 +1,9 @@
-package Metabase::Resource::metabase;
+package Metabase::Resource::cpan;
 use 5.006;
 use strict;
 use warnings;
 use Carp ();
+use CPAN::DistnameInfo ();
 
 our $VERSION = '0.001';
 $VERSION = eval $VERSION;
@@ -14,7 +15,7 @@ sub validate {
   my ($self) = @_;
   my $scheme = $self->scheme;
   my $content = $self->content;
-  my ($type, $string) = $content =~ m{\A$scheme:([^:]+):(.+)\z};
+  my ($type, $string) = $content =~ m{\A$scheme:///([^/]+)/(.+)\z};
   unless ( defined $type && length $type ) {
     Carp::confess("Could not determine $scheme subtype from '$content'")
   }
@@ -29,21 +30,47 @@ sub validate {
   return 1;
 }
 
-my $hex = '[0-9a-f]';
-my $guid_re = qr(\A$hex{8}-$hex{4}-$hex{4}-$hex{4}-$hex{12}\z)i;
 
-sub _validate_user {
+# XXX should really validate AUTHOR/DISTNAME-DISTVERSION.SUFFIX 
+# -- dagolden, 2010-01-27
+#
+# my $suffix = qr{\.(?:tar\.(?:bz2|gz|Z)|t(?:gz|bz)|zip)};
+#
+# for now, we'll use CPAN::DistnameInfo;
+#
+
+# map DistnameInfo calls to our names
+my %distfile_map = (
+  cpanid  => 'cpan_id',
+  dist    => 'dist_name',
+  version => 'dist_version',
+);
+
+sub _validate_distfile {
   my ($self, $string) = @_;
-  if ( $string !~ $guid_re ) {
-    Carp::confess("'$string' is not formatted as a GUID string");
+  my $d = eval { CPAN::DistnameInfo($string) };
+  my $bad = defined $d ? 0 : 1;
+
+  $self->_cache->{dist_file} = $string;
+
+  for my $k ( keys %distfile_map ) {
+    my $value = $d->$k;
+    defined $value or $bad++ and last;
+    $self->_cache->{$distfile_map{$k}} = $value
   }
-  $self->_cache->{string} = $string;
+
+  if ($bad) {
+    Carp::confess("'$string' can't be parsed as a CPAN distfile");
+  }
   return 1;
 }
 
 my %metadata_types = (
   user => {
-    user    => '//str'
+    cpan_id       => '//str',
+    dist_file     => '//str',
+    dist_name     => '//str',
+    dist_version  => '//str',
   },
 );
 
@@ -67,10 +94,13 @@ sub metadata {
   };
 }
 
-sub _metadata_user {
+sub _metadata_distfile {
   my ($self) = @_;
   return {
-    user => $self->_cache->{string},
+    cpan_id       => $self->_cache->{cpan_id},
+    dist_file     => $self->_cache->{dist_file},
+    dist_name     => $self->_cache->{dist_name},
+    dist_version  => $self->_cache->{dist_version},
   };
 }
 
@@ -85,7 +115,7 @@ Metabase::Resource::metabase - class for Metabase resources
 =head1 SYNOPSIS
 
   my $resource = Metabase::Resource->new(
-    "metabase:user:B66C7662-1D34-11DE-A668-0DF08D1878C0"
+    'cpan:///distfile/RJBS/Metabase-Fact-0.001.tar.gz',
   );
 
   my $resource_meta = $resource->metadata;
@@ -93,22 +123,25 @@ Metabase::Resource::metabase - class for Metabase resources
 
 =head1 DESCRIPTION
 
-Generates resource metadata for resources of the scheme 'metabase'.
+Generates resource metadata for resources of the scheme 'cpan'.
 
-The L<Metabase::Resource::metabase> class supports the followng sub-type(s).
+The L<Metabase::Resource::cpan> class supports the followng sub-type(s).
 
-=head2 user
+=head2 distfile
 
   my $resource = Metabase::Resource->new(
-    "metabase:user:B66C7662-1D34-11DE-A668-0DF08D1878C0"
+    'cpan:///distfile/RJBS/URI-cpan-1.000.tar.gz',
   );
 
 For the example above, the resource metadata structure would contain the
 following elements:
 
-  scheme       => metabase
-  type         => user
-  user         => B66C7662-1D34-11DE-A668-0DF08D1878C0
+  scheme       => cpan
+  type         => distfile
+  dist_file    => RJBS/URI-cpan-1.000.tar.gz
+  cpan_id      => RJBS
+  dist_name    => URI-cpan
+  dist_version => 1.000
 
 =head1 BUGS
 
@@ -142,4 +175,5 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 =cut
+
 

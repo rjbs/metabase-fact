@@ -94,8 +94,8 @@ Metabase::Resource - factory class for Metabase resource descriptors
     'cpan:///distfile/RJBS/Metabase-Fact-0.001.tar.gz',
   );
 
-  my $resource_meta = $resource->metadata();
-  my $typemap       = $resource->metadata();
+  my $resource_meta = $resource->metadata;
+  my $typemap       = $resource->metadata_types;
 
 =head1 DESCRIPTION
 
@@ -120,8 +120,8 @@ elements:
 
   scheme       => cpan
   type         => distfile
-  author       => RJBS
-  dist_file    => URI-cpan-1.000.tar.gz
+  dist_file    => RJBS/URI-cpan-1.000.tar.gz
+  cpan_id      => RJBS
   dist_name    => URI-cpan
   dist_version => 1.000
 
@@ -193,8 +193,9 @@ This method MUST return a hash reference with resource-specific indexing
 metadata for the Resource.  The key MUST be the name of the field for indexing.
 The C<scheme> key MUST be present and the C<scheme> value MUST be identical to
 the string from the C<scheme> accessor.  Other keys SHOULD provide dimensions
-to differentiate one resource from another in the context of C<scheme>.  Values
-MUST be simple scalars, not references. 
+to differentiate one resource from another in the context of C<scheme>.  If a
+scheme has subcategories, the key C<type> SHOULD be used for the subcategory.
+Values MUST be simple scalars, not references. 
 
 Here is a hypothetical example of a C<metadata> function for a metabase user
 resource like 'metabase:user:ec2726a4-070c-11df-a2e0-0018f34ec37c':
