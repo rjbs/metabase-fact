@@ -53,14 +53,17 @@ sub new {
     },
   );
 
+  # create the object
   my $self = $class->_init_guts($args);
 
+  # validate resource
   eval { $self->_validate_resource };
   if ($@) {
     my $resource = $self->resource;
     Carp::confess("$class object resource '$resource' invalid: $@");
   }
 
+  # validate content
   eval { $self->validate_content };
   if ($@) {
     Carp::confess("$class object content invalid: $@");
@@ -108,18 +111,6 @@ sub _validate_resource {
   return 1;
 }
 
-sub core_metadata_types {
-  return {
-    created_at      => '//num',
-    creator_id      => '//str',
-    guid            => '//str',
-    resource        => '//str',
-    schema_version  => '//num',
-    type            => '//str',
-    updated_at      => '//num',
-  }
-}
-
 # Content accessor
 sub content         { $_[0]->{content}                        }
 
@@ -151,20 +142,39 @@ sub set_updated_at {
   my ($self, $time) = @_;
   $self->{metadata}{core}{updated_at} = $time || time;
 }
-  
-# data structure accessors
 
-sub resource_metadata {
-  my $self = shift;
-
-  return $self->{metadata}{resource} ||= {};
-}
+# metadata structure accessors
 
 sub core_metadata {
   my $self = shift;
   $self->{metadata}{core};
 }
 
+sub core_metadata_types {
+  return {
+    created_at      => '//num',
+    creator_id      => '//str',
+    guid            => '//str',
+    resource        => '//str',
+    schema_version  => '//num',
+    type            => '//str',
+    updated_at      => '//num',
+  }
+}
+
+sub resource_metadata {
+  my $self = shift;
+  $self->{metadata}{resource} ||=
+    Metabase::Resource->new($self->resource)->metadata;
+  return $self->{metadata}{resource};
+}
+
+sub resource_metadata_types {
+  my $self = shift;
+  return Metabase::Resource->new($self->resource)->metadata_types;
+}
+
+# persistence routines
 
 sub as_struct {
   my ($self) = @_;
@@ -210,6 +220,7 @@ sub from_struct {
       type           => 1,
       # still optional so we can manipulate anon facts -- dagolden, 2009-05-12
       creator_id     => 0,
+      updated_at     => 0,
     },
   );
 
@@ -274,7 +285,9 @@ sub load {
 # abstract methods -- mostly fatal
 #--------------------------------------------------------------------------#
 
-sub content_metadata { return }
+sub content_metadata        { return +{} }
+
+sub content_metadata_types  { return +{} }
 
 sub upgrade_fact {
   my ($self) = @_;
@@ -293,7 +306,6 @@ sub content_from_bytes {
     . (ref $self || $self)
 }
 
-# XXX rename to validate -- dagolden, 2009-03-31
 sub validate_content {
   my ($self, $content) = @_;
   Carp::confess "validate_content not implemented by " . (ref $self || $self)
@@ -346,7 +358,7 @@ arguments to the constructor or are generated during construction.
 B<required>
 
 The canonical resource (URI) the Fact relates to.  For CPAN distributions, this
-would be a C<cpan:///distfile/> URL.  (See L<URI::cpan>.)
+would be a C<cpan:///distfile/...> URI.  (See L<URI::cpan>.)
 
 =head3 content
 
@@ -364,6 +376,14 @@ is normally set by the Metabase when a Fact is submitted based on the
 submitter's Profile, but can be set during construction if the creator and
 submitter are not the same person.  The C<set_creator_id> mutator may be called
 to set C<creator_id>, but only if it is not previously set.
+
+=head3 updated_at
+
+B<optional>
+
+When the module was last updated in seconds since the epoch.  The
+C<set_updated_at> mutator may be called at any time to update
+the value.  If no argument is provided, C<time> is called.
 
 =head2 Generated during construction
 
