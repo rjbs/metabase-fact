@@ -30,7 +30,7 @@ my $meta = {
 };
 
 my $args = {
-    resource => "JOHNDOE/Foo-Bar-1.23.tar.gz",
+    resource => "cpan:///distfile/JOHNDOE/Foo-Bar-1.23.tar.gz",
     content  => $string,
 };
 

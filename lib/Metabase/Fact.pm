@@ -57,7 +57,7 @@ sub new {
   my $self = $class->_init_guts($args);
 
   # validate resource
-  eval { $self->_validate_resource };
+  eval { $self->validate_resource };
   if ($@) {
     my $resource = $self->resource;
     Carp::confess("$class object resource '$resource' invalid: $@");
@@ -104,7 +104,7 @@ sub _init_guts {
   return $self;
 }
 
-sub _validate_resource {
+sub validate_resource {
   my ($self) = @_;
   # Metabase::Resource->new dies if invalid
   my $obj = Metabase::Resource->new($self->resource);
@@ -574,6 +574,33 @@ B<required>
 This method SHOULD check for the validity of content within the Fact.  It
 MUST throw an exception if the fact content is invalid.  (The return value is
 ignored.)
+
+=head2 validate_resource
+
+B<optional>
+
+ eval { $fact->validate_resource };
+
+This method SHOULD check whether the resource type is relevant for the Fact
+subclass.  It SHOULD use L<Metabase::Resource> to create a resource object and
+evaluate the resource object scheme and type.  It MUST throw an exception if
+the resource type is invalid.  For example:
+
+  sub validate_resource {
+    my ($self) = @_;
+    # Metabase::Resource->new dies if invalid
+    my $obj = Metabase::Resource->new($self->resource);
+    if ($obj->scheme eq 'cpan' && $obj->type eq 'distfile') {
+      return 1;
+    }
+    else {
+      my $fact_type = $self->type;
+      Carp::confess("'$resource' does not apply to '$fact_type'");
+    }
+  }
+
+The default C<validate_resource> accepts any resource that can initialize
+a C<Metabase::Resource> object.
 
 =head1 BUGS
 

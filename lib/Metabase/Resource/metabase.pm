@@ -10,6 +10,11 @@ $VERSION = eval $VERSION;
 use Metabase::Resource;
 our @ISA = qw(Metabase::Resource);
 
+my %validators = (
+  user => "_validate_guid",
+  fact => "_validate_guid",
+);
+
 sub validate {
   my ($self) = @_;
   my $scheme = $self->scheme;
@@ -19,9 +24,9 @@ sub validate {
     Carp::confess("Could not determine $scheme subtype from '$content'")
   }
   $self->_cache->{type} = $type;
-  my $method = "_validate_$type";
-  if ( $self->can($method) ) {
-    $self->$method($string);
+  my $method = $validators{"$type"};
+  if ( $method && $self->can($method) ) {
+    $self->$method($type,$string);
   }
   else {
     Carp::confess("Unknown $scheme subtype '$type' in '$content'");
@@ -32,18 +37,21 @@ sub validate {
 my $hex = '[0-9a-f]';
 my $guid_re = qr(\A$hex{8}-$hex{4}-$hex{4}-$hex{4}-$hex{12}\z)i;
 
-sub _validate_user {
-  my ($self, $string) = @_;
+sub _validate_guid {
+  my ($self, $type, $string) = @_;
   if ( $string !~ $guid_re ) {
     Carp::confess("'$string' is not formatted as a GUID string");
   }
-  $self->_cache->{string} = $string;
+  $self->_cache->{guid} = $string;
   return 1;
 }
 
 my %metadata_types = (
   user => {
     user    => '//str'
+  },
+  fact => {
+    fact    => '//str'
   },
 );
 
@@ -56,21 +64,26 @@ sub metadata_types {
   };
 }
 
+my %extractors = (
+  user => "_metadata_guid",
+  fact => "_metadata_guid",
+);
+
 sub metadata {
   my ($self) = @_;
   my $type = $self->_cache->{type};
-  my $method = "_metadata_$type";
+  my $method = $extractors{$type};
   return {
     scheme  => $self->scheme,
     type    => $type,
-    %{ $self->$method },
+    %{ $self->$method($type) },
   };
 }
 
-sub _metadata_user {
-  my ($self) = @_;
+sub _metadata_guid {
+  my ($self, $name) = @_;
   return {
-    user => $self->_cache->{string},
+    $name => $self->_cache->{guid},
   };
 }
 
@@ -97,18 +110,33 @@ Generates resource metadata for resources of the scheme 'metabase'.
 
 The L<Metabase::Resource::metabase> class supports the followng sub-type(s).
 
-=head2 user
+=head2 fact 
 
   my $resource = Metabase::Resource->new(
-    "metabase:user:B66C7662-1D34-11DE-A668-0DF08D1878C0"
+    "metabase:fact:bd83d51e-0eea-11df-8413-0018f34ec37c"
   );
 
-For the example above, the resource metadata structure would contain the
-following elements:
+This resource is for a generic Metabase Fact.  (I.e. for a Fact about another
+Fact).  For the example above, the resource metadata structure would contain
+the following elements:
 
   scheme       => metabase
   type         => user
-  user         => B66C7662-1D34-11DE-A668-0DF08D1878C0
+  fact         => bd83d51e-0eea-11df-8413-0018f34ec37c
+
+=head2 user
+
+  my $resource = Metabase::Resource->new(
+    "metabase:user:b66c7662-1d34-11de-a668-0df08d1878c0"
+  );
+
+This resource is for a Metabase user. (I.e. corresponding to the GUID of a
+Metabase::User::Profile.) For the example above, the resource metadata
+structure would contain the following elements:
+
+  scheme       => metabase
+  type         => user
+  user         => b66c7662-1d34-11de-a668-0df08d1878c0
 
 =head1 BUGS
 

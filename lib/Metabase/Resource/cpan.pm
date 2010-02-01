@@ -48,12 +48,15 @@ my %distfile_map = (
 
 sub _validate_distfile {
   my ($self, $string) = @_;
-  my $d = eval { CPAN::DistnameInfo($string) };
+  my $two = substr($string,0,2);
+  my $one = substr($two,0,1);
+  my $path = "authors/id/$one/$two/$string";
+  my $d = eval { CPAN::DistnameInfo->new($path) };
   my $bad = defined $d ? 0 : 1;
 
   $self->_cache->{dist_file} = $string;
 
-  for my $k ( keys %distfile_map ) {
+  for my $k ( $bad ? () : (keys %distfile_map) ) {
     my $value = $d->$k;
     defined $value or $bad++ and last;
     $self->_cache->{$distfile_map{$k}} = $value
@@ -66,7 +69,7 @@ sub _validate_distfile {
 }
 
 my %metadata_types = (
-  user => {
+  distfile => {
     cpan_id       => '//str',
     dist_file     => '//str',
     dist_name     => '//str',

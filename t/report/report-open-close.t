@@ -24,7 +24,7 @@ require t::lib::ReportSubclasses;
 require t::lib::FactSubclasses;
 
 my %params = (
-    resource => "JOHNDOE/Foo-Bar-1.23.tar.gz",
+    resource => "cpan:///distfile/JOHNDOE/Foo-Bar-1.23.tar.gz",
 );
 
 my %facts = (

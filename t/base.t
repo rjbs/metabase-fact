@@ -63,7 +63,7 @@ for my $m ( qw/content_as_bytes content_from_bytes validate_content/ ) {
 my $string = "Who am I?";
 
 my $args = {
-    resource => "JOHNDOE/Foo-Bar-1.23.tar.gz",
+    resource => "metabase:fact:543fc732-0eec-11df-a736-0018f34ec37c",
     content  => $string,
 };
 
