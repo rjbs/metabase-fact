@@ -53,10 +53,10 @@ my $want_struct = {
   content  => $string,
   metadata => {
     core    => {
-      type           => [ '//str' => 'FactThree'       ],
-      schema_version => [ '//num' => 1                 ],
-      guid           => [ '//str' => $obj->guid        ],
-      resource       => [ '//str' => $args->{resource} ],
+      type           => 'FactThree'       ,
+      schema_version => 1                 ,
+      guid           => $obj->guid        ,
+      resource       => $args->{resource} ,
     },
   },
 };

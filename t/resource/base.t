@@ -68,13 +68,15 @@ is( "$obj", $string, "string overloading working correctly" );
 # test metadata
 
 my $metadata_types = {
-  scheme => '//str',
-  user   => '//str',
+  scheme  => '//str',
+  type    => '//str',
+  user    => '//str',
 };
 
 my $expected_metadata = {
-  scheme => 'metabase',
-  user   => 'B66C7662-1D34-11DE-A668-0DF08D1878C0',
+  scheme  => 'metabase',
+  type    => 'user',
+  user    => 'B66C7662-1D34-11DE-A668-0DF08D1878C0',
 };
 
 is_deeply( $metadata_types, $obj->metadata_types, "Metadata types" );

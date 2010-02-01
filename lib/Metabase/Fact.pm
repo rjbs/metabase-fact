@@ -197,14 +197,14 @@ sub from_struct {
   my $metadata  = $struct->{metadata};
   my $core_meta = $metadata->{core};
 
-  Carp::confess("invalid fact type: $core_meta->{type}[1]")
-    unless $class->type eq $core_meta->{type}[1];
+  Carp::confess("invalid fact type: $core_meta->{type}")
+    unless $class->type eq $core_meta->{type};
 
   # transfrom struct into content and core metadata arguments the way they
   # would be given to new, then validate these and get an object from
   # _init_guts
   my @args = (
-    (map { $_ => $core_meta->{$_}[1] } keys %$core_meta),
+    (map { $_ => $core_meta->{$_} } keys %$core_meta),
     content  => $class->content_from_bytes($struct->{content}),
   );
 

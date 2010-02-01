@@ -62,7 +62,7 @@ lives_ok{ $obj = FactFour->new( %$args ) }
 
 isa_ok( $obj, 'Metabase::Fact::Hash' );
 is( $obj->type, "FactFour", "object type is correct" );
-is( $obj->{metadata}{core}{type}[1], "FactFour", "object type is set internally" );
+is( $obj->{metadata}{core}{type}, "FactFour", "object type is set internally" );
 
 is( $obj->resource, $args->{resource}, "object refers to distribution" );
 is_deeply( $obj->content_metadata, $meta, "object content_metadata() correct" );
@@ -72,10 +72,10 @@ my $want_struct = {
   content  => to_json($struct),
   metadata => {
     core    => {
-      type           => [ '//str' => 'FactFour'        ],
-      schema_version => [ '//num' => 1                 ],
-      guid           => [ '//str' => $obj->guid        ],
-      resource       => [ '//str' => $args->{resource} ],
+      type           => 'FactFour'       ,
+      schema_version => 1                ,
+      guid           => $obj->guid       ,
+      resource       => $args->{resource},
     },
   }
 };
@@ -90,7 +90,7 @@ is_deeply($have_struct, $want_struct, "object as_struct correct");
 
 my $guid = '351E99EA-1D21-11DE-AB9C-3268421C7A0A';
 $obj->set_creator_id($guid);
-$want_struct->{metadata}{core}{creator_id} = [ '//str' => $guid ];
+$want_struct->{metadata}{core}{creator_id} = $guid;
 
 is_deeply($have_struct, $want_struct, "object as_struct correct w/creator"); 
 

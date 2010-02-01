@@ -32,9 +32,7 @@ sub create {
   );
 
   # fix-up our resource string to refer to our assigned guid
-  $profile->{metadata}{core}{resource} = [
-    '//str' => "metabase:user:" . $profile->guid
-  ];
+  $profile->{metadata}{core}{resource} = "metabase:user:" . $profile->guid;
 
   # add facts
   $profile->add( 'Metabase::User::FullName' => $args->{full_name} );

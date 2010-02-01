@@ -12,8 +12,8 @@ use File::Temp;
 
 sub _compare {
   my ($report1, $report2) = @_;
-  is( $report1->core_metadata->{resource}[1], 
-      $report2->core_metadata->{resource}[1],
+  is( $report1->core_metadata->{resource}, 
+      $report2->core_metadata->{resource},
       "Checking URI");
   is ( $report1->guid,  $report2->guid, "Checking GUID" );
   for my $i ( 0 .. 1 ) {
