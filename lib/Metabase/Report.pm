@@ -19,12 +19,13 @@ sub report_spec {
 }
 
 sub set_creator {
-  my ($self, $guid) = @_;
+  my ($self, $uri) = @_;
 
-  $self->SUPER::set_creator($guid);
+  $self->SUPER::set_creator($uri);
 
   for my $fact ($self->facts) {
-    $fact->set_creator($guid);
+    $fact->set_creator($uri)
+      unless $fact->creator;
   }
 }
 

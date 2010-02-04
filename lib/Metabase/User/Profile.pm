@@ -30,7 +30,9 @@ sub create {
   );
 
   # fix-up our resource string to refer to our assigned guid
-  $profile->{metadata}{core}{resource} = "metabase:user:" . $profile->guid;
+  for my $c ( $profile->{metadata}{core} ) {
+    $c->{resource} = $c->{creator} = "metabase:user:" . $profile->guid;
+  }
 
   # add facts
   $profile->add( 'Metabase::User::FullName' => $args->{full_name} );
@@ -94,7 +96,8 @@ Metabase report class encapsulating Facts about a metabase user
 =head2 The long way
 
   my $profile = Metabase::User::Profile->open(
-    resource => 'metabase:user:B66C7662-1D34-11DE-A668-0DF08D1878C0'
+    resource => 'metabase:user:b66c7662-1d34-11de-a668-0df08d1878c0'
+    creator  => 'metabase:user:b66c7662-1d34-11de-a668-0df08d1878c0'
   );
 
   $profile->add( 'Metabase::User::EmailAddress' => 'jdoe@example.com' );

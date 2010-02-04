@@ -130,12 +130,21 @@ sub schema_version  { $_[0]->{metadata}{core}{schema_version} }
 sub creator      { $_[0]->{metadata}{core}{creator}     }
 
 sub set_creator {
-  my ($self, $guid) = @_;
+  my ($self, $uri) = @_;
 
   Carp::confess("can't set creator; it is already set")
     if $self->creator;
 
-  $self->{metadata}{core}{creator} = $guid;
+  # validate $uri
+  my $obj = Metabase::Resource->new($uri);
+  unless ( $obj->scheme eq 'metabase' && $obj->metadata->{type} eq 'user' ) {
+    Carp::Confess(
+      "creator must be a Metabase User Profile resource URI of\n" .
+      "the form 'metabase:user:XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX'"
+    );
+  }
+
+  $self->{metadata}{core}{creator} = $uri;
 }
 
 # updated_at can always be modified
@@ -358,7 +367,7 @@ and a C<creator> attribute.
 The C<resource> attribute must be in a URI format that can be validated via a
 L<Metabase::Resource> subclass.  The C<content> attribute is an opaque scalar
 with subclass-specific meaning.  The C<creator> attribute is a URI with a 
-"metabase:user" scheme and subtype (see L<Metabase::Resource::metabase>).
+"metabase:user" scheme and type (see L<Metabase::Resource::metabase>).
 
 Facts have three sets of metadata associate with them.  Metadata are generally
 for use in indexing, searching and managing Facts.

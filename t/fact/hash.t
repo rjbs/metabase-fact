@@ -94,9 +94,9 @@ delete $have_struct->{metadata}{core}{updated_at};
 
 is_deeply($have_struct, $want_struct, "object as_struct correct"); 
 
-my $guid = '351E99EA-1D21-11DE-AB9C-3268421C7A0A';
-$obj->set_creator($guid);
-$want_struct->{metadata}{core}{creator} = $guid;
+my $creator_uri = 'metabase:user:351e99ea-1d21-11de-ab9c-3268421c7a0a';
+$obj->set_creator($creator_uri);
+$want_struct->{metadata}{core}{creator} = $creator_uri;
 
 is_deeply($have_struct, $want_struct, "object as_struct correct w/creator"); 
 

@@ -72,10 +72,10 @@ for my $fact ($report, $report->facts) {
   is($fact->creator, undef, "no creator (round 1)");
 }
 
-my $guid = '351E99EA-1D21-11DE-AB9C-3268421C7A0A';
+my $creator_uri = 'metabase:user:351e99ea-1d21-11de-ab9c-3268421c7a0a';
 
-$report->set_creator($guid);
+$report->set_creator($creator_uri);
 
 for my $fact ($report, $report->facts) {
-  is($fact->creator, $guid, "creator set properly (round 2)");
+  is($fact->creator, $creator_uri, "creator set properly (round 2)");
 }
