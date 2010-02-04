@@ -6,8 +6,6 @@ our $VERSION = '0.001';
 $VERSION = eval $VERSION; ## no critic
 
 use Carp;
-use JSON;
-use Data::GUID guid_string => { -as => '_guid' };
 
 use base 'Metabase::Report';
 __PACKAGE__->load_fact_classes;
