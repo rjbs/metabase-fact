@@ -94,9 +94,9 @@ sub _init_guts {
   my $meta = $self->{metadata} = { core => {} };
   $self->{content} = $args->{content};
 
-  $meta->{core}{guid}           = $args->{guid}       || _guid;
   $meta->{core}{created_at}     = $args->{created_at} || _zulu_datetime();
   $meta->{core}{updated_at}     = $meta->{core}{created_at};
+  $meta->{core}{guid}           = $args->{guid}       || lc _guid;
   $meta->{core}{resource}       = $args->{resource};
   $meta->{core}{schema_version} = $args->{schema_version};
   $meta->{core}{type}           = $self->type;
