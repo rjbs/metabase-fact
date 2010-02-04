@@ -342,27 +342,77 @@ Metabase::Fact - base class for Metabase Facts
 
 =head1 DESCRIPTION
 
-L<Metabase> is a framework for associating metadata with arbitrary resources.
-A Metabase can be used to store test reports, reviews, coverage analysis
-reports, reports on static analysis of coding style, or anything else for which
-datatypes are constructed.
+L<Metabase> is a framework for associating content and metadata with arbitrary
+resources.  A Metabase can be used to store test reports, reviews, coverage
+analysis reports, reports on static analysis of coding style, or anything else
+for which datatypes are constructed.
 
-Metabase::Fact is a base class for facts (really opinions or analyses)
-that can be sent to or retrieved from a Metabase system.
+Metabase::Fact is a base class for Facts (really opinions or analyses)
+that can be sent to or retrieved from a Metabase repository.
+
+=head2 Structure of a Fact object
+
+A Fact object associates a C<content> attribute with a C<resource> attribute
+and a C<creator> attribute.
+
+The C<resource> attribute must be in a URI format that can be validated via a
+L<Metabase::Resource> subclass.  The C<content> attribute is an opaque scalar
+with subclass-specific meaning.  The C<creator> attribute is a URI with a 
+"metabase:user" scheme and subtype (see L<Metabase::Resource::metabase>).
+
+Facts have three sets of metadata associate with them.  Metadata are generally
+for use in indexing, searching and managing Facts.
+
+=over
+
+=item *
+
+C<core metadata> describe universal properties of all Facts and are used
+to submit, store, manage and retrieve Facts within the Metabase framework.
+
+=item *
+
+C<resource metadata> describe index properties derived from the C<resource>
+attribute.  (As these can be regenerated from the C<resource> -- which is part
+of C<core metadata> -- they are not stored with a serialized Fact.)
+
+=item *
+
+C<content metadata> describe index properties derived from the C<content>
+attribute.  (As these can be regenerated from the C<content> -- which is part
+of C<core metadata> -- they are not stored with a serialized Fact.)
+
+=back
+
+Each of the three metadata sets has an associated accessor: C<core_metadata>,
+C<resource_metadata> and C<content_metadata>.
+
+Each of the three sets also has an accessor that returns a hashref with a data
+type for each possible element in the set: C<core_metadata_types>,
+C<resource_metadata_types> and C<content_metadata_types>.  
+
+Data types are loosely based on L<Data::RX>.  For example:
+
+  '//str' -- indicates a value that should be compared stringwise
+  '//num' -- indicates a value that should be compared numerically
+
+When searching on metadata, you must join the set name to the metadata
+element name with a period character.  For example:
+
+  core.guid
+  core.creator
+  core.resource
+  resource.scheme
+  content.size
+  content.score
 
 =head1 ATTRIBUTES
 
 Unless otherwise noted, all attributes are read-only and are either provided as
-arguments to the constructor or are generated during construction.
+arguments to the constructor or are generated during construction.  All
+attributes (except C<content>) are also part of C<core metadata>.
 
 =head2 Arguments provided to new
-
-=head3 resource
-
-B<required>
-
-The canonical resource (URI) the Fact relates to.  For CPAN distributions, this
-would be a C<cpan:///distfile/...> URI.  (See L<URI::cpan>.)
 
 =head3 content
 
@@ -371,23 +421,21 @@ B<required>
 A reference to the actual information associated with the fact.
 The exact form of the content is up to each Fact class to determine.
 
-=head3 creator_id
+=head3 resource
+
+B<required>
+
+The canonical resource (URI) the Fact relates to.  For CPAN distributions, this
+would be a C<cpan:///distfile/...> URI.  (See L<URI::cpan>.)
+
+=head3 creator
 
 B<optional>
 
-A L<Metabase::User::Profile> URI that indicates the creator of the Fact.  This
-is normally set by the Metabase when a Fact is submitted based on the
-submitter's Profile, but can be set during construction if the creator and
-submitter are not the same person.  The C<set_creator_id> mutator may be called
-to set C<creator_id>, but only if it is not previously set.
-
-=head3 updated_at
-
-B<optional>
-
-When the module was last updated in seconds since the epoch.  The
-C<set_updated_at> mutator may be called at any time to update
-the value.  If no argument is provided, C<time> is called.
+A L<Metabase::User::Profile> URI that indicates the creator of the Fact.  If
+not set during Fact creation, it will be set by the Metabase when a Fact is
+submitted based on the submitter's Profile.  The C<set_creator> mutator may be
+called to set C<creator>, but only if it is not previously set.
 
 =head2 Generated during construction
 
@@ -396,6 +444,11 @@ These attributes are generated automatically during the call to C<new>.
 =head3 guid
 
 The Fact object's Globally Unique IDentifier.
+
+=head3 type
+
+The class name, with double-colons converted to dashes to be more
+URI-friendly.  e.g.  C<Metabase::Fact> would be C<Metabase-Fact>.
 
 =head3 schema_version
 
@@ -429,7 +482,7 @@ Metabase.
   );
 
 Constructs a new Fact. The C<resource> and C<content> attributes are required.
-No other attributes may be provided to C<new> except C<creator_id>.
+No other attributes may be provided to C<new> except C<creator>.
 
 =head1 CLASS METHODS
 
@@ -447,14 +500,13 @@ on creation.
 
   $type = MyFact->type;
 
-The class name, with double-colons converted to dashes to be more
-URI-friendly.  e.g.  C<Metabase::Fact> would be C<Metabase-Fact>.
+The C<type> accessor may also be called as a class method.
 
 =head2 class_from_type
 
   $class = MyFact->class_from_type( $type );
 
-A utility function to invert the operation of the type method.
+A utility function to invert the operation of the C<type> method.
 
 =head2 load
 
@@ -481,11 +533,9 @@ object.
 This returns a hashref containing the fact's core metadata.  This includes
 things like the guid, creation time, described resource, and so on.
 
-Values are arrayrefs with two entries, in the form:
+=head2 core_metadata_types
 
-  [ type => value ]
-
-The type will be either C<//num> or C<//str>.
+This returns a hashref
 
 =head2 resource_metadata
 
@@ -494,12 +544,12 @@ This method returns metadata describing the resource.
 B<Unimplemented>: In general, this is likely to be an empty hashref.  Resource
 metadata is not yet implemented (much?).
 
-=head2 set_creator_id
+=head2 set_creator
 
-  $fact->set_creator_id($profile_guid);
+  $fact->set_creator($profile_guid);
 
-This method sets the C<creator_id> core metadata for the core metadata for the
-fact.  If the fact's C<creator_id> is already set, an exception will be thrown.
+This method sets the C<creator> core metadata for the core metadata for the
+fact.  If the fact's C<creator> is already set, an exception will be thrown.
 
 =head2 upgrade_fact
 
