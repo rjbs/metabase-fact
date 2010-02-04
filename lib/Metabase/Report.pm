@@ -18,13 +18,13 @@ sub report_spec {
   Carp::confess "report_spec method not implemented by " . ref $self;
 }
 
-sub set_creator_id {
+sub set_creator {
   my ($self, $guid) = @_;
 
-  $self->SUPER::set_creator_id($guid);
+  $self->SUPER::set_creator($guid);
 
   for my $fact ($self->facts) {
-    $fact->set_creator_id($guid);
+    $fact->set_creator($guid);
   }
 }
 
@@ -47,7 +47,7 @@ sub open {
     { 
       resource       => 1,
       # still optional so we can manipulate anon facts -- dagolden, 2009-05-12
-      creator_id     => 0,
+      creator     => 0,
     }
   );
 
@@ -75,7 +75,7 @@ sub add {
     );
   }
 
-  $fact->set_creator_id($self->creator_id) if $self->creator_id;
+  $fact->set_creator($self->creator) if $self->creator;
 
   push @{$self->{content}}, $fact;
   return $self;

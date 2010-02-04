@@ -50,7 +50,7 @@ sub new {
       content  => 1,
       resource => 1,  # where to validate? -- dagolden, 2009-03-31
       # still optional so we can manipulate anon facts -- dagolden, 2009-05-12
-      creator_id => 0,
+      creator => 0,
     },
   );
 
@@ -101,8 +101,8 @@ sub _init_guts {
   $meta->{core}{schema_version} = $args->{schema_version};
   $meta->{core}{type}           = $self->type;
 
-  if (defined $args->{creator_id}) {
-    $meta->{core}{creator_id}   = $args->{creator_id};
+  if (defined $args->{creator}) {
+    $meta->{core}{creator}   = $args->{creator};
   }
 
   return $self;
@@ -125,17 +125,17 @@ sub guid            { $_[0]->{metadata}{core}{guid}           }
 sub resource        { $_[0]->{metadata}{core}{resource}       }
 sub schema_version  { $_[0]->{metadata}{core}{schema_version} }
 
-# Creator ID can be set once after the fact is created
+# Creator can be set once after the fact is created
 
-sub creator_id      { $_[0]->{metadata}{core}{creator_id}     }
+sub creator      { $_[0]->{metadata}{core}{creator}     }
 
-sub set_creator_id {
+sub set_creator {
   my ($self, $guid) = @_;
 
-  Carp::confess("can't set creator_id; it is already set")
-    if $self->creator_id;
+  Carp::confess("can't set creator; it is already set")
+    if $self->creator;
 
-  $self->{metadata}{core}{creator_id} = $guid;
+  $self->{metadata}{core}{creator} = $guid;
 }
 
 # updated_at can always be modified
@@ -156,8 +156,8 @@ sub core_metadata {
 
 sub core_metadata_types {
   return {
-    creator_id      => '//str',
     created_at      => '//str',
+    creator         => '//str',
     guid            => '//str',
     resource        => '//str',
     schema_version  => '//num',
@@ -223,7 +223,7 @@ sub from_struct {
       schema_version => 1,
       type           => 1,
       # still optional so we can manipulate anon facts -- dagolden, 2009-05-12
-      creator_id     => 0,
+      creator        => 0,
       updated_at     => 0,
     },
   );

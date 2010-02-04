@@ -67,15 +67,15 @@ isa_ok( $report2, $class );
     
 is_deeply( $report, $report2, "report2 is a clone of report" );
 
-# set_creator_id
+# set_creator
 for my $fact ($report, $report->facts) {
-  is($fact->creator_id, undef, "no creator id (round 1)");
+  is($fact->creator, undef, "no creator (round 1)");
 }
 
 my $guid = '351E99EA-1D21-11DE-AB9C-3268421C7A0A';
 
-$report->set_creator_id($guid);
+$report->set_creator($guid);
 
 for my $fact ($report, $report->facts) {
-  is($fact->creator_id, $guid, "creator set properly (round 2)");
+  is($fact->creator, $guid, "creator set properly (round 2)");
 }
