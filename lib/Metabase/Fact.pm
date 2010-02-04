@@ -3,6 +3,7 @@ use 5.006;
 use strict;
 use warnings;
 use Metabase::Resource;
+use Time::Piece;
 use Data::GUID guid_string => { -as => '_guid' };
 use JSON ();
 use Carp ();
@@ -72,6 +73,8 @@ sub new {
   return $self;
 }
 
+sub _zulu_datetime { return gmtime->datetime() . "Z" }
+
 sub _init_guts {
   my ($class, $args) = @_;
   my $self = bless {}, $class;
@@ -91,8 +94,9 @@ sub _init_guts {
   my $meta = $self->{metadata} = { core => {} };
   $self->{content} = $args->{content};
 
-  $meta->{core}{created_at}     = $args->{created_at} || time;
   $meta->{core}{guid}           = $args->{guid}       || _guid;
+  $meta->{core}{created_at}     = $args->{created_at} || _zulu_datetime();
+  $meta->{core}{updated_at}     = $meta->{core}{created_at};
   $meta->{core}{resource}       = $args->{resource};
   $meta->{core}{schema_version} = $args->{schema_version};
   $meta->{core}{type}           = $self->type;
@@ -138,9 +142,9 @@ sub set_creator_id {
 
 sub updated_at      { $_[0]->{metadata}{core}{updated_at}     }
 
-sub set_updated_at {
-  my ($self, $time) = @_;
-  $self->{metadata}{core}{updated_at} = $time || time;
+sub touch_updated_at {
+  my ($self) = @_;
+  $self->{metadata}{core}{updated_at} = _zulu_datetime();
 }
 
 # metadata structure accessors
@@ -152,13 +156,13 @@ sub core_metadata {
 
 sub core_metadata_types {
   return {
-    created_at      => '//num',
     creator_id      => '//str',
+    created_at      => '//str',
     guid            => '//str',
     resource        => '//str',
     schema_version  => '//num',
     type            => '//str',
-    updated_at      => '//num',
+    updated_at      => '//str',
   }
 }
 
@@ -401,7 +405,19 @@ versions of the class have been released since the object was created.
 
 =head3 created_at
 
-Fact creation time in epoch seconds.
+Fact creation time in UTC expressed in extended ISO 8601 format with a 
+"Z" (Zulu) suffix.  For example:  
+
+  2010-01-10T12:34:56Z
+
+=head3 updated_at
+
+When the fact was created, stored or otherwise updated, expressed an ISO 8601
+UTC format as with C<created_at>.  The C<touch_updated_at> method may be called
+at any time to update the value to the current time.  This attribute generally
+only has local significance within a particular Metabase repository. For
+example, it may be used to sort Facts by when they were stored or changed in a
+Metabase.
 
 =head1 METHODS
 

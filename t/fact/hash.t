@@ -13,7 +13,7 @@ use JSON;
 
 use lib 't/lib';
 
-plan tests => 16;
+plan tests => 17;
 
 require_ok( 'FactSubclasses.pm' );
 
@@ -81,10 +81,16 @@ my $want_struct = {
 };
 
 my $have_struct = $obj->as_struct;
-ok(
-  (delete $have_struct->{metadata}{core}{created_at}) - time < 60,
-  'we created the fact recently',
+is( $have_struct->{metadata}{core}{updated_at},
+    $have_struct->{metadata}{core}{created_at},
+    "created_as equals updated_as"
 );
+
+my $created_at = delete $have_struct->{metadata}{core}{created_at};
+like( $created_at, qr/\A\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\dZ\z/,
+  'created_at is ISO 8601 Zulu',
+);
+delete $have_struct->{metadata}{core}{updated_at}; 
 
 is_deeply($have_struct, $want_struct, "object as_struct correct"); 
 
