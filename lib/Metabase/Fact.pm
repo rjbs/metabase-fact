@@ -42,6 +42,17 @@ sub __validate_args {
   return $hash;
 }
 
+my $hex = '[0-9a-f]';
+my $guid_re = qr(\A$hex{8}-$hex{4}-$hex{4}-$hex{4}-$hex{12}\z)i;
+
+sub __validate_guid {
+  my ($class, $string) = @_;
+  if ( $string !~ $guid_re ) {
+    Carp::confess("'$string' is not formatted as a GUID string");
+  }
+  return 1
+}
+
 sub new {
   my ($class, @args) = @_;
   my $args = $class->__validate_args(
@@ -51,8 +62,12 @@ sub new {
       resource => 1,  # where to validate? -- dagolden, 2009-03-31
       # still optional so we can manipulate anon facts -- dagolden, 2009-05-12
       creator => 0,
+      # helpful for constructing facts with non-random guids
+      guid => 0,
     },
   );
+
+  $class->__validate_guid($args->{guid}) if defined $args->{guid};
 
   # create the object
   my $self = $class->_init_guts($args);
@@ -91,12 +106,14 @@ sub _init_guts {
   Carp::confess("illegal type ($args->{type}) for $self")
     if $args->{type} ne $self->type;
 
+  $args->{guid} = lc( defined $args->{guid} ? $args->{guid} : _guid() );
+
   my $meta = $self->{metadata} = { core => {} };
   $self->{content} = $args->{content};
 
   $meta->{core}{created_at}     = $args->{created_at} || _zulu_datetime();
   $meta->{core}{updated_at}     = $meta->{core}{created_at};
-  $meta->{core}{guid}           = $args->{guid}       || lc _guid;
+  $meta->{core}{guid}           = $args->{guid};
   $meta->{core}{resource}       = $args->{resource};
   $meta->{core}{schema_version} = $args->{schema_version};
   $meta->{core}{type}           = $self->type;

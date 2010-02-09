@@ -39,7 +39,8 @@ lives_ok{ $obj = FactThree->new( $args ) }
 
 isa_ok( $obj, 'Metabase::Fact::String' ); 
 
-lives_ok{ $obj = FactThree->new( %$args ) } 
+my $test_guid = "b4ac3de6-15bb-11df-b44d-0018f34ec37c";
+lives_ok{ $obj = FactThree->new( %$args, guid => $test_guid ) } 
     "new( <list> ) doesn't die";
 
 isa_ok( $obj, 'Metabase::Fact::String' );
@@ -55,7 +56,7 @@ my $want_struct = {
     core    => {
       type           => 'FactThree'       ,
       schema_version => 1                 ,
-      guid           => $obj->guid        ,
+      guid           => $test_guid        ,
       resource       => $args->{resource} ,
     },
   },
