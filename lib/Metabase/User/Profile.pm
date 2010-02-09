@@ -6,6 +6,7 @@ our $VERSION = '0.002';
 $VERSION = eval $VERSION; ## no critic
 
 use Carp;
+use Data::GUID guid_string => { -as => '_guid' };
 
 use base 'Metabase::Report';
 __PACKAGE__->load_fact_classes;
@@ -24,15 +25,12 @@ sub create {
     }
   );
 
+  # resource string must reference our own guid, so pregenerate it
+  my $guid = lc _guid();
   my $profile = $class->open(
-    # placeholder guid in resource
-    resource => "metabase:user:00000000-0000-0000-0000-000000000000",
+    guid      => $guid,
+    resource  => "metabase:user:$guid",
   );
-
-  # fix-up our resource string to refer to our assigned guid
-  for my $c ( $profile->{metadata}{core} ) {
-    $c->{resource} = $c->{creator} = "metabase:user:" . $profile->guid;
-  }
 
   # add facts
   $profile->add( 'Metabase::User::FullName' => $args->{full_name} );

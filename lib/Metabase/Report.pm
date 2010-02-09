@@ -49,8 +49,12 @@ sub open {
       resource       => 1,
       # still optional so we can manipulate anon facts -- dagolden, 2009-05-12
       creator     => 0,
+      # helpful for constructing facts with non-random guids
+      guid => 0,
     }
   );
+
+  $class->__validate_guid($args->{guid}) if defined $args->{guid};
 
   $args->{content} ||= [];
 
