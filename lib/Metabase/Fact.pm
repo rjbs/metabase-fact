@@ -303,12 +303,16 @@ sub class_from_type {
 sub default_schema_version() { 1 }
 
 sub load {
-  my ($class, $filename) = @_;
+  my ($self, $filename) = @_;
   open my $fh, "<", $filename
-    or Carp::confess "Error loading $class from '$filename'\: $!";
+    or Carp::confess "Error loading fact from '$filename'\: $!";
   my $string = do { local $/; <$fh> };
   close $fh;
-  return $class->from_struct( JSON->new->decode( $string ) );
+  my $json = JSON->new->decode( $string );
+  my $class = $self->class_from_type($json->{metadata}{core}{type});
+  eval "require $class; 1"
+    or Carp::confess "Could not find $class to restore '$filename': $@";
+  return $class->from_struct( $json );
 }
 
 #--------------------------------------------------------------------------#
