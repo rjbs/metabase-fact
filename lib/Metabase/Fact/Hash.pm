@@ -2,9 +2,13 @@ package Metabase::Fact::Hash;
 use 5.006;
 use strict;
 use warnings;
+our $VERSION = '0.002';
+$VERSION = eval $VERSION;
+
 use base 'Metabase::Fact';
 use JSON ();
 use Carp ();
+
 
 sub _dlength { defined( $_[0] ) && length( $_[0] ) }
 

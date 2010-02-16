@@ -733,13 +733,8 @@ existing test-file that illustrates the bug or desired feature.
 
 =head1 AUTHOR
 
-=over
-
-=item * David A. Golden (DAGOLDEN)
-
-=item * Ricardo J. B. Signes (RJBS)
-
-=back
+ David A. Golden (DAGOLDEN)
+ Ricardo J. B. Signes (RJBS)
 
 =head1 COPYRIGHT AND LICENSE
 
