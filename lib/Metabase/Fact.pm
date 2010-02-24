@@ -177,6 +177,8 @@ sub touch_updated_at {
 
 # valid can be modified
 
+sub valid  { $_[0]->{metadata}{core}{valid} }
+
 sub set_valid {
   my ($self, $val) = @_;
   $self->{metadata}{core}{valid} = _bool($val)
