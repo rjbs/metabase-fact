@@ -89,6 +89,7 @@ sub new {
 }
 
 sub _zulu_datetime { return gmtime->datetime() . "Z" }
+sub _bool { return $_[0] ? 1 : 0 }
 
 sub _init_guts {
   my ($class, $args) = @_;
@@ -111,6 +112,7 @@ sub _init_guts {
   my $meta = $self->{metadata} = { core => {} };
   $self->{content} = $args->{content};
 
+  $meta->{core}{valid}          = _bool( defined $args->{valid} ? $args->{valid} : 1 );
   $meta->{core}{created_at}     = $args->{created_at} || _zulu_datetime();
   $meta->{core}{updated_at}     = $meta->{core}{created_at};
   $meta->{core}{guid}           = $args->{guid};
@@ -173,6 +175,13 @@ sub touch_updated_at {
   $self->{metadata}{core}{updated_at} = _zulu_datetime();
 }
 
+# valid can be modified
+
+sub set_valid {
+  my ($self, $val) = @_;
+  $self->{metadata}{core}{valid} = _bool($val)
+}
+
 # metadata structure accessors
 
 sub core_metadata {
@@ -189,6 +198,7 @@ sub core_metadata_types {
     schema_version  => '//num',
     type            => '//str',
     updated_at      => '//str',
+    valid           => '//bool',
   }
 }
 
@@ -248,6 +258,7 @@ sub from_struct {
       resource       => 1,
       schema_version => 1,
       type           => 1,
+      valid          => 1,
       # still optional so we can manipulate anon facts -- dagolden, 2009-05-12
       creator        => 0,
       updated_at     => 0,
@@ -423,8 +434,9 @@ C<resource_metadata_types> and C<content_metadata_types>.
 
 Data types are loosely based on L<Data::RX>.  For example:
 
-  '//str' -- indicates a value that should be compared stringwise
-  '//num' -- indicates a value that should be compared numerically
+  '//str'  -- indicates a value that should be compared stringwise
+  '//num'  -- indicates a value that should be compared numerically
+  '//bool' -- indicates a valut that is true or false
 
 When searching on metadata, you must join the set name to the metadata
 element name with a period character.  For example:
@@ -467,13 +479,17 @@ not set during Fact creation, it will be set by the Metabase when a Fact is
 submitted based on the submitter's Profile.  The C<set_creator> mutator may be
 called to set C<creator>, but only if it is not previously set.
 
+=head3 guid
+
+B<optional>
+
+The Fact object's Globally Unique IDentifier.  This is generated automatically
+if not provided.  Generally, users should not provide a C<guid> argument, but
+it is permitted for special cases where a non-random C<guid> is necessary.
+
 =head2 Generated during construction
 
 These attributes are generated automatically during the call to C<new>.
-
-=head3 guid
-
-The Fact object's Globally Unique IDentifier.
 
 =head3 type
 
@@ -501,6 +517,13 @@ at any time to update the value to the current time.  This attribute generally
 only has local significance within a particular Metabase repository. For
 example, it may be used to sort Facts by when they were stored or changed in a
 Metabase.
+
+=head3 valid
+
+A boolean value indicating whether the fact is considered valid.  It defaults
+to true.  The C<set_valid> method may be called to change the C<valid>
+property, for example, to mark a fact invalid rather than deleting it.  The
+value of C<valid> is always normalized to return "1" for true and "0" for false.
 
 =head1 METHODS
 
@@ -670,6 +693,7 @@ following:
 
   '//str' -- indicates a value that should be compared stringwise
   '//num' -- indicates a value that should be compared numerically
+  '//bool' -- indicates a boolean value where "1" is true and "0" is false
 
 Here is a hypothetical example of C<content_metadata_types> for an image fact: 
 

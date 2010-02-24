@@ -58,6 +58,7 @@ my $want_struct = {
       schema_version => 1                 ,
       guid           => $test_guid        ,
       resource       => $args->{resource} ,
+      valid          => 1                 ,
     },
   },
 };

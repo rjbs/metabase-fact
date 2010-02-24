@@ -13,7 +13,7 @@ use JSON;
 
 use lib 't/lib';
 
-plan tests => 17;
+plan tests => 19;
 
 require_ok( 'FactSubclasses.pm' );
 
@@ -76,6 +76,7 @@ my $want_struct = {
       schema_version => 1                ,
       guid           => $obj->guid       ,
       resource       => $args->{resource},
+      valid          => 1                ,
     },
   }
 };
@@ -99,6 +100,14 @@ $obj->set_creator($creator_uri);
 $want_struct->{metadata}{core}{creator} = $creator_uri;
 
 is_deeply($have_struct, $want_struct, "object as_struct correct w/creator"); 
+
+$obj->set_valid(0);
+$want_struct->{metadata}{core}{valid} = 0;
+is_deeply($have_struct, $want_struct, "set_valid(0)"); 
+
+$obj->set_valid(2);
+$want_struct->{metadata}{core}{valid} = 1;
+is_deeply($have_struct, $want_struct, "set_valid(2) normalized to '1'"); 
 
 #--------------------------------------------------------------------------#
 
