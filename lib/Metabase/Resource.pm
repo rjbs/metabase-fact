@@ -11,7 +11,7 @@ $VERSION = eval $VERSION;
 # main API methods -- shouldn't be overridden
 #--------------------------------------------------------------------------#
 
-use overload ('""'     => sub { $_[0]->content },
+use overload ('""'     => sub { $_[0]->resource },
               '=='     => sub { _obj_eq(@_) },
               '!='     => sub { !_obj_eq(@_) },
               fallback => 1,
@@ -22,43 +22,73 @@ sub _obj_eq {
     return overload::StrVal($_[0]) eq overload::StrVal($_[1]);
 }
 
+sub _load {
+  my ($class,$subclass) = @_;
+  eval "require $subclass; 1"
+    or Carp::confess("Could not load '$subclass': $@");
+}
+
+my %installed;
+
+sub _add {
+  my ($self, $name, $type, $value) = @_;
+  $self->_cache->{$name} = $value;
+  $self->_types->{$name} = $type;
+  my $method = ref($self) . "::$name";
+  if ( ! $installed{$method} ) {
+    no strict 'refs';
+    *{$method} = sub { return $_[0]->{_cache}{$name} };
+    $installed{$method}++;
+  }
+  return;
+}
+
 sub new {
   my ($class, $resource) = @_;
   Carp::confess("no resource string provided")
     unless defined $resource && length $resource;
 
+  # construct object
+  my $self = bless { 
+    resource => $resource,
+    _cache  => {},
+    _types  => {},
+  }, $class;
+
   # parse scheme
   my ($scheme) = $resource =~ m{\A([^:]+):};
   Carp::confess("could not determine URI scheme from '$resource'\n")
     unless defined $scheme && length $scheme;
+  $self->_add( scheme => '//str' => $scheme );
 
-  # load subclass
-  my $subclass = "Metabase::Resource::$scheme";
-  eval "require $subclass; 1"
-    or Carp::confess("Could not load '$subclass': $@");
-
-  # construct & validate subclass object
-  my $self = { 
-    content => $resource,
-    scheme  => $scheme,
-    _cache  => {},
-  };
-  bless $self, $subclass;
+  # initialize; delegates to subclass based on scheme and can re-bless
+  $self->_init;
   $self->validate;
-
   return $self;
 }
 
-sub content {
-  return $_[0]->{content}
+sub _init {
+  my $self = shift;
+  my $subclass = "Metabase::Resource::" . $self->scheme;
+  $self->_load($subclass);
+  bless $self, $subclass;
+  return $self->_init;
 }
 
-sub scheme {
-  return $_[0]->{scheme}
+sub _cache  { return $_[0]->{_cache} }
+
+sub _types  { return $_[0]->{_types} }
+
+sub resource { return $_[0]->{resource} }
+
+sub metadata {
+  my ($self) = @_;
+  return { %{$self->_cache} };
 }
 
-sub _cache {
-  return $_[0]->{_cache}
+sub metadata_types {
+  my ($self) = @_;
+  return { %{$self->_types} };
 }
 
 #--------------------------------------------------------------------------#
@@ -68,16 +98,6 @@ sub _cache {
 sub validate {
   my ($self) = @_;
   Carp::confess "validate not implemented by " . (ref $self || $self)
-}
-
-sub metadata {
-  my ($self) = @_;
-  Carp::confess "metadata not implemented by " . (ref $self || $self)
-}
-
-sub metadata_types {
-  my ($self) = @_;
-  Carp::confess "metadata_types not implemented by " . (ref $self || $self)
 }
 
 1;
@@ -119,7 +139,7 @@ above this into a Metabase resource metadata structure with the following
 elements:
 
   scheme       => cpan
-  type         => distfile
+  subtype      => distfile
   dist_file    => RJBS/URI-cpan-1.000.tar.gz
   cpan_id      => RJBS
   dist_name    => URI-cpan
@@ -137,7 +157,7 @@ all specific to Metabase::Resource::cpan.
   );
 
 Takes a single resource string argument and constructs a new Resource object
-from a resource type determined by the URI scheme.  Throws an error if the
+from a resource subtype determined by the URI scheme.  Throws an error if the
 required resource subclass is not available.
 
 =head2 content

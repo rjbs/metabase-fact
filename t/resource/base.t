@@ -12,7 +12,7 @@ use Test::Exception;
 
 use lib 't/lib';
 
-plan tests => 12;
+plan tests => 15;
 
 require_ok( 'Metabase::Resource' );
 require_ok( 'Metabase::Resource::metabase' );
@@ -36,7 +36,7 @@ like( $err, qr/no resource string provided/, "new() without string throws error"
 #--------------------------------------------------------------------------#
 
 # unimplemented
-for my $m ( qw/validate metadata/) {
+for my $m ( qw/validate/ ) {
     my $obj = bless {} => 'Metabase::Resource';
     throws_ok { $obj->$m } qr/$m not implemented by Metabase::Resource/,
       "$m not implemented";
@@ -51,14 +51,15 @@ throws_ok { $obj = Metabase::Resource->new("noschema") }
 # new should create proper subtype object
 #--------------------------------------------------------------------------#
 
-my $string = "metabase:user:B66C7662-1D34-11DE-A668-0DF08D1878C0";
+my $string = "metabase:user:b66c7662-1d34-11de-a668-0df08d1878c0";
 
 lives_ok{ $obj = Metabase::Resource->new( $string ) } 
     "Metabase::Resource->new(\$string) should not die";
 
 isa_ok( $obj, 'Metabase::Resource::metabase' ); 
+isa_ok( $obj, 'Metabase::Resource::metabase::user' ); 
 
-is( $obj->content, $string, "object content correct" );
+is( $obj->resource, $string, "\$obj->resource correct" );
 is( "$obj", $string, "string overloading working correctly" );
 
 #--------------------------------------------------------------------------#
@@ -69,15 +70,24 @@ is( "$obj", $string, "string overloading working correctly" );
 
 my $metadata_types = {
   scheme  => '//str',
-  type    => '//str',
-  user    => '//str',
+  subtype => '//str',
+  guid    => '//str',
 };
 
 my $expected_metadata = {
   scheme  => 'metabase',
-  type    => 'user',
-  user    => 'B66C7662-1D34-11DE-A668-0DF08D1878C0',
+  subtype => 'user',
+  guid    => 'b66c7662-1d34-11de-a668-0df08d1878c0',
 };
 
 is_deeply( $metadata_types, $obj->metadata_types, "Metadata types" );
 is_deeply( $expected_metadata, $obj->metadata, "Metadata" );
+
+#--------------------------------------------------------------------------#
+# accessors
+#--------------------------------------------------------------------------#
+
+for my $k ( sort keys %$expected_metadata ) {
+  is($obj->$k, $expected_metadata->{$k}, "\$obj->$k");
+}
+
