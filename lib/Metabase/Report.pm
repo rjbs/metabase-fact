@@ -73,7 +73,7 @@ sub add {
   } else {
     ($fact_class, $content) = @args;
     $fact = $fact_class->new( 
-      resource => $self->resource->content, 
+      resource => $self->resource->resource, 
       content  => $content,
     );
   }

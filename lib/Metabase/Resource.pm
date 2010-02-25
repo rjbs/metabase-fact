@@ -72,7 +72,8 @@ sub _init {
   my $subclass = "Metabase::Resource::" . $self->scheme;
   $self->_load($subclass);
   bless $self, $subclass;
-  return $self->_init;
+  $self->_init unless $self->can("_init") eq \&_init; # no loops!
+  return $self;
 }
 
 sub _cache  { return $_[0]->{_cache} }

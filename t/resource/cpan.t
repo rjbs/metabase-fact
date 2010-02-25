@@ -41,7 +41,7 @@ lives_ok{ $obj = Metabase::Resource->new( $string ) }
 
 isa_ok( $obj, 'Metabase::Resource::cpan' ); 
 
-is( $obj->content, $string, "object content correct" );
+is( $obj->resource, $string, "object content correct" );
 
 #--------------------------------------------------------------------------#
 # generates typed metadata
@@ -51,7 +51,7 @@ is( $obj->content, $string, "object content correct" );
 
 my $metadata_types = {
   scheme        => '//str',
-  type          => '//str',
+  subtype       => '//str',
   cpan_id       => '//str',
   dist_file     => '//str',
   dist_name     => '//str',
@@ -60,7 +60,7 @@ my $metadata_types = {
 
 my $expected_metadata = {
   scheme        => 'cpan',
-  type          => 'distfile',
+  subtype       => 'distfile',
   cpan_id       => 'JOHNDOE',
   dist_file     => 'JOHNDOE/Foo-Bar-1.23.tar.gz',
   dist_name     => 'Foo-Bar',

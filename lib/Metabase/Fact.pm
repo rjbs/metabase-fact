@@ -173,8 +173,8 @@ sub set_creator {
 
   # validate $uri
   my $obj = Metabase::Resource->new($uri);
-  unless ( $obj->scheme eq 'metabase' && $obj->metadata->{type} eq 'user' ) {
-    Carp::Confess(
+  unless ( $obj->scheme eq 'metabase' && $obj->subtype eq 'user' ) {
+    Carp::confess(
       "creator must be a Metabase User Profile resource URI of\n" .
       "the form 'metabase:user:XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX'"
     );
@@ -239,8 +239,8 @@ sub as_struct {
 
   # turn Metabase::Resources back into URI strings
   my $core = { %{ $self->core_metadata } };
-  $core->{resource} = $core->{resource}->content;
-  $core->{creator} = $core->{creator}->content if exists $core->{creator};
+  $core->{resource} = $core->{resource}->resource;
+  $core->{creator} = $core->{creator}->resource if exists $core->{creator};
 
   return {
     content  => $self->content_as_bytes,

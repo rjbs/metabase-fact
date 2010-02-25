@@ -11,100 +11,21 @@ $VERSION = eval $VERSION;
 use Metabase::Resource;
 our @ISA = qw(Metabase::Resource);
 
-sub validate {
+sub _init {
   my ($self) = @_;
   my $scheme = $self->scheme;
-  my $content = $self->content;
-  my ($type, $string) = $content =~ m{\A$scheme:///([^/]+)/(.+)\z};
-  unless ( defined $type && length $type ) {
-    Carp::confess("Could not determine $scheme subtype from '$content'")
-  }
-  $self->_cache->{type} = $type;
-  my $method = "_validate_$type";
-  if ( $self->can($method) ) {
-    $self->$method($string);
-  }
-  else {
-    Carp::confess("Unknown $scheme subtype '$type' in '$content'");
-  }
-  return 1;
-}
 
+  # determine subtype
+  my ($subtype) = $self =~ m{\A$scheme:///([^/]+)/};
+  Carp::confess("could not determine URI subtype from '$self'\n")
+    unless defined $subtype && length $subtype;
+  $self->_add( subtype => '//str' =>  $subtype);
 
-# XXX should really validate AUTHOR/DISTNAME-DISTVERSION.SUFFIX 
-# -- dagolden, 2010-01-27
-#
-# my $suffix = qr{\.(?:tar\.(?:bz2|gz|Z)|t(?:gz|bz)|zip)};
-#
-# for now, we'll use CPAN::DistnameInfo;
-#
-
-# map DistnameInfo calls to our names
-my %distfile_map = (
-  cpanid  => 'cpan_id',
-  dist    => 'dist_name',
-  version => 'dist_version',
-);
-
-sub _validate_distfile {
-  my ($self, $string) = @_;
-  my $two = substr($string,0,2);
-  my $one = substr($two,0,1);
-  my $path = "authors/id/$one/$two/$string";
-  my $d = eval { CPAN::DistnameInfo->new($path) };
-  my $bad = defined $d ? 0 : 1;
-
-  $self->_cache->{dist_file} = $string;
-
-  for my $k ( $bad ? () : (keys %distfile_map) ) {
-    my $value = $d->$k;
-    defined $value or $bad++ and last;
-    $self->_cache->{$distfile_map{$k}} = $value
-  }
-
-  if ($bad) {
-    Carp::confess("'$string' can't be parsed as a CPAN distfile");
-  }
-  return 1;
-}
-
-my %metadata_types = (
-  distfile => {
-    cpan_id       => '//str',
-    dist_file     => '//str',
-    dist_name     => '//str',
-    dist_version  => '//str',
-  },
-);
-
-sub metadata_types {
-  my ($self) = @_;
-  return {
-    scheme  => '//str',
-    type    => '//str',
-    %{ $metadata_types{ $self->_cache->{type} } },
-  };
-}
-
-sub metadata {
-  my ($self) = @_;
-  my $type = $self->_cache->{type};
-  my $method = "_metadata_$type";
-  return {
-    scheme  => $self->scheme,
-    type    => $type,
-    %{ $self->$method },
-  };
-}
-
-sub _metadata_distfile {
-  my ($self) = @_;
-  return {
-    cpan_id       => $self->_cache->{cpan_id},
-    dist_file     => $self->_cache->{dist_file},
-    dist_name     => $self->_cache->{dist_name},
-    dist_version  => $self->_cache->{dist_version},
-  };
+  # rebless into subclass and finish initialization
+  my $subclass = __PACKAGE__ . "::$subtype";
+  $self->_load($subclass);
+  bless $self, $subclass;
+  return $self->_init;
 }
 
 1;

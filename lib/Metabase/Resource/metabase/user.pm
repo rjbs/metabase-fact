@@ -14,7 +14,7 @@ sub _init {
   my ($self) = @_;
   my ($scheme, $subtype) = ($self->scheme, $self->subtype);
   my ($guid) = $self =~ m{\A$scheme:$subtype:(.+)\z};
-  Carp::confess("could not determine URI subtype from '$self'\n")
+  Carp::confess("could not determine guid from '$self'\n")
     unless defined $guid && length $guid;
   $self->_add( guid => '//str' =>  $guid);
   return $self;
