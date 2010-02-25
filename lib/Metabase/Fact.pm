@@ -123,8 +123,8 @@ sub _init_guts {
   
   my $meta = $self->{metadata} = { core => {} };
   $meta->{core}{guid}           = lc $args->{giud};
-  $meta->{core}{created_at}     = $args->{created_at} || _zulu_datetime();
-  $meta->{core}{updated_at}     = $meta->{core}{created_at};
+  $meta->{core}{creation_time}  = $args->{creation_time} || _zulu_datetime();
+  $meta->{core}{update_time}    = $meta->{core}{creation_time};
   $meta->{core}{guid}           = $args->{guid};
   $meta->{core}{schema_version} = $args->{schema_version};
   $meta->{core}{type}           = $self->type;
@@ -156,7 +156,7 @@ sub content         { $_[0]->{content}                        }
 
 # Accessors for core metadata
 
-sub created_at      { $_[0]->{metadata}{core}{created_at}     }
+sub creation_time   { $_[0]->{metadata}{core}{creation_time}  }
 sub guid            { $_[0]->{metadata}{core}{guid}           }
 sub resource        { $_[0]->{metadata}{core}{resource}       }
 sub schema_version  { $_[0]->{metadata}{core}{schema_version} }
@@ -183,13 +183,13 @@ sub set_creator {
   $self->{metadata}{core}{creator} = $obj;
 }
 
-# updated_at can always be modified
+# update_time can always be modified
 
-sub updated_at      { $_[0]->{metadata}{core}{updated_at}     }
+sub update_time      { $_[0]->{metadata}{core}{update_time}     }
 
-sub touch_updated_at {
+sub touch {
   my ($self) = @_;
-  $self->{metadata}{core}{updated_at} = _zulu_datetime();
+  $self->{metadata}{core}{update_time} = _zulu_datetime();
 }
 
 # valid can be modified
@@ -210,13 +210,13 @@ sub core_metadata {
 
 sub core_metadata_types {
   return {
-    created_at      => '//str',
+    creation_time   => '//str',
     creator         => '//str',
     guid            => '//str',
     resource        => '//str',
     schema_version  => '//num',
     type            => '//str',
-    updated_at      => '//str',
+    update_time     => '//str',
     valid           => '//bool',
   }
 }
@@ -276,7 +276,7 @@ sub from_struct {
     {
       # when thawing, all of these must be provided
       content        => 1,
-      created_at     => 1,
+      creation_time  => 1,
       guid           => 1,
       resource       => 1,
       schema_version => 1,
@@ -284,7 +284,7 @@ sub from_struct {
       valid          => 1,
       # still optional so we can manipulate anon facts -- dagolden, 2009-05-12
       creator        => 0,
-      updated_at     => 0,
+      update_time    => 0,
     },
   );
 
@@ -520,17 +520,17 @@ The C<schema_version> of the Fact subclass that created the object. This may or
 may not be the same as the current C<schema_version> of the class if newer
 versions of the class have been released since the object was created.
 
-=head3 created_at
+=head3 creation_time
 
 Fact creation time in UTC expressed in extended ISO 8601 format with a 
 "Z" (Zulu) suffix.  For example:  
 
   2010-01-10T12:34:56Z
 
-=head3 updated_at
+=head3 update_time
 
 When the fact was created, stored or otherwise updated, expressed an ISO 8601
-UTC format as with C<created_at>.  The C<touch_updated_at> method may be called
+UTC format as with C<creation_time>.  The C<touch> method may be called
 at any time to update the value to the current time.  This attribute generally
 only has local significance within a particular Metabase repository. For
 example, it may be used to sort Facts by when they were stored or changed in a
@@ -644,11 +644,11 @@ fact.  If the fact's C<creator> is already set, an exception will be thrown.
 
 This method sets the C<valid> core metadata to a boolean value.
 
-=head2 touch_updated_at
+=head2 touch
 
-  $fact->touch_updated_at;
+  $fact->touch
 
-This method sets the C<updated_at> core metadata for the core metadata for the
+This method sets the C<update_time> core metadata for the core metadata for the
 fact to the current time in ISO 8601 UTC format with a trailing "Z" (Zulu)
 suffic.
 

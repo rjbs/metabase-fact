@@ -64,16 +64,16 @@ my $want_struct = {
 };
 
 my $have_struct = $obj->as_struct;
-is( $have_struct->{metadata}{core}{updated_at},
-    $have_struct->{metadata}{core}{created_at},
-    "created_as equals updated_as"
+is( $have_struct->{metadata}{core}{update_time},
+    $have_struct->{metadata}{core}{creation_time},
+    "creation_time equals update_time"
 );
 
-my $created_at = delete $have_struct->{metadata}{core}{created_at};
-like( $created_at, qr/\A\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\dZ\z/,
-  'created_at is ISO 8601 Zulu',
+my $creation_time = delete $have_struct->{metadata}{core}{creation_time};
+like( $creation_time, qr/\A\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\dZ\z/,
+  'creation_time is ISO 8601 Zulu',
 );
-delete $have_struct->{metadata}{core}{updated_at}; 
+delete $have_struct->{metadata}{core}{update_time}; 
 
 is_deeply($have_struct, $want_struct, "object as_struct() correct"); 
 
