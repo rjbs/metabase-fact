@@ -50,7 +50,13 @@ sub __validate_guid {
   if ( $string !~ $guid_re ) {
     Carp::confess("'$string' is not formatted as a GUID string");
   }
-  return 1
+  return $string
+}
+
+sub validate_resource {
+  my ($self, $uri) = @_;
+  # Metabase::Resource->new dies if invalid
+  return Metabase::Resource->new($uri);
 }
 
 sub new {
@@ -67,17 +73,8 @@ sub new {
     },
   );
 
-  $class->__validate_guid($args->{guid}) if defined $args->{guid};
-
   # create the object
   my $self = $class->_init_guts($args);
-
-  # validate resource
-  eval { $self->validate_resource };
-  if ($@) {
-    my $resource = $self->resource;
-    Carp::confess("$class object resource '$resource' invalid: $@");
-  }
 
   # validate content
   eval { $self->validate_content };
@@ -91,47 +88,67 @@ sub new {
 sub _zulu_datetime { return gmtime->datetime() . "Z" }
 sub _bool { return $_[0] ? 1 : 0 }
 
+# used for both new() and from_struct() -- in the former case
+# only content, resource, guid and creator could exist; in
+# the latter case, all fields would exist
 sub _init_guts {
   my ($class, $args) = @_;
-  my $self = bless {}, $class;
 
-  $args->{schema_version} = $self->default_schema_version
-    unless defined $args->{schema_version};
-
-  $args->{type} = $self->type
+  # confirm type
+  $args->{type} = $class->type
     unless defined $args->{type};
 
-  $self->upgrade_fact($args)
-    if  $args->{schema_version} != $self->default_schema_version;
+  Carp::confess("illegal type ($args->{type}) for $class")
+    if $args->{type} ne $class->type;
 
-  Carp::confess("illegal type ($args->{type}) for $self")
-    if $args->{type} ne $self->type;
+  # if restoring from_struct, we must cope with older schemas
+  $args->{schema_version} = $class->default_schema_version
+    unless defined $args->{schema_version};
 
-  $args->{guid} = lc( defined $args->{guid} ? $args->{guid} : _guid() );
+  $class->upgrade_fact($args)
+    if  $args->{schema_version} != $class->default_schema_version;
 
-  my $meta = $self->{metadata} = { core => {} };
+  # validate guid if provided or else initialize it
+  if ( defined $args->{guid} ) {
+    $class->__validate_guid($args->{guid});
+  }
+  else {
+    $args->{guid} = _guid();
+  }
+
+  # initialize the object
+  my $self = bless {}, $class;
+
   $self->{content} = $args->{content};
-
-  $meta->{core}{valid}          = _bool( defined $args->{valid} ? $args->{valid} : 1 );
+  
+  my $meta = $self->{metadata} = { core => {} };
+  $meta->{core}{guid}           = lc $args->{giud};
   $meta->{core}{created_at}     = $args->{created_at} || _zulu_datetime();
   $meta->{core}{updated_at}     = $meta->{core}{created_at};
   $meta->{core}{guid}           = $args->{guid};
-  $meta->{core}{resource}       = $args->{resource};
   $meta->{core}{schema_version} = $args->{schema_version};
   $meta->{core}{type}           = $self->type;
+  $meta->{core}{valid}          = _bool( defined $args->{valid} ? $args->{valid} : 1 );
 
-  if (defined $args->{creator}) {
-    $meta->{core}{creator}   = $args->{creator};
+  # validate resource field
+  if ( eval { $args->{resource}->isa('Metabase::Resource') && 1 } ) {
+    $meta->{core}{resource} = $args->{resource};
+  }
+  else {
+    $meta->{core}{resource} = $class->validate_resource($args->{resource});
+  }
+
+  # validate creator (via mutator)
+  if ( defined $args->{creator} ) {
+    if ( eval { $args->{creator}->isa('Metabase::Resource') && 1 } ) {
+      $meta->{core}{creator} = $args->{creator};
+    }
+    else {
+      $self->set_creator($args->{creator});
+    }
   }
 
   return $self;
-}
-
-sub validate_resource {
-  my ($self) = @_;
-  # Metabase::Resource->new dies if invalid
-  my $obj = Metabase::Resource->new($self->resource);
-  return 1;
 }
 
 # Content accessor
@@ -163,7 +180,7 @@ sub set_creator {
     );
   }
 
-  $self->{metadata}{core}{creator} = $uri;
+  $self->{metadata}{core}{creator} = $obj;
 }
 
 # updated_at can always be modified
@@ -206,20 +223,24 @@ sub core_metadata_types {
 
 sub resource_metadata {
   my $self = shift;
-  $self->{metadata}{resource} ||=
-    Metabase::Resource->new($self->resource)->metadata;
+  $self->{metadata}{resource} ||= $self->resource->metadata;
   return $self->{metadata}{resource};
 }
 
 sub resource_metadata_types {
   my $self = shift;
-  return Metabase::Resource->new($self->resource)->metadata_types;
+  return $self->resource->metadata_types;
 }
 
 # persistence routines
 
 sub as_struct {
   my ($self) = @_;
+
+  # turn Metabase::Resources back into URI strings
+  my $core = { %{ $self->core_metadata } };
+  $core->{resource} = $core->{resource}->content;
+  $core->{creator} = $core->{creator}->content if exists $core->{creator};
 
   return {
     content  => $self->content_as_bytes,
@@ -229,7 +250,7 @@ sub as_struct {
       # receives the transmission should reconstruct the metadata for itself,
       # as it is more likely to have an improved metadata producer. -- rjbs,
       # 2009-06-24
-      core => $self->core_metadata,
+      core => $core,
     }
   };
 }
@@ -458,36 +479,31 @@ attributes (except C<content>) are also part of C<core metadata>.
 
 =head2 Arguments provided to new
 
-=head3 content
-
-B<required>
+=head3 content (required)
 
 A reference to the actual information associated with the fact.
 The exact form of the content is up to each Fact class to determine.
 
-=head3 resource
-
-B<required>
+=head3 resource (required)
 
 The canonical resource (URI) the Fact relates to.  For CPAN distributions, this
-would be a C<cpan:///distfile/...> URI.  (See L<URI::cpan>.)
+would be a C<cpan:///distfile/...> URI.  (See L<URI::cpan>.)  The associated
+accessor returns a Metabase::Resource subclass.
 
-=head3 creator
-
-B<optional>
+=head3 creator (optional)
 
 A L<Metabase::User::Profile> URI that indicates the creator of the Fact.  If
 not set during Fact creation, it will be set by the Metabase when a Fact is
 submitted based on the submitter's Profile.  The C<set_creator> mutator may be
-called to set C<creator>, but only if it is not previously set.
+called to set C<creator>, but only if it is not previously set.  The associated
+accessor returns a Metabase::Resource subclass or C<undef> if the creator
+has not been set.
 
-=head3 guid
-
-B<optional>
+=head3 guid (optional)
 
 The Fact object's Globally Unique IDentifier.  This is generated automatically
 if not provided.  Generally, users should not provide a C<guid> argument, but
-it is permitted for special cases where a non-random C<guid> is necessary.
+it is permitted for use in special cases where a non-random C<guid> is necessary.
 
 =head2 Generated during construction
 
@@ -537,19 +553,9 @@ value of C<valid> is always normalized to return "1" for true and "0" for false.
   );
 
 Constructs a new Fact. The C<resource> and C<content> attributes are required.
-No other attributes may be provided to C<new> except C<creator>.
+No other attributes should be provided to C<new> except C<creator>.
 
 =head1 CLASS METHODS
-
-=head2 default_schema_version
-
-  $version = MyFact->default_schema_version;
-
-Defaults to 1.  Subclasses should override this method if they make a
-backwards-incompatible change to the internals of the content attribute.
-Schema version numbers should be monotonically-increasing integers.  The
-default schema version is used to set an objects schema_version attribution
-on creation.
 
 =head2 type
 
@@ -570,18 +576,43 @@ A utility function to invert the operation of the C<type> method.
 This method loads a fact from a JSON format file and returns it.  If the
 file cannot be read or is not valid JSON, and exception is thrown
 
+=head2 from_struct
+
+  my $fact = MyFact->from_struct( $struct );
+
+This takes the output of the C<as_struct> method and reconstitutes a Fact
+object.
+
+=head2 upgrade_fact
+
+  MyFact->upgrade_fact( $struct );
+  
+This method will be called when initializing a fact from a data structure that
+claims to be of a schema version other than the schema version reported by the
+loaded class's C<default_schema_version> method.  It will be passed the hashref
+of args being used to initialized the fact object (generally the output of
+C<as_struct> from an older version), and should alter that hash in place.
+
+=head2 default_schema_version
+
+  $version = MyFact->default_schema_version;
+
+Defaults to 1.  Subclasses should override this method if they make a
+backwards-incompatible change to the internals of the content attribute.
+Schema version numbers should be monotonically-increasing integers.  The
+default schema version is used to set an objects schema_version attribution
+on creation.
+
 =head1 OBJECT METHODS
+
+The following methods are implemented by Metabase::Fact and subclasses
+generally should not need to override them.
 
 =head2 as_struct
 
 This returns a simple data structure that represents the fact and can be used
 for transmission over the wire.  It serializes the content and core metadata,
 but not other metadata, which should be recomputed by the receiving end.
-
-=head2 from_struct
-
-This takes the output of the C<as_struct> method and reconstitutes a Fact
-object.
 
 =head2 core_metadata
 
@@ -602,18 +633,24 @@ This returns a hashref of types for each resource metadata element
 
 =head2 set_creator
 
-  $fact->set_creator($profile_guid);
+  $fact->set_creator($profile_uri);
 
 This method sets the C<creator> core metadata for the core metadata for the
 fact.  If the fact's C<creator> is already set, an exception will be thrown.
 
-=head2 upgrade_fact
+=head2 set_valid
 
-This method will be called when initializing a fact from a data structure that
-claims to be of a schema version other than the schema version reported by the
-loaded class's C<default_schema_version> method.  It will be passed the hashref
-of args being used to initialized the fact object, and should alter that hash
-in place.
+  $fact->set_valid(0);
+
+This method sets the C<valid> core metadata to a boolean value.
+
+=head2 touch_updated_at
+
+  $fact->touch_updated_at;
+
+This method sets the C<updated_at> core metadata for the core metadata for the
+fact to the current time in ISO 8601 UTC format with a trailing "Z" (Zulu)
+suffic.
 
 =head2 save
 
@@ -730,14 +767,15 @@ B<optional>
 This method SHOULD check whether the resource type is relevant for the Fact
 subclass.  It SHOULD use L<Metabase::Resource> to create a resource object and
 evaluate the resource object scheme and type.  It MUST throw an exception if
-the resource type is invalid.  For example:
+the resource type is invalid.  Otherwise, it MUST return a valid
+Metabase::Resource subclass.  For example:
 
   sub validate_resource {
     my ($self) = @_;
     # Metabase::Resource->new dies if invalid
     my $obj = Metabase::Resource->new($self->resource);
     if ($obj->scheme eq 'cpan' && $obj->type eq 'distfile') {
-      return 1;
+      return $obj;
     }
     else {
       my $fact_type = $self->type;

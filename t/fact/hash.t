@@ -97,16 +97,25 @@ is_deeply($have_struct, $want_struct, "object as_struct correct");
 
 my $creator_uri = 'metabase:user:351e99ea-1d21-11de-ab9c-3268421c7a0a';
 $obj->set_creator($creator_uri);
-$want_struct->{metadata}{core}{creator} = $creator_uri;
+$want_struct->{metadata}{core}{creator} = Metabase::Resource->new($creator_uri);
 
+$have_struct = $obj->as_struct;
+delete $have_struct->{metadata}{core}{updated_at}; 
+delete $have_struct->{metadata}{core}{created_at}; 
 is_deeply($have_struct, $want_struct, "object as_struct correct w/creator"); 
 
 $obj->set_valid(0);
 $want_struct->{metadata}{core}{valid} = 0;
+$have_struct = $obj->as_struct;
+delete $have_struct->{metadata}{core}{updated_at}; 
+delete $have_struct->{metadata}{core}{created_at}; 
 is_deeply($have_struct, $want_struct, "set_valid(0)"); 
 
 $obj->set_valid(2);
 $want_struct->{metadata}{core}{valid} = 1;
+$have_struct = $obj->as_struct;
+delete $have_struct->{metadata}{core}{updated_at}; 
+delete $have_struct->{metadata}{core}{created_at}; 
 is_deeply($have_struct, $want_struct, "set_valid(2) normalized to '1'"); 
 
 #--------------------------------------------------------------------------#

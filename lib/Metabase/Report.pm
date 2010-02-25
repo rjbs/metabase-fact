@@ -54,8 +54,6 @@ sub open {
     }
   );
 
-  $class->__validate_guid($args->{guid}) if defined $args->{guid};
-
   $args->{content} ||= [];
 
   # create and check
@@ -75,7 +73,7 @@ sub add {
   } else {
     ($fact_class, $content) = @args;
     $fact = $fact_class->new( 
-      resource => $self->resource, 
+      resource => $self->resource->content, 
       content  => $content,
     );
   }
