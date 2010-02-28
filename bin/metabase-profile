@@ -21,19 +21,18 @@ my $result = GetOptions(
 
 pod2usage({-verbose => 2}) if ! $result || $help;
 
-my ($profile_file, $secret_file);
-
-if ( $output ) {
-  $profile_file = $output . ".profile.json";
-  $secret_file = $output . ".secret.json";
+# setup output file and confirm it doesn't exist
+if ( ! defined $output ) {
+  $output = "metabase_id.json";
 }
-else {
-  die "$0: '--output' argument required\n";
+if ( -f $output ) {
+  die "Won't over-write existing '$output' file.  Aborting.\n";
 }
 
+# get profile information
 $profile{full_name}     = $full_name      if defined $full_name;
 $profile{email_address} = $email_address  if defined $email_address;
-$profile{password}      = $password         if defined $password;
+$profile{password}      = $password       if defined $password;
 
 my @prompts = (
   full_name     => 'full name',
@@ -50,21 +49,23 @@ while (@prompts) {
   $profile{$key} = $answer;
 }
 
+# create profile and secret objects
 $password = delete $profile{password};
-
 my $profile = Metabase::User::Profile->create( %profile );
-
 my $secret = Metabase::User::Secret->new(
   resource => $profile->resource,
   content  => $password,
 );
 
-print "Writing profile to '$profile_file'\n";
-$profile->save( $profile_file );
-
-print "Writing secret to '$secret_file'\n";
-$secret->save( $secret_file );
-chmod 0600, $secret_file;
+# write output
+print "Writing profile to '$output'\n";
+open my $fh, ">", $output;
+print {$fh} JSON->new->pretty->encode([
+  $profile->as_struct,
+  $secret->as_struct,
+]);
+close $fh;
+chmod 0600, $output;
 
 __END__
 
@@ -74,12 +75,11 @@ metabase-profile - create a metabase profile
 
 =head1 SYNOPSIS
 
-  $ metabase-profile -o userdata
+  $ metabase-profile
   Enter full name: John Doe
   Enter email address: jdoe@example.com
   Enter password/secret: zqxjkh
-  Writing profile to 'userdata.profile.json'
-  Writing secret to 'userdata.secret.json'
+  Writing profile to 'metabase_id.json'
 
 =head1 USAGE
 
@@ -88,22 +88,23 @@ submitting facts and reports to a Metabase server.
 
 Valid options include:
 
-  -o, --output  PREFIX    (REQUIRED) filename prefix for output files
-      --name    FULLNAME  full user name, eg "John Doe"
       --email   ADDRESS   user email address eg "jd@example.com"
+      --name    FULLNAME  full user name, eg "John Doe"
+  -o, --output  FILENAME  output filename
       --secret  PASSWORD  password for authentication
   -h, --help              print man page
 
-An output filename prefix is required.  Two files will be created in JSON
-format, one containing the user profile and the other containing the user's
-shared secret.
+If no output file name is given, the default name 'metabase_id.json' will be
+used.  If the the output filename (or default) exists, the program will abort
+rather than overwrite the file.  The output file will be in JSON and contain
+the user profile and the user's shared secret.
 
 Typically, when a Metabase server first receives a report from a new user
 profile, the shared secret is recorded and will be used to authenticate
-subsequent submissions.  This secret file should not be shared publicly or
+subsequent submissions.  The output should not be shared publicly or
 made group or world readable.
 
-Use the resulting fiels according to the instructions of your Metabase
+Use the resulting file according to the instructions of your Metabase
 client program. You may wish to copy it across computers if you would like
 to be identified consistently when submitting reports from different
 locations.
@@ -118,7 +119,7 @@ locations.
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2009 by David A. Golden
+Copyright (c) 2009-2010 by David A. Golden
 
 Licensed under the same terms as Perl itself (the "License").
 You may not use this file except in compliance with the License.
