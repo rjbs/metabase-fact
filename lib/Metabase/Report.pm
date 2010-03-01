@@ -124,7 +124,9 @@ sub content_as_bytes {
   Carp::confess("can't serialize an open report") unless $self->{__closed};
 
   my $content = [ map { $_->as_struct } @{ $self->content } ];
-  JSON->new->encode( $content );
+  my $encoded = eval { JSON->new->encode( $content ) };
+  Carp::confess $@ if $@;
+  return $encoded;
 }
 
 sub content_from_bytes { 
