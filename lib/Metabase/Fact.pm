@@ -113,7 +113,7 @@ sub _init_guts {
     $class->__validate_guid($args->{guid});
   }
   else {
-    $args->{guid} = _guid();
+    $args->{guid} = lc _guid();
   }
 
   # initialize the object
