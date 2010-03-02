@@ -32,6 +32,9 @@ sub create {
     resource  => "metabase:user:$guid",
   );
 
+  # we are our own creator
+  $profile->set_creator($profile->resource);
+
   # add facts
   $profile->add( 'Metabase::User::FullName' => $args->{full_name} );
   $profile->add( 'Metabase::User::EmailAddress' => $args->{email_address} );
@@ -43,15 +46,12 @@ sub create {
 # internals
 #--------------------------------------------------------------------------#
 
-# XXX: Maybe we also want validate_other crap or just validate.
-# -- rjbs, 2009-03-30
-sub validate_content {
-  my ($self) = @_;
-
-  my ($guid) = $self->resource =~ m{^metabase:user:(.+)$};
+sub validate_resource {
+  my ($self) = shift;
+  my $resource = $self->SUPER::validate_resource(@_);
+  my ($guid) = $resource->guid;
   Carp::confess "resource guid differs from fact guid" if $guid ne $self->guid;
-
-  $self->SUPER::validate_content;
+  return $resource;
 }
 
 sub report_spec { 

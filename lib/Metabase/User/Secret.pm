@@ -7,6 +7,13 @@ $VERSION = eval $VERSION; ## no critic
 
 use base 'Metabase::Fact::String';
 
+sub new {
+  my $class = shift;
+  my $self = $class->SUPER::new(@_);
+  $self->set_creator($self->resource) unless $self->creator;
+  return $self;
+}
+
 1;
 
 __END__

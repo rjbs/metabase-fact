@@ -130,18 +130,11 @@ sub _init_guts {
   $meta->{core}{type}           = $self->type;
   $meta->{core}{valid}          = _bool( defined $args->{valid} ? $args->{valid} : 1 );
 
-  # validate resource field
-  $meta->{core}{resource} = $class->validate_resource($args->{resource});
+  # validate creator via mutator if given
+  $self->set_creator($args->{creator}) if defined $args->{creator};
 
-  # validate creator (via mutator)
-  if ( defined $args->{creator} ) {
-    if ( eval { $args->{creator}->isa('Metabase::Resource') && 1 } ) {
-      $meta->{core}{creator} = $args->{creator};
-    }
-    else {
-      $self->set_creator($args->{creator});
-    }
-  }
+  # validate resource field
+  $meta->{core}{resource} = $self->validate_resource($args->{resource});
 
   return $self;
 }
