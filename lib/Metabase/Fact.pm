@@ -131,12 +131,7 @@ sub _init_guts {
   $meta->{core}{valid}          = _bool( defined $args->{valid} ? $args->{valid} : 1 );
 
   # validate resource field
-  if ( eval { $args->{resource}->isa('Metabase::Resource') && 1 } ) {
-    $meta->{core}{resource} = $args->{resource};
-  }
-  else {
-    $meta->{core}{resource} = $class->validate_resource($args->{resource});
-  }
+  $meta->{core}{resource} = $class->validate_resource($args->{resource});
 
   # validate creator (via mutator)
   if ( defined $args->{creator} ) {

@@ -78,7 +78,7 @@ sub add {
     );
   }
 
-  $fact->set_creator($self->creator) if $self->creator;
+  $fact->set_creator($self->creator->resource) if $self->creator;
 
   push @{$self->{content}}, $fact;
   return $self;

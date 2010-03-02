@@ -48,6 +48,10 @@ sub new {
   Carp::confess("no resource string provided")
     unless defined $resource && length $resource;
 
+  if ( ref $resource && eval {$resource->isa('Metabase::Resource')} ) {
+    $resource = $resource->resource;
+  }
+
   # construct object
   my $self = bless { 
     resource => $resource,
