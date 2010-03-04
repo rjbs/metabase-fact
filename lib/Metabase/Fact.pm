@@ -308,6 +308,7 @@ sub type {
 # XXX: Need it ->type for symmetry.  Make it private? -- dagolden, 2009-03-31
 sub class_from_type {
   my (undef, $type) = @_;
+  Carp::confess "can't get class from undef type" unless defined $type;
   $type =~ s/-/::/g;
   return $type;
 }
