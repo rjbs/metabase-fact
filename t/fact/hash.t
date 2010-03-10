@@ -7,13 +7,14 @@
 use strict;
 use warnings;
 
-use Test::More;
+use Data::GUID qw/guid_string/;
+use Test::More; 
 use Test::Exception;
 use JSON;
 
 use lib 't/lib';
 
-plan tests => 19;
+plan tests => 22;
 
 require_ok( 'FactSubclasses.pm' );
 
@@ -61,6 +62,7 @@ lives_ok{ $obj = FactFour->new( %$args ) }
     "new( <list> ) doesn't die";
 
 isa_ok( $obj, 'Metabase::Fact::Hash' );
+ok( $obj->guid, "object has a GUID" );
 is( $obj->type, "FactFour", "object type is correct" );
 is( $obj->{metadata}{core}{type}, "FactFour", "object type is set internally" );
 
@@ -123,4 +125,16 @@ is_deeply($have_struct, $want_struct, "set_valid(2) normalized to '1'");
 $obj = FactFour->new( %$args );
 my $obj2 = FactFour->from_struct( $obj->as_struct );
 is_deeply( $obj2, $obj, "roundtrip as->from struct" );
+
+#--------------------------------------------------------------------------#
+
+{
+  my $guid = uc guid_string;
+  $obj = FactFour->new( %$args, guid => $guid );
+  ok( $obj, "got object (set upper case guid manually)" );
+  is( $obj->guid, lc $guid, "object has correct lower-case guid" );
+}
+
+
+
 

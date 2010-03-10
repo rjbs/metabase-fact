@@ -1,5 +1,8 @@
 Revision history for Metabase-Fact
 
+
+  - fixed bug in guid creation and testing
+
 0.003 
   - heavily revised for CPAN Testers 2.0 effort
   - Added Metabase::Resouce classes and subclasses

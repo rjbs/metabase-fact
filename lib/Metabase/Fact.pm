@@ -50,7 +50,7 @@ sub __validate_guid {
   if ( $string !~ $guid_re ) {
     Carp::confess("'$string' is not formatted as a GUID string");
   }
-  return $string
+  return lc $string
 }
 
 sub validate_resource {
@@ -108,11 +108,8 @@ sub _init_guts {
   $class->upgrade_fact($args)
     if  $args->{schema_version} != $class->default_schema_version;
 
-  # validate guid if provided or else initialize it
-  if ( defined $args->{guid} ) {
-    $class->__validate_guid($args->{guid});
-  }
-  else {
+  # initialize guid if not provided
+  if ( ! defined $args->{guid} ) {
     $args->{guid} = lc _guid();
   }
 
@@ -122,10 +119,9 @@ sub _init_guts {
   $self->{content} = $args->{content};
   
   my $meta = $self->{metadata} = { core => {} };
-  $meta->{core}{guid}           = lc $args->{giud};
+  $meta->{core}{guid}           = $class->__validate_guid($args->{guid});
   $meta->{core}{creation_time}  = $args->{creation_time} || _zulu_datetime();
   $meta->{core}{update_time}    = $meta->{core}{creation_time};
-  $meta->{core}{guid}           = $args->{guid};
   $meta->{core}{schema_version} = $args->{schema_version};
   $meta->{core}{type}           = $self->type;
   $meta->{core}{valid}          = _bool( defined $args->{valid} ? $args->{valid} : 1 );
