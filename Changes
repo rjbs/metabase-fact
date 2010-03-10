@@ -1,6 +1,8 @@
 Revision history for Metabase-Fact
 
 
+0.003001
+
   - fixed bug in guid creation and testing
 
 0.003 
