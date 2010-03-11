@@ -43,8 +43,8 @@ my $test_args = {
   content => { },
 };
 
-throws_ok { $obj = FactFour->new( $test_args ) } qr/missing required keys.+?first/, 
-  'missing required dies';
+eval { $obj = FactFour->new( $test_args ) };
+like( $@, qr/missing required keys.+?first/, 'missing required dies');
 
 $test_args->{content}{first} = 1;
 
@@ -53,8 +53,8 @@ lives_ok{ $obj = FactFour->new( $test_args ) }
 
 $test_args->{content}{third} = 3;
 
-throws_ok { $obj = FactFour->new( $test_args ) } qr/invalid keys.+?third/, 
-  'invalid key dies';
+eval { $obj = FactFour->new( $test_args ) };
+like( $@, qr/invalid keys.+?third/, 'invalid key dies');
 
 isa_ok( $obj, 'Metabase::Fact::Hash' ); 
 

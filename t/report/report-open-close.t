@@ -90,8 +90,7 @@ lives_ok {
   $obj->add( 'FactTwo' => 'This is FactTwo' );
 } "lives: add( 'Class2' => 'foo' )";
 
-throws_ok {
-    $obj->close;
-} qr/content invalid/, "dies: close() with two facts";
+eval { $obj->close };
+like( $@, qr/content invalid/, "dies: close() with two facts") ;
 
 

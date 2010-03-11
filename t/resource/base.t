@@ -38,14 +38,13 @@ like( $err, qr/no resource string provided/, "new() without string throws error"
 # unimplemented
 for my $m ( qw/validate/ ) {
     my $obj = bless {} => 'Metabase::Resource';
-    throws_ok { $obj->$m } qr/$m not implemented by Metabase::Resource/,
-      "$m not implemented";
+    eval { $obj->$m };
+    like( $@, qr/$m not implemented by Metabase::Resource/, "$m not implemented");
 }
 
 # bad schema
-throws_ok { $obj = Metabase::Resource->new("noschema") }
-  qr/could not determine URI scheme from/,
-  "no schema found";
+eval { $obj = Metabase::Resource->new("noschema") };
+like( $@, qr/could not determine URI scheme from/, "no schema found" );
 
 #--------------------------------------------------------------------------#
 # new should create proper subtype object
