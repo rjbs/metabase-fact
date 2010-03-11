@@ -2,7 +2,7 @@ package Metabase::Fact::Hash;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = '0.003001';
+our $VERSION = '0.003002';
 $VERSION = eval $VERSION;
 
 use base 'Metabase::Fact';
