@@ -165,7 +165,7 @@ Takes a single resource string argument and constructs a new Resource object
 from a resource subtype determined by the URI scheme.  Throws an error if the
 required resource subclass is not available.
 
-=head2 content
+=head2 resource
 
 Returns the string used to initialize the resource object.
 
