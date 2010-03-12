@@ -5,6 +5,8 @@ Revision history for Metabase-Fact
   - Worked around testing bug on bleadperl involving Test::Exception
     and throws_ok
 
+  - Fixed docs for Metabase::Resource methods
+
 0.003001
 
   - fixed bug in guid creation and testing
