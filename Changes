@@ -1,6 +1,6 @@
 Revision history for Metabase-Fact
 
-0.005
+0.005 Sun Mar 14 19:20:05 EDT 2010
 
   - Remove Encode as a dependency and use utf8::encode/decode instead
     [suggested by Ricardo Signes]
