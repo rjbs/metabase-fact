@@ -7,7 +7,7 @@ $VERSION = eval $VERSION;
 
 use base 'Metabase::Fact';
 use Carp ();
-use Encode ();
+use utf8 (); # don't import since this source file is not in utf8
 
 # document that content must be characters, not bytes -- dagolden, 2009-03-28 
 
@@ -19,12 +19,15 @@ sub validate_content {
 
 sub content_as_bytes {
   my ($self) = @_;
-  return Encode::encode_utf8($self->content);
+  my $bytes = $self->content;
+  utf8::encode($bytes); # converts in-place
+  return $bytes;
 }
 
 sub content_from_bytes { 
   my ($class, $bytes) = @_;
-  return Encode::decode_utf8($bytes);
+  utf8::decode($bytes); # converts in-place
+  return $bytes;
 }
 
 1;
