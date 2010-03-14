@@ -8,7 +8,7 @@ use Data::GUID guid_string => { -as => '_guid' };
 use JSON ();
 use Carp ();
 
-our $VERSION = '0.003002';
+our $VERSION = '0.004';
 $VERSION = eval $VERSION;
 
 #--------------------------------------------------------------------------#

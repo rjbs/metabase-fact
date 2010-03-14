@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use Carp ();
 
-our $VERSION = '0.003002';
+our $VERSION = '0.004';
 $VERSION = eval $VERSION;
 
 use Metabase::Resource::metabase;
