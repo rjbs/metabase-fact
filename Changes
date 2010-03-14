@@ -1,5 +1,7 @@
 Revision history for Metabase-Fact
 
+  - Downgrade numerous changes
+
 0.003002 Thu Mar 11 18:47:54 EST 2010
 
   - Worked around testing bug on bleadperl involving Test::Exception
