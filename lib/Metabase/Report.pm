@@ -6,7 +6,7 @@ use Carp ();
 use JSON ();
 use base 'Metabase::Fact';
 
-our $VERSION = '0.005';
+our $VERSION = '0.006';
 $VERSION = eval $VERSION;
 
 #--------------------------------------------------------------------------#

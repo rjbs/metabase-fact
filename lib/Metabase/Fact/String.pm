@@ -2,7 +2,7 @@ package Metabase::Fact::String;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = '0.005';
+our $VERSION = '0.006';
 $VERSION = eval $VERSION;
 
 use base 'Metabase::Fact';

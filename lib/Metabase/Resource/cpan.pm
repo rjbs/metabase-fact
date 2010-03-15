@@ -5,7 +5,7 @@ use warnings;
 use Carp ();
 use CPAN::DistnameInfo ();
 
-our $VERSION = '0.005';
+our $VERSION = '0.006';
 $VERSION = eval $VERSION;
 
 use Metabase::Resource;
