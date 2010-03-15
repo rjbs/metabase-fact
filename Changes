@@ -1,5 +1,8 @@
 Revision history for Metabase-Fact
 
+  - Fix bug in Metabase::Resource::cpan::distfile that prevents
+    compatibility on Perl before 5.10
+
 0.005 Sun Mar 14 19:20:05 EDT 2010
 
   - Remove Encode as a dependency and use utf8::encode/decode instead
