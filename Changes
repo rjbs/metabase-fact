@@ -1,5 +1,7 @@
 Revision history for Metabase-Fact
 
+  - Remove dependency on Time::Piece
+
 0.006 Mon Mar 15 02:25:46 EDT 2010
 
   - Fix bug in Metabase::Resource::cpan::distfile that prevents

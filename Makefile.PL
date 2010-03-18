@@ -6,7 +6,6 @@ requires ('CPAN::DistnameInfo'           => 0       );
 requires ('Carp'                         => 0       );
 requires ('Data::GUID'                   => 0       );
 requires ('JSON'                         => 2       );
-requires ('Time::Piece'                  => 1       );
 build_requires('Cwd'                          => 0       );
 build_requires('File::Find'                   => 0       );
 build_requires('File::Spec'                   => 0       );

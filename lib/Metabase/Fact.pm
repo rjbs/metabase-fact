@@ -3,7 +3,6 @@ use 5.006;
 use strict;
 use warnings;
 use Metabase::Resource;
-use Time::Piece;
 use Data::GUID guid_string => { -as => '_guid' };
 use JSON ();
 use Carp ();
@@ -85,7 +84,11 @@ sub new {
   return $self;
 }
 
-sub _zulu_datetime { return gmtime->datetime() . "Z" }
+sub _zulu_datetime { 
+  my ($y,$mo,$d,$h,$mi,$s) = (gmtime)[reverse 0 .. 5];
+  return sprintf("%4d-%02d-%02dT%02d:%02d:%02dZ",1900+$y,1+$mo,$d,$h,$mi,$s);
+}
+
 sub _bool { return $_[0] ? 1 : 0 }
 
 # used for both new() and from_struct() -- in the former case
