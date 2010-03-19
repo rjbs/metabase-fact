@@ -1,5 +1,7 @@
 Revision history for Metabase-Fact
 
+0.007 Fri Mar 19 07:51:07 EDT 2010
+
   - Remove dependency on Time::Piece
 
 0.006 Mon Mar 15 02:25:46 EDT 2010
