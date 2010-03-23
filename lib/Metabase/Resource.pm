@@ -84,7 +84,12 @@ sub _cache  { return $_[0]->{_cache} }
 
 sub _types  { return $_[0]->{_types} }
 
-sub resource { return $_[0]->{resource} }
+# Don't cause segfault with perl-5.6.1 by
+# overloading undef stuff...
+sub resource {
+  return '' unless defined $_[0]->{resource};
+  return "$_[0]->{resource}";
+}
 
 sub metadata {
   my ($self) = @_;
