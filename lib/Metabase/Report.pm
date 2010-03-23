@@ -1,9 +1,12 @@
-package Metabase::Report;
 use 5.006;
 use strict;
 use warnings;
+package Metabase::Report;
+# ABSTRACT: a base class for collections of Metabase facts
+
 use Carp ();
 use JSON ();
+
 use base 'Metabase::Fact';
 
 #--------------------------------------------------------------------------#
@@ -208,10 +211,6 @@ sub load_fact_classes {
 1;
 
 __END__
-
-=head1 NAME
-
-Metabase::Report - a base class for collections of Metabase facts
 
 =head1 SYNOPSIS
 

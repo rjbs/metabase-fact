@@ -1,11 +1,13 @@
-package Metabase::Fact::String;
 use 5.006;
 use strict;
 use warnings;
+package Metabase::Fact::String;
+# ABSTRACT: fact subtype for simple strings
 
-use base 'Metabase::Fact';
 use Carp ();
 use utf8 (); # don't import since this source file is not in utf8
+
+use base 'Metabase::Fact';
 
 # document that content must be characters, not bytes -- dagolden, 2009-03-28 
 
@@ -31,10 +33,6 @@ sub content_from_bytes {
 1;
 
 __END__
-
-=head1 NAME
-
-Metabase::Fact::String - fact subtype for simple strings
 
 =head1 SYNOPSIS
 

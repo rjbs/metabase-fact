@@ -1,11 +1,12 @@
-package Metabase::Resource::metabase;
 use 5.006;
 use strict;
 use warnings;
+package Metabase::Resource::metabase;
+# ABSTRACT: class for Metabase resources
+
 use Carp ();
 
-use Metabase::Resource;
-our @ISA = qw(Metabase::Resource);
+use base 'Metabase::Resource';
 
 my $hex = '[0-9a-f]';
 my $guid_re = qr(\A$hex{8}-$hex{4}-$hex{4}-$hex{4}-$hex{12}\z)i;
@@ -38,10 +39,6 @@ sub _init {
 1;
 
 __END__
-
-=head1 NAME
-
-Metabase::Resource::metabase - class for Metabase resources
 
 =head1 SYNOPSIS
 

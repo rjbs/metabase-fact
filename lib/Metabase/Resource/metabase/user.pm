@@ -1,11 +1,12 @@
-package Metabase::Resource::metabase::user;
 use 5.006;
 use strict;
 use warnings;
+package Metabase::Resource::metabase::user;
+# ABSTRACT: class for Metabase user profiles
+
 use Carp ();
 
-use Metabase::Resource::metabase;
-our @ISA = qw(Metabase::Resource::metabase);
+use base 'Metabase::Resource::metabase';
 
 sub _init {
   my ($self) = @_;
@@ -27,9 +28,6 @@ sub validate {
 
 __END__
 
-=head1 NAME
-
-Metabase::Resource::metabase::user - class for Metabase user profiles
 
 =head1 SYNOPSIS
 

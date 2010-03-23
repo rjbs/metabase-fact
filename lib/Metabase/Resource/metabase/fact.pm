@@ -1,11 +1,12 @@
-package Metabase::Resource::metabase::fact;
 use 5.006;
 use strict;
 use warnings;
+package Metabase::Resource::metabase::fact;
+# ABSTRACT: class for Metabase facts
+
 use Carp ();
 
-use Metabase::Resource::metabase;
-our @ISA = qw(Metabase::Resource::metabase);
+use base 'Metabase::Resource::metabase';
 
 sub _init {
   my ($self) = @_;
@@ -26,10 +27,6 @@ sub validate {
 1;
 
 __END__
-
-=head1 NAME
-
-Metabase::Resource::metabase::fact - class for Metabase facts
 
 =head1 SYNOPSIS
 

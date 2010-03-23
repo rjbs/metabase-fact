@@ -1,17 +1,14 @@
-package Metabase::User::EmailAddress;
 use 5.006;
 use strict;
 use warnings;
+package Metabase::User::EmailAddress;
+# ABSTRACT: Metabase fact for user email address
 
 use base 'Metabase::Fact::String';
   
 1;
 
 __END__
-
-=head1 NAME
-
-Metabase::User::EmailAddress - Metabase fact for user email address
 
 =head1 SYNOPSIS
 

@@ -1,7 +1,9 @@
-package Metabase::Resource;
 use 5.006;
 use strict;
 use warnings;
+package Metabase::Resource;
+# ABSTRACT: factory class for Metabase resource descriptors
+
 use Carp ();
 
 #--------------------------------------------------------------------------#
@@ -110,10 +112,6 @@ sub validate {
 1;
 
 __END__
-
-=head1 NAME
-
-Metabase::Resource - factory class for Metabase resource descriptors
 
 =head1 SYNOPSIS
 

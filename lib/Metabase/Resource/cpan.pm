@@ -1,12 +1,13 @@
-package Metabase::Resource::cpan;
 use 5.006;
 use strict;
 use warnings;
+package Metabase::Resource::cpan;
+# ABSTRACT: class for Metabase resources
+
 use Carp ();
 use CPAN::DistnameInfo ();
 
-use Metabase::Resource;
-our @ISA = qw(Metabase::Resource);
+use base 'Metabase::Resource';
 
 sub _init {
   my ($self) = @_;
@@ -28,10 +29,6 @@ sub _init {
 1;
 
 __END__
-
-=head1 NAME
-
-Metabase::Resource::metabase - class for Metabase resources
 
 =head1 SYNOPSIS
 

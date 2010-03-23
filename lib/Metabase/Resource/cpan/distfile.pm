@@ -1,12 +1,13 @@
-package Metabase::Resource::cpan::distfile;
 use 5.006;
 use strict;
 use warnings;
+package Metabase::Resource::cpan::distfile;
+# ABSTRACT: class for Metabase resources
+
 use Carp ();
 use CPAN::DistnameInfo ();
 
-use Metabase::Resource;
-our @ISA = qw(Metabase::Resource::cpan);
+use base 'Metabase::Resource';
 
 my %metadata_types = (
   cpan_id       => '//str',
@@ -75,9 +76,6 @@ sub _validate_distfile {
 
 __END__
 
-=head1 NAME
-
-Metabase::Resource::metabase - class for Metabase resources
 
 =head1 SYNOPSIS
 

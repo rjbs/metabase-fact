@@ -1,12 +1,13 @@
-package Metabase::Fact::Hash;
 use 5.006;
 use strict;
 use warnings;
+package Metabase::Fact::Hash;
+# ABSTRACT: fact subtype for simple hashes
+
+use Carp ();
+use JSON ();
 
 use base 'Metabase::Fact';
-use JSON ();
-use Carp ();
-
 
 sub _dlength { defined( $_[0] ) && length( $_[0] ) }
 
@@ -41,10 +42,6 @@ sub content_from_bytes {
 1;
 
 __END__
-
-=head1 NAME
-
-Metabase::Fact::Hash - fact subtype for simple hashes
 
 =head1 SYNOPSIS
 

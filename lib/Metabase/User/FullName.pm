@@ -1,17 +1,14 @@
-package Metabase::User::FullName;
 use 5.006;
 use strict;
 use warnings;
+package Metabase::User::FullName;
+# ABSTRACT: Metabase fact for user full name
 
 use base 'Metabase::Fact::String';
   
 1;
 
 __END__
-
-=head1 NAME
-
-Metabase::User::FullName - Metabase fact for user full name
 
 =head1 SYNOPSIS
 

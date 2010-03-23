@@ -1,11 +1,13 @@
-package Metabase::Fact;
 use 5.006;
 use strict;
 use warnings;
-use Metabase::Resource;
+package Metabase::Fact;
+# ABSTRACT: base class for Metabase Facts
+
+use Carp ();
 use Data::GUID guid_string => { -as => '_guid' };
 use JSON ();
-use Carp ();
+use Metabase::Resource;
 
 #--------------------------------------------------------------------------#
 # main API methods -- shouldn't be overridden
@@ -368,9 +370,6 @@ sub validate_content {
 
 __END__
 
-=head1 NAME
-
-Metabase::Fact - base class for Metabase Facts
 
 =head1 SYNOPSIS
 

@@ -1,7 +1,8 @@
-package Metabase::User::Secret;
 use 5.006;
 use strict;
 use warnings;
+package Metabase::User::Secret;
+# ABSTRACT: Metabase fact for user shared authentication secret
 
 use base 'Metabase::Fact::String';
 
@@ -16,9 +17,6 @@ sub new {
 
 __END__
 
-=head1 NAME
-
-Metabase::User::Secret - Metabase fact for user shared authentication secret
 
 =head1 SYNOPSIS
 

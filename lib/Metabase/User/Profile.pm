@@ -1,9 +1,10 @@
-package Metabase::User::Profile;
 use 5.006;
 use strict;
 use warnings;
+package Metabase::User::Profile;
+# ABSTRACT: Metabase report class for user-related facts
 
-use Carp;
+use Carp ();
 use Data::GUID guid_string => { -as => '_guid' };
 
 use base 'Metabase::Report';
@@ -62,10 +63,6 @@ sub report_spec {
 1;
 
 __END__
-
-=head1 NAME
-
-Metabase::User::Profile - Metabase report class for user-related facts
 
 =head1 SYNOPSIS
 
