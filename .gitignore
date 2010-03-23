@@ -1,3 +1,4 @@
+/.build
 eg/*
 Makefile
 Makefile.old
