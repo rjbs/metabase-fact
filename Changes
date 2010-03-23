@@ -1,6 +1,6 @@
 Revision history for Metabase-Fact
 
-0.008
+{{$NEXT}}
 
   - Fixed failing tests on 5.6.1 due to problems in overloaded
     stringification of Metabase::Resource [Ricardo Signes, Apocalypse]
