@@ -4,9 +4,6 @@ use strict;
 use warnings;
 use Carp ();
 
-our $VERSION = '0.008';
-$VERSION = eval $VERSION;
-
 use Metabase::Resource::metabase;
 our @ISA = qw(Metabase::Resource::metabase);
 

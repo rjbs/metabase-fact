@@ -4,9 +4,6 @@ use strict;
 use warnings;
 use Carp ();
 
-our $VERSION = '0.008';
-$VERSION = eval $VERSION;
-
 #--------------------------------------------------------------------------#
 # main API methods -- shouldn't be overridden
 #--------------------------------------------------------------------------#

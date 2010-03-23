@@ -2,8 +2,6 @@ package Metabase::User::Profile;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = '0.008';
-$VERSION = eval $VERSION; ## no critic
 
 use Carp;
 use Data::GUID guid_string => { -as => '_guid' };
