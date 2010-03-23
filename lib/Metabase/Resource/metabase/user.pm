@@ -59,27 +59,5 @@ L<http://rt.cpan.org/Dist/Display.html?Queue=Metabase-Fact>
 When submitting a bug or request, please include a test-file or a patch to an
 existing test-file that illustrates the bug or desired feature.
 
-=head1 AUTHOR
-
-Primary Authors and other Contributors are listed below:
-
-  * David A. Golden (DAGOLDEN)
-  * Ricardo Signes  (RJBS)
-
-=head1 COPYRIGHT AND LICENSE
-
-  Copyright (c) 2010 by David A. Golden, Ricardo Signes and Contributors
-
-Licensed under the same terms as Perl itself (the "License").
-You may not use this file except in compliance with the License.
-A copy of the License was distributed with this file or you may obtain a
-copy of the License from http://dev.perl.org/licenses/
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
 =cut
 
