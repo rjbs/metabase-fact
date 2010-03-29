@@ -7,7 +7,7 @@ package main; # dzil needs this
 # ABSTRACT: create a metabase profile
 
 use Getopt::Long;
-use JSON;
+use JSON 2;
 use Metabase::User::Profile;
 use Metabase::User::Secret;
 use Pod::Usage;
@@ -62,7 +62,7 @@ my $secret = Metabase::User::Secret->new(
 # write output
 print "Writing profile to '$output'\n";
 open my $fh, ">", $output;
-print {$fh} JSON->new->pretty->encode([
+print {$fh} JSON->new->ascii->pretty->encode([
   $profile->as_struct,
   $secret->as_struct,
 ]);

@@ -9,7 +9,6 @@ use warnings;
 
 use Test::More;
 use Test::Exception;
-use JSON;
 
 use lib 't/lib';
 

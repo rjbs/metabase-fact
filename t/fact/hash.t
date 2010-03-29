@@ -10,7 +10,6 @@ use warnings;
 use Data::GUID qw/guid_string/;
 use Test::More; 
 use Test::Exception;
-use JSON;
 
 use lib 't/lib';
 

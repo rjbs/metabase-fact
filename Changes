@@ -2,6 +2,10 @@ Revision history for Metabase-Fact
 
 {{$NEXT}}
 
+  - Whoops. Fix serialization of JSON in bin/metabase-profile, too
+
+  - Add a wide character to profile test
+
 0.009     2010-03-29 07:49:11 EST5EDT
 
   - Fix serialization to ensure ASCII JSON

@@ -5,7 +5,6 @@ use Test::More;
 use Test::Exception;
 use File::Spec;
 use File::Temp;
-use JSON;
 use Cwd;
 
 #--------------------------------------------------------------------------#
@@ -42,7 +41,7 @@ my $profile;
 
 lives_ok {
   $profile = Metabase::User::Profile->create(
-    full_name => "John Doe",
+    full_name => "J\x{022f}hn Doe",
     email_address => 'jdoe@example.com',
   );
 } "create new profile";
