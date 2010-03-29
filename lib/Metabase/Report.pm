@@ -5,7 +5,7 @@ package Metabase::Report;
 # ABSTRACT: a base class for collections of Metabase facts
 
 use Carp ();
-use JSON ();
+use JSON 2 ();
 
 use base 'Metabase::Fact';
 
@@ -124,7 +124,7 @@ sub content_as_bytes {
   Carp::confess("can't serialize an open report") unless $self->{__closed};
 
   my $content = [ map { $_->as_struct } @{ $self->content } ];
-  my $encoded = eval { JSON->new->encode( $content ) };
+  my $encoded = eval { JSON->new->ascii->encode( $content ) };
   Carp::confess $@ if $@;
   return $encoded;
 }
@@ -133,7 +133,7 @@ sub content_from_bytes {
   my ($self, $string) = @_;
   $string = $$string if ref $string;
 
-  my $fact_structs = JSON->new->decode( $string );
+  my $fact_structs = JSON->new->ascii->decode( $string );
 
   my @facts;
   for my $struct (@$fact_structs) {

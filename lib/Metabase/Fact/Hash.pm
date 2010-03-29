@@ -5,7 +5,7 @@ package Metabase::Fact::Hash;
 # ABSTRACT: fact subtype for simple hashes
 
 use Carp ();
-use JSON ();
+use JSON 2 ();
 
 use base 'Metabase::Fact';
 
@@ -31,12 +31,12 @@ sub validate_content {
 
 sub content_as_bytes {
   my ($self) = @_;
-  return JSON->new->encode($self->content);
+  return JSON->new->ascii->encode($self->content);
 }
 
 sub content_from_bytes { 
   my ($class, $bytes) = @_;
-  return JSON->new->decode($bytes);
+  return JSON->new->ascii->decode($bytes);
 }
 
 1;

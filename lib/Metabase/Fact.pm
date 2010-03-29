@@ -6,7 +6,7 @@ package Metabase::Fact;
 
 use Carp ();
 use Data::GUID guid_string => { -as => '_guid' };
-use JSON ();
+use JSON 2 ();
 use Metabase::Resource;
 
 #--------------------------------------------------------------------------#
@@ -284,7 +284,7 @@ sub save {
   my $class = ref($self);
   open my $fh, ">", $filename
     or Carp::confess "Error saving $class to '$filename'\: $!";
-  print {$fh} JSON->new->encode( $self->as_struct );
+  print {$fh} JSON->new->ascii->encode( $self->as_struct );
   close $fh;
   return 1;
 }
@@ -329,7 +329,7 @@ sub load {
     or Carp::confess "Error loading fact from '$filename'\: $!";
   my $string = do { local $/; <$fh> };
   close $fh;
-  my $json = JSON->new->decode( $string );
+  my $json = JSON->new->ascii->decode( $string );
   my $class = $self->class_from_type($json->{metadata}{core}{type});
   eval "require $class; 1"
     or Carp::confess "Could not find $class to restore '$filename': $@";

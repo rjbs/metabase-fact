@@ -2,6 +2,8 @@ Revision history for Metabase-Fact
 
 {{$NEXT}}
 
+  - Fix serialization to ensure ASCII JSON
+
 0.008     2010-03-23 18:54:21 EST5EDT
 
   - Fixed failing tests on 5.6.1 due to problems in overloaded
