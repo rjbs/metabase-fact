@@ -2,6 +2,8 @@ Revision history for Metabase-Fact
 
 {{$NEXT}}
 
+  - Whoops.  Fix broken tests.
+
 0.010     2010-03-29 07:59:34 EST5EDT
 
   - Whoops. Fix serialization of JSON in bin/metabase-profile, too

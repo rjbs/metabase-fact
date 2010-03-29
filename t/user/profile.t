@@ -6,10 +6,13 @@ use Test::Exception;
 use File::Spec;
 use File::Temp;
 use Cwd;
+use JSON 2 ();
 
 #--------------------------------------------------------------------------#
 # fixtures
 #--------------------------------------------------------------------------#
+
+my $json = JSON->new->ascii;
 
 sub _compare {
   my ($report1, $report2) = @_;
@@ -79,7 +82,7 @@ qx/$^X $bin --name "JohnPublic" --email jp\@example.com --secret 3.14159/;
 ok( -r 'metabase_id.json', 'created default profile file with metabase-profile' );
 
 my $file_guts = do { local (@ARGV,$/) = 'metabase_id.json'; <> };
-my $facts = from_json($file_guts);
+my $facts = $json->decode($file_guts);
 my $profile_copy2 = Metabase::User::Profile->from_struct( $facts->[0] );
 ok( $profile_copy2, "Loaded profile from file" );
 my $secret_copy2 = Metabase::User::Secret->from_struct( $facts->[1] );

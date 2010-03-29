@@ -10,6 +10,7 @@ use warnings;
 use Data::GUID qw/guid_string/;
 use Test::More; 
 use Test::Exception;
+use JSON 2 ();
 
 use lib 't/lib';
 
@@ -20,6 +21,8 @@ require_ok( 'FactSubclasses.pm' );
 #--------------------------------------------------------------------------#
 # fixtures
 #--------------------------------------------------------------------------#    
+
+my $json = JSON->new->ascii;
 
 my ($obj, $err);
 
@@ -70,7 +73,7 @@ is_deeply( $obj->content_metadata, $meta, "object content_metadata() correct" );
 is_deeply( $obj->content, $struct, "object content correct" );
 
 my $want_struct = {
-  content  => to_json($struct),
+  content  => $json->encode($struct),
   metadata => {
     core    => {
       type           => 'FactFour'       ,
