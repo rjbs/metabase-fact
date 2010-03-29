@@ -2,6 +2,8 @@ Revision history for Metabase-Fact
 
 {{$NEXT}}
 
+0.009     2010-03-29 07:49:11 EST5EDT
+
   - Fix serialization to ensure ASCII JSON
 
 0.008     2010-03-23 18:54:21 EST5EDT
