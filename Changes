@@ -2,6 +2,9 @@ Revision history for Metabase-Fact
 
 {{$NEXT}}
 
+  - Added Metabase::Resource::perl (contributed
+    by H.Merijn Brand)
+
 0.011     2010-03-29 08:04:26 EST5EDT
 
   - Whoops.  Fix broken tests.
