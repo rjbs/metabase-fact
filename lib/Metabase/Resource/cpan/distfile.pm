@@ -88,11 +88,7 @@ __END__
 
 =head1 DESCRIPTION
 
-Generates resource metadata for resources of the scheme 'cpan'.
-
-The L<Metabase::Resource::cpan> class supports the followng sub-type(s).
-
-=head2 distfile
+Generates resource metadata for resources of the scheme 'cpan:///distfile'.
 
   my $resource = Metabase::Resource->new(
     'cpan:///distfile/RJBS/URI-cpan-1.000.tar.gz',
