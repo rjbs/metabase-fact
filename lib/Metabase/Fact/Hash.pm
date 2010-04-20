@@ -9,8 +9,6 @@ use JSON 2 ();
 
 use base 'Metabase::Fact';
 
-sub _dlength { defined( $_[0] ) && length( $_[0] ) }
-
 sub validate_content {
   my ($self) = @_;
   my $content = $self->content;
@@ -20,7 +18,7 @@ sub validate_content {
   my $get_req =$self->can('required_keys') || sub { () }; 
   my $get_opt =$self->can('optional_keys') || sub { () }; 
   # find missing
-  my @missing =  grep { ! _dlength( $content->{$_} ) } $get_req->();
+  my @missing =  grep { ! exists $content->{$_} } $get_req->();
   Carp::croak "missing required keys for $class\: @missing\n" if @missing;
   # check for invalid
   my %valid = map { $_ => 1 } ($get_req->(), $get_opt->());
@@ -87,11 +85,14 @@ data.  Metabase::Fact::Hash is a subclass of L<Metabase::Fact|Metabase::Fact>
 with most of the required Fact methods already implemented.  If you write your
 class as a subclass of Metabase::Fact::Hash, you can store simple hashes in it.
 
+You should implement C<required_keys> and/or C<optional_keys> as shown in the
+SYNOPSIS.  The superclass C<valiate_content> will ensure that required keys
+exist and that only required an optional keys exist.  You may wish to subclass
+C<validate_content> to validate the specific content of the hash given to the
+constructor.
+
 You may wish to implement a C<content_metadata> method to generate metadata
 about the hash contents.
-
-You should also implement a C<validate_content> method to validate the
-structure of the hash you're given.
 
 =head1 ATTRIBUTES
 

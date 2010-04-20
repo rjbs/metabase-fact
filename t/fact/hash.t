@@ -14,7 +14,7 @@ use JSON 2 ();
 
 use lib 't/lib';
 
-plan tests => 22;
+plan tests => 23;
 
 require_ok( 'FactSubclasses.pm' );
 
@@ -48,9 +48,14 @@ my $test_args = {
 eval { $obj = FactFour->new( $test_args ) };
 like( $@, qr/missing required keys.+?first/, 'missing required dies');
 
+$test_args->{content}{first} = undef;
+
+lives_ok{ $obj = FactFour->new( $test_args ) }
+    "undef required field is OK";
+
 $test_args->{content}{first} = 1;
 
-lives_ok{ $obj = FactFour->new( $test_args ) } 
+lives_ok{ $obj = FactFour->new( $test_args ) }
     "new( <hashref> ) doesn't die";
 
 $test_args->{content}{third} = 3;
