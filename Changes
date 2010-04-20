@@ -5,6 +5,9 @@ Revision history for Metabase-Fact
   - Weaken validation of keys in Metabase::Fact::Hash.  They must exist,
     but may be undefined or zero length (suggested by H.Merijn Brand)
 
+  - Added documentation of the full_url() method for
+    Metabase::Resource::perl::commit
+
 0.012     2010-04-11 13:41:15 America/New_York
 
   - Added Metabase::Resource::perl (contributed

@@ -29,6 +29,16 @@ sub _init {
   return $self;
 }
 
+=method full_url
+
+  my $url = $self->full_url($host);
+
+Returns an ordinary HTTP URL to the resource.  If C<$host> is not
+given, it defaults to the official master Perl repository at
+L<http://perl5.git.perl.org>.
+
+=cut
+
 sub full_url {
   my ($self, $host) = @_;
   $host ||= 'perl5.git.perl.org';
