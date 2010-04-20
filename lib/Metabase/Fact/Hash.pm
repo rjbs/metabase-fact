@@ -15,8 +15,8 @@ sub validate_content {
   my $class = ref $self;
   Carp::confess "content must be a hashref"
     unless ref $content eq 'HASH';
-  my $get_req =$self->can('required_keys') || sub { () }; 
-  my $get_opt =$self->can('optional_keys') || sub { () }; 
+  my $get_req =$self->can('required_keys') || sub { () };
+  my $get_opt =$self->can('optional_keys') || sub { () };
   # find missing
   my @missing =  grep { ! exists $content->{$_} } $get_req->();
   Carp::croak "missing required keys for $class\: @missing\n" if @missing;
@@ -32,7 +32,7 @@ sub content_as_bytes {
   return JSON->new->ascii->encode($self->content);
 }
 
-sub content_from_bytes { 
+sub content_from_bytes {
   my ($class, $bytes) = @_;
   return JSON->new->ascii->decode($bytes);
 }
@@ -119,8 +119,8 @@ L<Metabase::Fact|Metabase::Fact>.
 
 =head1 BUGS
 
-Please report any bugs or feature using the CPAN Request Tracker.  
-Bugs can be submitted through the web interface at 
+Please report any bugs or feature using the CPAN Request Tracker.
+Bugs can be submitted through the web interface at
 L<http://rt.cpan.org/Dist/Display.html?Queue=Metabase-Fact>
 
 When submitting a bug or request, please include a test file or a patch to an

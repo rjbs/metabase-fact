@@ -1,14 +1,14 @@
 # Copyright (c) 2008 by Ricardo Signes. All rights reserved.
 # Licensed under terms of Perl itself (the "License").
 # You may not use this file except in compliance with the License.
-# A copy of the License was distributed with this file or you may obtain a 
+# A copy of the License was distributed with this file or you may obtain a
 # copy of the License from http://dev.perl.org/licenses/
 
 use strict;
 use warnings;
 
 use Data::GUID qw/guid_string/;
-use Test::More; 
+use Test::More;
 use Test::Exception;
 use JSON 2 ();
 
@@ -20,7 +20,7 @@ require_ok( 'FactSubclasses.pm' );
 
 #--------------------------------------------------------------------------#
 # fixtures
-#--------------------------------------------------------------------------#    
+#--------------------------------------------------------------------------#
 
 my $json = JSON->new->ascii;
 
@@ -63,9 +63,9 @@ $test_args->{content}{third} = 3;
 eval { $obj = FactFour->new( $test_args ) };
 like( $@, qr/invalid keys.+?third/, 'invalid key dies');
 
-isa_ok( $obj, 'Metabase::Fact::Hash' ); 
+isa_ok( $obj, 'Metabase::Fact::Hash' );
 
-lives_ok{ $obj = FactFour->new( %$args ) } 
+lives_ok{ $obj = FactFour->new( %$args ) }
     "new( <list> ) doesn't die";
 
 isa_ok( $obj, 'Metabase::Fact::Hash' );
@@ -100,32 +100,32 @@ my $creation_time = delete $have_struct->{metadata}{core}{creation_time};
 like( $creation_time, qr/\A\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\dZ\z/,
   'creation_time is ISO 8601 Zulu',
 );
-delete $have_struct->{metadata}{core}{update_time}; 
+delete $have_struct->{metadata}{core}{update_time};
 
-is_deeply($have_struct, $want_struct, "object as_struct correct"); 
+is_deeply($have_struct, $want_struct, "object as_struct correct");
 
 my $creator_uri = 'metabase:user:351e99ea-1d21-11de-ab9c-3268421c7a0a';
 $obj->set_creator($creator_uri);
 $want_struct->{metadata}{core}{creator} = Metabase::Resource->new($creator_uri);
 
 $have_struct = $obj->as_struct;
-delete $have_struct->{metadata}{core}{update_time}; 
-delete $have_struct->{metadata}{core}{creation_time}; 
-is_deeply($have_struct, $want_struct, "object as_struct correct w/creator"); 
+delete $have_struct->{metadata}{core}{update_time};
+delete $have_struct->{metadata}{core}{creation_time};
+is_deeply($have_struct, $want_struct, "object as_struct correct w/creator");
 
 $obj->set_valid(0);
 $want_struct->{metadata}{core}{valid} = 0;
 $have_struct = $obj->as_struct;
-delete $have_struct->{metadata}{core}{update_time}; 
-delete $have_struct->{metadata}{core}{creation_time}; 
-is_deeply($have_struct, $want_struct, "set_valid(0)"); 
+delete $have_struct->{metadata}{core}{update_time};
+delete $have_struct->{metadata}{core}{creation_time};
+is_deeply($have_struct, $want_struct, "set_valid(0)");
 
 $obj->set_valid(2);
 $want_struct->{metadata}{core}{valid} = 1;
 $have_struct = $obj->as_struct;
-delete $have_struct->{metadata}{core}{update_time}; 
-delete $have_struct->{metadata}{core}{creation_time}; 
-is_deeply($have_struct, $want_struct, "set_valid(2) normalized to '1'"); 
+delete $have_struct->{metadata}{core}{update_time};
+delete $have_struct->{metadata}{core}{creation_time};
+is_deeply($have_struct, $want_struct, "set_valid(2) normalized to '1'");
 
 #--------------------------------------------------------------------------#
 
