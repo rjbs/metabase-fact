@@ -2,6 +2,9 @@ Revision history for Metabase-Fact
 
 {{$NEXT}}
 
+  - Weaken validation of keys in Metabase::Fact::Hash.  They must exist,
+    but may be undefined or zero length (suggested by H.Merijn Brand)
+
 0.012     2010-04-11 13:41:15 America/New_York
 
   - Added Metabase::Resource::perl (contributed
@@ -60,11 +63,11 @@ Revision history for Metabase-Fact
 
   - fixed bug in guid creation and testing
 
-0.003 
+0.003
   - heavily revised for CPAN Testers 2.0 effort
   - Added Metabase::Resouce classes and subclasses
   - Revised Metabase::User::Profile and Secret
-    
+
 0.002 (never released)
   - private development version, never released to CPAN
 
