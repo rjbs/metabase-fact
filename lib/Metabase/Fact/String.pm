@@ -5,7 +5,6 @@ package Metabase::Fact::String;
 # ABSTRACT: fact subtype for simple strings
 
 use Carp ();
-use utf8 (); # don't import since this source file is not in utf8
 
 use base 'Metabase::Fact';
 
@@ -20,13 +19,13 @@ sub validate_content {
 sub content_as_bytes {
   my ($self) = @_;
   my $bytes = $self->content;
-  utf8::encode($bytes); # converts in-place
+  utf8::encode($bytes) if $] ge '5.008'; # converts in-place
   return $bytes;
 }
 
 sub content_from_bytes { 
   my ($class, $bytes) = @_;
-  utf8::decode($bytes); # converts in-place
+  utf8::decode($bytes) if $] ge '5.008'; # converts in-place
   return $bytes;
 }
 
