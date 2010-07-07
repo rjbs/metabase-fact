@@ -20,8 +20,8 @@ require_ok( 'Test::Metabase::StringFact' );
 # fixtures
 #--------------------------------------------------------------------------#    
 
-require t::lib::ReportSubclasses;
-require t::lib::FactSubclasses;
+require ReportSubclasses;
+require FactSubclasses;
 
 my %params = (
     resource => "cpan:///distfile/JOHNDOE/Foo-Bar-1.23.tar.gz",

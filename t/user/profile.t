@@ -4,7 +4,7 @@ use warnings;
 use Test::More;
 use Test::Exception;
 use File::Spec;
-use File::Temp;
+use File::Temp 0.20;
 use Cwd;
 use JSON 2 ();
 
